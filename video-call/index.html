@@ -425,12 +425,12 @@ function doLogin(e,role){
     document.getElementById('userBadgeText').textContent=role==='teacher'?'Teacher':'Student';
     document.getElementById('localRoleLabel').textContent=role==='teacher'?'Teacher':'Student';
     var rc=document.getElementById('loginRoomInput').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
-    if(rc){roomCode=rc;document.getElementById('displayRoomCode').textContent=rc;}
-    checkUrlRoom();
+    if(rc){roomCode=rc;}
+    checkUrlRoom(function(ok){if(ok||roomCode){scheduleJoinCall();}});
   }else{document.getElementById('loginError').textContent='Invalid credentials.';}
 }
 
-(function(){try{var saved=localStorage.getItem('wte_video_user');if(saved){var u=JSON.parse(saved);if(u.username&&u.role){currentUser=u.username;currentRole=u.role;document.getElementById('loginScreen').classList.add('hidden');document.getElementById('callLayout').classList.remove('hidden');document.getElementById('callLayout').style.display='flex';var badge=document.getElementById('userBadge');badge.className='user-badge '+u.role;document.getElementById('userBadgeText').textContent=u.role==='teacher'?'Teacher':'Student';document.getElementById('localRoleLabel').textContent=u.role==='teacher'?'Teacher':'Student';}}}catch(e){}})();
+(function(){try{var saved=localStorage.getItem('wte_video_user');if(saved){var u=JSON.parse(saved);if(u.username&&u.role){currentUser=u.username;currentRole=u.role;document.getElementById('loginScreen').classList.add('hidden');document.getElementById('callLayout').classList.remove('hidden');document.getElementById('callLayout').style.display='flex';var badge=document.getElementById('userBadge');badge.className='user-badge '+u.role;document.getElementById('userBadgeText').textContent=u.role==='teacher'?'Teacher':'Student';document.getElementById('localRoleLabel').textContent=u.role==='teacher'?'Teacher':'Student';checkUrlRoom(function(ok){if(ok||roomCode){scheduleJoinCall();}});}}catch(e){}})();
 
 // ═══ DEVICES ═══
 var audioDevices=[],videoDevices=[],speakerDevices=[];
@@ -620,20 +620,93 @@ function callToggleCam(){camOn=!camOn;if(localStream)localStream.getVideoTracks(
 function callToggleMic(){micOn=!micOn;if(localStream)localStream.getAudioTracks().forEach(function(t){t.enabled=micOn;});document.getElementById('callMicBtn').classList.toggle('active',micOn);}
 
 function startCall(){
-  addSystemMessage('Connecting...');var rpid='wte-'+roomCode;
-  peer=new Peer(rpid,{debug:2,config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]}});
-  peer.on('open',function(){addSystemMessage('Connected as host \u2014 waiting for peer...');isHost=true;});
-  peer.on('call',function(call){addSystemMessage('Incoming call...');peerCall=call;call.answer(localStream);call.on('stream',function(rs){handleRemoteStream(rs);});call.on('close',function(){addSystemMessage('Peer disconnected');resetRemoteVideo();});});
-  peer.on('connection',function(conn){addSystemMessage('Data channel connected');peerDataConn=conn;conn.on('data',function(d){handleData(d);});conn.on('close',function(){peerDataConn=null;});});
-  peer.on('error',function(err){if(err.type==='unavailable-id')connectAsSecondPeer();else addSystemMessage('Error: '+err.type);});
+  if(peer){return;}
+  addSystemMessage('Connecting to room: '+roomCode);var rpid='wte-'+roomCode;
+  isHost=true;
+  peer=new Peer(rpid,{debug:1,config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'},{urls:'stun:stun2.l.google.com:19302'}]}});
+  peer.on('open',function(id){
+    addSystemMessage('Connected as host (ID: '+id+') — waiting for peer...');
+    isHost=true;
+    var fallbackTimer=setTimeout(function(){
+      if(!peerConnected&&isHost){
+        addSystemMessage('No peer joined yet. You can share the invite link.');
+      }
+    },8000);
+    peer.__fallbackTimer=fallbackTimer;
+  });
+  peer.on('call',function(call){
+    addSystemMessage('Incoming call from peer...');peerCall=call;
+    call.answer(localStream);
+    call.on('stream',function(rs){handleRemoteStream(rs);});
+    call.on('close',function(){addSystemMessage('Peer disconnected');resetRemoteVideo();});
+    call.on('error',function(err){addSystemMessage('Call error: '+err.type);});
+  });
+  peer.on('connection',function(conn){
+    addSystemMessage('Data channel connected');peerDataConn=conn;
+    conn.on('data',function(d){handleData(d);});
+    conn.on('close',function(){peerDataConn=null;});
+  });
+  peer.on('error',function(err){
+    if(err.type==='unavailable-id'){
+      clearTimeout(peer.__fallbackTimer);
+      addSystemMessage('Room already has a host — connecting as peer...');
+      isHost=false;peer.destroy();peer=null;
+      setTimeout(function(){connectAsSecondPeer();},300);
+    }else if(err.type==='peer-unavailable'){
+      addSystemMessage('Peer not found. Retrying...');
+      setTimeout(function(){if(!peerConnected&&!isHost){cleanupPeer();connectAsSecondPeer();}},2000);
+    }else if(err.type==='network'||err.type==='server-error'||err.type==='socket-error'){
+      addSystemMessage('Network error — retrying in 3s...');
+      setTimeout(function(){if(!peerConnected){cleanupPeer();if(isHost)startCall();else connectAsSecondPeer();}},3000);
+    }else{
+      addSystemMessage('Peer error: '+err.type);
+      if(err.type==='unavailable-id'){
+        clearTimeout(peer.__fallbackTimer);isHost=false;peer.destroy();peer=null;
+        setTimeout(function(){connectAsSecondPeer();},300);
+      }
+    }
+  });
 }
 
 function connectAsSecondPeer(){
-  isHost=false;addSystemMessage('Room found \u2014 connecting...');
-  var myPid='wte-'+roomCode+'-'+Math.random().toString(36).substring(2,8);
-  var myPeer=new Peer(myPid,{debug:2});
-  myPeer.on('open',function(){var call=myPeer.call('wte-'+roomCode,localStream);call.on('stream',function(rs){handleRemoteStream(rs);});call.on('close',function(){addSystemMessage('Peer disconnected');resetRemoteVideo();});peerCall=call;var conn=myPeer.connect('wte-'+roomCode,{reliable:true});conn.on('open',function(){addSystemMessage('Data channel connected');peerDataConn=conn;conn.on('data',function(d){handleData(d);});conn.on('close',function(){peerDataConn=null;});});});
-  myPeer.on('error',function(err){addSystemMessage('Error: '+err.type);});
+  if(peer){return;}
+  isHost=false;
+  addSystemMessage('Connecting as peer to room: '+roomCode+'...');
+  var myPid='wte-'+roomCode+'-p'+Math.random().toString(36).substring(2,8);
+  peer=new Peer(myPid,{debug:1,config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'},{urls:'stun:stun2.l.google.com:19302'}]}});
+  peer.on('open',function(){
+    addSystemMessage('Connected to broker — calling host...');
+    var call=peer.call('wte-'+roomCode,localStream);
+    call.on('stream',function(rs){handleRemoteStream(rs);});
+    call.on('close',function(){addSystemMessage('Peer disconnected');resetRemoteVideo();});
+    call.on('error',function(err){addSystemMessage('Call error: '+err.type);});
+    peerCall=call;
+    var conn=peer.connect('wte-'+roomCode,{reliable:true});
+    conn.on('open',function(){
+      addSystemMessage('Data channel connected to host');
+      peerDataConn=conn;
+      conn.on('data',function(d){handleData(d);});
+      conn.on('close',function(){peerDataConn=null;});
+    });
+    conn.on('error',function(err){addSystemMessage('Data channel error: '+err.type);});
+  });
+  peer.on('error',function(err){
+    if(err.type==='peer-unavailable'){
+      addSystemMessage('Host not found yet — retrying in 2s...');
+      setTimeout(function(){if(!peerConnected){cleanupPeer();connectAsSecondPeer();}},2000);
+    }else if(err.type==='network'||err.type==='server-error'||err.type==='socket-error'){
+      addSystemMessage('Network error — retrying in 3s...');
+      setTimeout(function(){if(!peerConnected){cleanupPeer();connectAsSecondPeer();}},3000);
+    }else{
+      addSystemMessage('Peer error: '+err.type);
+    }
+  });
+}
+
+function cleanupPeer(){
+  if(peerCall){try{peerCall.close();}catch(e){}peerCall=null;}
+  if(peer){try{peer.destroy();}catch(e){}peer=null;}
+  peerDataConn=null;
 }
 
 function handleData(d){
@@ -659,13 +732,26 @@ function addSystemMessage(msg){var div=document.createElement('div');div.classNa
 
 function copyInvite(){var o=window.location.origin;var p=window.location.pathname;var bp=p.split('?')[0];if(!bp.endsWith('/'))bp=bp.substring(0,bp.lastIndexOf('/')+1);navigator.clipboard.writeText(o+bp+'?room='+roomCode);showToast('Invite link copied!');}
 
-function leaveCall(){if(peerCall)peerCall.close();if(peer)peer.destroy();if(localStream)localStream.getTracks().forEach(function(t){t.stop();});if(screenStream)screenStream.getTracks().forEach(function(t){t.stop();});peerConnected=false;isHost=false;peerCall=null;peer=null;peerDataConn=null;stopTimer();stopScreenShare();document.getElementById('remoteVideo').srcObject=null;document.getElementById('remoteVideo').style.display='none';document.getElementById('remotePlaceholder').style.display='flex';document.getElementById('remoteLabel').style.display='none';document.getElementById('remoteBox').classList.remove('connected');document.getElementById('chatMessages').innerHTML='';localStream=null;remoteStream=null;document.getElementById('callLayout').style.display='none';document.getElementById('callLayout').classList.add('hidden');document.getElementById('loginScreen').classList.remove('hidden');localStorage.removeItem('wte_video_user');}
-
-function checkUrlRoom(){
-  var room='';var params=new URLSearchParams(window.location.search);room=params.get('room');if(!room){var path=window.location.pathname.replace(/^\/+/,'');if(path&&path!=='index.html'&&path.length>=4)room=path.toUpperCase();}
-  if(room){room=room.toUpperCase().replace(/[^A-Z0-9]/g,'');if(!roomCode){roomCode=room;document.getElementById('displayRoomCode').textContent=room;}if(currentUser){document.getElementById('displayRoomCode').textContent=roomCode;var cm=setInterval(function(){if(localStream){clearInterval(cm);joinCallAuto();}},500);setTimeout(function(){clearInterval(cm);},10000);}}
+function copyInvite(){
+  var o=window.location.origin;var p=window.location.pathname;var bp=p.split('?')[0];if(!bp.endsWith('/'))bp=bp.substring(0,bp.lastIndexOf('/')+1);
+  var link=o+bp+'?room='+roomCode;
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(link).catch(function(){});}
+  showToast('Invite link copied! Peer opens this link to join you.');
 }
-function joinCallAuto(){document.getElementById('displayRoomCode').textContent=roomCode;document.getElementById('localVideo').srcObject=localStream;startCall();}
+
+function leaveCall(){cleanupPeer();if(localStream)localStream.getTracks().forEach(function(t){t.stop();});if(screenStream)screenStream.getTracks().forEach(function(t){t.stop();});peerConnected=false;isHost=false;peerCall=null;peer=null;peerDataConn=null;stopTimer();stopScreenShare();document.getElementById('remoteVideo').srcObject=null;document.getElementById('remoteVideo').style.display='none';document.getElementById('remotePlaceholder').style.display='flex';document.getElementById('remoteLabel').style.display='none';document.getElementById('remoteBox').classList.remove('connected');document.getElementById('chatMessages').innerHTML='';localStream=null;remoteStream=null;document.getElementById('callLayout').style.display='none';document.getElementById('callLayout').classList.add('hidden');document.getElementById('loginScreen').classList.remove('hidden');localStorage.removeItem('wte_video_user');}
+
+function checkUrlRoom(cb){
+  var room='';var params=new URLSearchParams(window.location.search);room=params.get('room');if(!room){var path=window.location.pathname.replace(/^\/+/,'');if(path&&path!=='index.html'&&path.length>=4)room=path.toUpperCase();}
+  if(room){room=room.toUpperCase().replace(/[^A-Z0-9]/g,'');if(!roomCode){roomCode=room;document.getElementById('displayRoomCode').textContent=room;}}
+  if(typeof cb==='function')cb(!!room);
+}
+function scheduleJoinCall(){
+  if(!roomCode)return;
+  document.getElementById('displayRoomCode').textContent=roomCode;
+  if(localStream){document.getElementById('localVideo').srcObject=localStream;startCall();}
+  else{var cm=setInterval(function(){if(localStream){clearInterval(cm);document.getElementById('localVideo').srcObject=localStream;startCall();}},500);setTimeout(function(){clearInterval(cm);if(!peer&&localStream){document.getElementById('localVideo').srcObject=localStream;startCall();}},15000);}
+ }
 </script>
 </body>
 </html></body>
