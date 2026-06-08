@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Speaking Practice Slideshows — William Thomason English</title>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Blogger+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#1c1c1c;
+  --bg-card:#232323;
+  --bg-hover:#2a2a2a;
+  --border:#333333;
+  --border-light:#444444;
+  --text:#e8e8e8;
+  --text-muted:#999999;
+  --text-dim:#555555;
+  --accent:#a3e635;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Blogger Sans','Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+
+/* ═══ KEN BURNS HERO ═══ */
+.hero{position:relative;height:420px;overflow:hidden;margin-bottom:48px}
+.hero-bg{position:absolute;inset:0;width:100%;height:100%}
+.hero-bg img{width:100%;height:100%;object-fit:cover;filter:brightness(.35) saturate(.7)}
+.hero-bg .img1{animation:b1 20s ease-in-out infinite alternate}
+.hero-bg .img2{animation:b2 25s ease-in-out infinite alternate;opacity:0;animation-delay:5s}
+.hero-bg .img3{animation:b3 22s ease-in-out infinite alternate;opacity:0;animation-delay:10s}
+@keyframes b1{0%{transform:scale(1) translate(0,0)}33%{transform:scale(1.08) translate(-2%,-1%)}66%{transform:scale(1.04) translate(1%,2%)}100%{transform:scale(1.1) translate(-1%,-2%)}}
+@keyframes b2{0%{opacity:0;transform:scale(1.05) translate(1%,1%)}25%{opacity:1;transform:scale(1) translate(0,0)}50%{opacity:0;transform:scale(1.08) translate(-2%,-1%)}100%{opacity:0}}
+@keyframes b3{0%{opacity:0;transform:scale(1.06) translate(-1%,2%)}50%{opacity:1;transform:scale(1) translate(0,0)}75%{opacity:0;transform:scale(1.07) translate(1%,-1%)}100%{opacity:0}}
+
+.hero-frame{position:absolute;inset:0;border:1px solid rgba(163,230,53,.15);pointer-events:none;z-index:2}
+.hero-frame::before{content:'';position:absolute;inset:8px;border:1px solid rgba(163,230,53,.08);pointer-events:none}
+.hero-frame .corner{position:absolute;width:24px;height:24px;border-color:var(--accent);border-style:solid;z-index:3;opacity:.5}
+.hero-frame .tl{top:12px;left:12px;border-width:2px 0 0 2px}
+.hero-frame .tr{top:12px;right:12px;border-width:2px 2px 0 0}
+.hero-frame .bl{bottom:12px;left:12px;border-width:0 0 2px 2px}
+.hero-frame .br{bottom:12px;right:12px;border-width:0 2px 2px 0}
+
+.hero-content{position:relative;z-index:4;display:flex;flex-direction:column;justify-content:center;align-items:center;height:100%;text-align:center;padding:40px}
+.hero h1{font-family:'Fira Code',monospace;font-size:2.8rem;font-weight:700;color:var(--accent);margin-bottom:12px;letter-spacing:-1px}
+.hero p{color:rgba(255,255,255,.7);font-size:1.1rem;max-width:520px;line-height:1.7}
+
+/* ═══ CONTAINER ═══ */
+.container{max-width:1000px;margin:0 auto;padding:0 24px 60px}
+
+/* ═══ LESSON GRID ═══ */
+.lesson-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;margin-bottom:48px}
+.lesson-card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:all .2s;text-decoration:none;color:var(--text);display:flex;flex-direction:column}
+.lesson-card:hover{border-color:var(--border-light);transform:translateY(-3px);text-decoration:none;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+.lesson-card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.card-top{padding:20px 20px 12px;display:flex;align-items:flex-start;gap:14px}
+.card-num{width:44px;height:44px;min-width:44px;border-radius:12px;background:var(--bg-hover);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Fira Code',monospace;font-size:16px;font-weight:700;color:var(--accent)}
+.lesson-card:hover .card-num{border-color:var(--accent);background:rgba(163,230,53,.08)}
+.card-info{flex:1;min-width:0}
+.card-cat{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-dim);margin-bottom:4px}
+.card-title{font-size:16px;font-weight:700;margin-bottom:3px;line-height:1.3}
+.card-meta{font-size:11px;color:var(--text-dim)}
+
+.card-desc{padding:0 20px 12px;font-size:13px;color:var(--text-muted);line-height:1.6;flex:1}
+
+.card-footer{padding:12px 20px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px;background:rgba(255,255,255,.01)}
+.badges{display:flex;gap:6px;flex-wrap:wrap}
+.badge{padding:3px 10px;border-radius:10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.badge-level{background:rgba(163,230,53,.08);color:var(--accent);border:1px solid rgba(163,230,53,.15)}
+.badge-qty{background:rgba(255,255,255,.04);color:var(--text-muted);border:1px solid var(--border)}
+.badge-new{background:rgba(163,230,53,.12);color:var(--accent);border:1px solid rgba(163,230,53,.2)}
+
+.card-arrow{color:var(--text-dim);font-size:18px;transition:transform .15s,color .15s}
+.lesson-card:hover .card-arrow{transform:translateX(3px);color:var(--accent)}
+
+/* ═══ FOOTER ═══ */
+.footer{border-top:1px solid var(--border);padding:32px 0;text-align:center}
+.footer p{font-size:12px;color:var(--text-dim)}
+.footer a{color:var(--text-muted);text-decoration:none}
+.footer a:hover{color:var(--accent)}
+
+@media(max-width:640px){
+  .hero{height:320px}
+  .hero h1{font-size:2rem}
+  .lesson-grid{grid-template-columns:1fr}
+  .card-num{width:38px;height:38px;min-width:38px;font-size:14px}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ KEN BURNS HERO ═══ -->
+<div class="hero">
+  <div class="hero-bg">
+    <img class="img1" src="https://images.unsplash.com/photo-1544717297-fa95b6ee9643?w=1400&q=80" alt="" loading="eager">
+    <img class="img2" src="https://images.unsplash.com/photo-1571266028243-e4733b0f0bb0?w=1400&q=80" alt="" loading="lazy">
+    <img class="img3" src="https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=1400&q=80" alt="" loading="lazy">
+  </div>
+  <div class="hero-frame">
+    <div class="corner tl"></div>
+    <div class="corner tr"></div>
+    <div class="corner bl"></div>
+    <div class="corner br"></div>
+  </div>
+  <div class="hero-content">
+    <h1>Speaking Practice Slideshows</h1>
+    <p>Interactive speaking practice covering real-world topics. Each lesson includes vocabulary, conversation goals, video comprehension, and practice questions.</p>
+  </div>
+</div>
+
+<div class="container">
+
+<div class="lesson-grid">
+
+  <a href="../Speaking/natural-world-speaking.html" class="lesson-card">
+    <div class="card-top">
+      <div class="card-num">1</div>
+      <div class="card-info">
+        <div class="card-cat">Nature &amp; Environment</div>
+        <div class="card-title">Natural World</div>
+        <div class="card-meta">A2–B1 · 20 questions</div>
+      </div>
+    </div>
+    <div class="card-desc">Explore nature, the environment, seasons, trees, birds, insects, and our relationship with the outdoors.</div>
+    <div class="card-footer">
+      <div class="badges"><span class="badge badge-level">A2–B1</span><span class="badge badge-qty">20Q</span></div>
+      <span class="card-arrow">→</span>
+    </div>
+  </a>
+
+  <a href="../Speaking/business-finance-speaking.html" class="lesson-card">
+    <div class="card-top">
+      <div class="card-num">2</div>
+      <div class="card-info">
+        <div class="card-cat">Business &amp; Finance</div>
+        <div class="card-title">Business &amp; Finance</div>
+        <div class="card-meta">A2–B1 · 18 questions</div>
+      </div>
+    </div>
+    <div class="card-desc">Banking, personal finance, investing, business, taxes, debts, and the euro. Ideal for banking professionals.</div>
+    <div class="card-footer">
+      <div class="badges"><span class="badge badge-level">A2–B1</span><span class="badge badge-qty">18Q</span></div>
+      <span class="card-arrow">→</span>
+    </div>
+  </a>
+
+  <a href="../Speaking/food-drink-speaking.html" class="lesson-card">
+    <div class="card-top">
+      <div class="card-num">3</div>
+      <div class="card-info">
+        <div class="card-cat">Food &amp; Drink</div>
+        <div class="card-title">Food &amp; Drink Culture</div>
+        <div class="card-meta">A2–B1 · 18 questions</div>
+      </div>
+    </div>
+    <div class="card-desc">Food preferences, cooking habits, coffee culture, restaurants, dining out, and drinking customs.</div>
+    <div class="card-footer">
+      <div class="badges"><span class="badge badge-level">A2–B1</span><span class="badge badge-qty">18Q</span></div>
+      <span class="card-arrow">→</span>
+    </div>
+  </a>
+
+  <a href="education-speaking.html" class="lesson-card">
+    <div class="card-top">
+      <div class="card-num">4</div>
+      <div class="card-info">
+        <div class="card-cat">Education &amp; Learning</div>
+        <div class="card-title">Education &amp; Learning</div>
+        <div class="card-meta">A2–B1 · 16 questions</div>
+      </div>
+    </div>
+    <div class="card-desc">School experiences, teaching methods, online learning, language learning strategies, and education systems.</div>
+    <div class="card-footer">
+      <div class="badges"><span class="badge badge-level">A2–B1</span><span class="badge badge-qty">16Q</span></div>
+      <span class="card-arrow">→</span>
+    </div>
+  </a>
+
+  <a href="../Speaking/lifestyle-speaking.html" class="lesson-card">
+    <div class="card-top">
+      <div class="card-num">5</div>
+      <div class="card-info">
+        <div class="card-cat">Lifestyle &amp; Society</div>
+        <div class="card-title">Lifestyle &amp; Society</div>
+        <div class="card-meta">A2–B1 · 20 questions</div>
+      </div>
+    </div>
+    <div class="card-desc">Daily routines, health habits, relationships, social media, cities vs countryside, and modern life.</div>
+    <div class="card-footer">
+      <div class="badges"><span class="badge badge-level">A2–B1</span><span class="badge badge-qty">20Q</span></div>
+      <span class="card-arrow">→</span>
+    </div>
+  </a>
+
+  <a href="../Speaking/travel-speaking.html" class="lesson-card">
+    <div class="card-top">
+      <div class="card-num">6</div>
+      <div class="card-info">
+        <div class="card-cat">Travel &amp; Places</div>
+        <div class="card-title">Travel &amp; Places</div>
+        <div class="card-meta">A2–B1 · 20 questions</div>
+      </div>
+    </div>
+    <div class="card-desc">Travel experiences, dream destinations, cultural differences, transportation, tourism, and migration.</div>
+    <div class="card-footer">
+      <div class="badges"><span class="badge badge-level">A2–B1</span><span class="badge badge-qty">20Q</span></div>
+      <span class="card-arrow">→</span>
+    </div>
+  </a>
+
+  <a href="../Speaking/conversation-questions.html" class="lesson-card">
+    <div class="card-top">
+      <div class="card-num">7</div>
+      <div class="card-info">
+        <div class="card-cat">General English</div>
+        <div class="card-title">Conversation Questions</div>
+        <div class="card-meta">A2–B2 · 30 questions</div>
+      </div>
+    </div>
+    <div class="card-desc">General discussion questions about yourself, work, opinions, hypothetical situations, and future plans.</div>
+    <div class="card-footer">
+      <div class="badges"><span class="badge badge-level">A2–B2</span><span class="badge badge-qty">30Q</span></div>
+      <span class="card-arrow">→</span>
+    </div>
+  </a>
+
+  <a href="degrees-of-likelihood.html" class="lesson-card">
+    <div class="card-top">
+      <div class="card-num">8</div>
+      <div class="card-info">
+        <div class="card-cat">Grammar</div>
+        <div class="card-title">Degrees of Likelihood</div>
+        <div class="card-meta">B1–B2 · 22 vocab</div>
+      </div>
+    </div>
+    <div class="card-desc">Visual guide to expressing certainty and doubt with examples.</div>
+    <div class="card-footer">
+      <div class="badges"><span class="badge badge-level">B1–B2</span><span class="badge badge-qty">22 vocab</span></div>
+      <span class="card-arrow">→</span>
+    </div>
+  </a>
+
+  <a href="../Speaking/business-english-debates.html" class="lesson-card">
+    <div class="card-top">
+      <div class="card-num">9</div>
+      <div class="card-info">
+        <div class="card-cat">Business Debates</div>
+        <div class="card-title">Business Debates</div>
+        <div class="card-meta">B2–C2 · 36 questions</div>
+      </div>
+    </div>
+    <div class="card-desc">36 debate questions with vocabulary, for-and-against angles, and follow-up questions.</div>
+    <div class="card-footer">
+      <div class="badges"><span class="badge badge-level">B2–C2</span><span class="badge badge-qty">36Q</span><span class="badge badge-new">Popular</span></div>
+      <span class="card-arrow">→</span>
+    </div>
+  </a>
+
+  <a href="speaking-assessment.html" class="lesson-card">
+    <div class="card-top">
+      <div class="card-num">10</div>
+      <div class="card-info">
+        <div class="card-cat">Assessment</div>
+        <div class="card-title">Speaking Assessment</div>
+        <div class="card-meta">A2–B2 · 44 questions</div>
+      </div>
+    </div>
+    <div class="card-desc">44 questions across 11 topics for the 20-minute speaking assessment.</div>
+    <div class="card-footer">
+      <div class="badges"><span class="badge badge-level">A2–B2</span><span class="badge badge-qty">44Q</span></div>
+      <span class="card-arrow">→</span>
+    </div>
+  </a>
+
+  <a href="ielts-speaking-band-criteria.html" class="lesson-card">
+    <div class="card-top">
+      <div class="card-num">11</div>
+      <div class="card-info">
+        <div class="card-cat">IELTS Preparation</div>
+        <div class="card-title">IELTS Speaking Band Criteria</div>
+        <div class="card-meta">B1–C1 · 29 slides</div>
+      </div>
+    </div>
+    <div class="card-desc">Simple English explanations of all 4 scoring criteria with grammar examples and practice questions.</div>
+    <div class="card-footer">
+      <div class="badges"><span class="badge badge-level">B1–C1</span><span class="badge badge-qty">29 slides</span></div>
+      <span class="card-arrow">→</span>
+    </div>
+  </a>
+
+  <a href="ielts-writing-band-criteria.html" class="lesson-card">
+    <div class="card-top">
+      <div class="card-num">12</div>
+      <div class="card-info">
+        <div class="card-cat">IELTS Writing</div>
+        <div class="card-title">IELTS Writing Band Criteria</div>
+        <div class="card-meta">B1–C1 · 28 slides</div>
+      </div>
+    </div>
+    <div class="card-desc">Task Achievement, Coherence, Vocabulary & Grammar explained with sample answers at every band level.</div>
+    <div class="card-footer">
+      <div class="badges"><span class="badge badge-level">B1–C1</span><span class="badge badge-qty">28 slides</span><span class="badge badge-new">New</span></div>
+      <span class="card-arrow">→</span>
+    </div>
+  </a>
+
+</div>
+
+<div class="footer">
+  <p>William Thomason English — Speaking Practice Resources</p>
+</div>
+
+</div>
+
+<script>
+document.addEventListener('wheel',function(e){
+  if(e.shiftKey){e.preventDefault();window.scrollBy(e.deltaY,0)}
+},{passive:false});
+</script>
+</body>
+</html>

@@ -62,7 +62,11 @@ body{font-family:'Blogger Sans','Inter',system-ui,sans-serif;background:var(--bg
 .slide h2{font-family:'Fira Code',monospace;font-size:1.8rem;font-weight:700;line-height:1.2;margin-bottom:20px}
 .slide-question{font-size:1.15rem;color:var(--text);line-height:1.7;margin-bottom:16px}
 .slide-paraphrase{font-size:.95rem;color:var(--text-muted);line-height:1.6;font-style:italic;padding-left:16px;border-left:2px solid var(--border)}
-.slide-visual{height:180px;background:var(--bg2);border:1px dashed var(--border);border-radius:10px;margin-bottom:20px;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:.8rem;font-style:italic}
+.slide-visual{height:220px;border-radius:10px;margin-bottom:20px;position:relative;overflow:hidden;background:var(--bg2)}
+.slide-visual img{width:100%;height:100%;object-fit:cover;display:block;animation:kenBurns 12s ease-in-out infinite alternate}
+@keyframes kenBurns{0%{transform:scale(1) translate(0,0)}50%{transform:scale(1.08) translate(-1%,-1%)}100%{transform:scale(1.04) translate(1%,1%)}}
+.slide-visual::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(28,28,28,.25) 0%,rgba(28,28,28,.65) 100%);pointer-events:none}
+.slide-visual .visual-label{position:absolute;bottom:10px;left:14px;z-index:2;font-family:'Fira Code',monospace;font-size:.6rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--accent);text-shadow:0 1px 4px rgba(0,0,0,.6)}
 
 .deck-nav{display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 20px;border-top:1px solid var(--border);flex-shrink:0}
 .deck-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text-muted);padding:8px 18px;border-radius:8px;cursor:pointer;font-family:'Fira Code',monospace;font-size:.65rem;font-weight:600;transition:all .15s}
@@ -231,6 +235,12 @@ function renderSlide(){
   document.getElementById('slideQuestion').textContent=q.original;
   document.getElementById('slideParaphrase').textContent=q.paraphrased||'';
   document.getElementById('deckProgressFill').style.width=((currentIndex+1)/questions.length*100)+'%';
+  
+  // Load background image for this topic
+  var visual=document.getElementById('slideVisual');
+  var slug=currentTopic.toLowerCase().replace(/[^a-z0-9]/g,'').replace(/\s+/g,'');
+  var imgPath='Sliding In Images/'+slug+'.jpg';
+  visual.innerHTML='<img src="'+imgPath+'" alt="" onerror="this.style.display=\'none\'"><span class="visual-label">'+currentTopic.replace(/ \(\d+ questions?\)$/,'')+'</span>';
 }
 
 document.addEventListener("keydown",function(e){
