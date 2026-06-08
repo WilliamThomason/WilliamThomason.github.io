@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>WTE Video Call — William Thomason English</title>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=Blogger+Sans:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#1c1c1c;--bg2:#161616;--bg3:#222222;--bg4:#232323;
+  --border:#333333;--border-light:#444444;
+  --text:#e8e8e8;--text-muted:#999999;--text-dim:#555555;
+  --accent:#a3e635;--accent-dim:rgba(163,230,53,.08);--accent-glow:rgba(163,230,53,.3);
+  --cta:#fcbe6a;--cta-text:#1c1c1c;
+  --green:#34d399;--amber:#fbbf24;--violet:#a78bfa;--rose:#fb7185;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{font-size:16px}
+body{font-family:'Blogger Sans','Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;position:relative}
+button{font-family:inherit}
+
+/* ═══ STARS BG ═══ */
+.stars{position:fixed;inset:0;pointer-events:none;z-index:0}
+.star{position:absolute;background:#fff;border-radius:50%;animation:twinkle var(--dur) ease-in-out infinite;opacity:var(--op)}
+@keyframes twinkle{0%,100%{opacity:var(--op)}50%{opacity:.1}}
+
+/* ═══ LOGIN SCREEN ═══ */
+.login-screen{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;align-items:center;justify-content:center}
+.login-screen.hidden{display:none}
+.login-box{width:420px;max-width:90vw;background:var(--bg4);border:1px solid var(--border);border-radius:16px;padding:32px;text-align:center}
+.login-box h1{font-family:'Fira Code',monospace;font-size:1.4rem;font-weight:700;margin-bottom:4px}
+.login-box h1 span{color:var(--accent)}
+.login-box .subtitle{font-size:13px;color:var(--text-muted);margin-bottom:24px}
+.login-tabs{display:flex;gap:8px;margin-bottom:20px}
+.login-tab{flex:1;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text-muted);font-size:11px;font-weight:600;cursor:pointer;font-family:'Fira Code',monospace;transition:all .15s}
+.login-tab.active{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+.login-form{display:none}
+.login-form.active{display:block}
+.login-field{width:100%;height:40px;padding:0 16px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:14px;outline:none;margin-bottom:12px;font-family:inherit}
+.login-field:focus{border-color:var(--accent)}
+.login-field::placeholder{color:var(--text-dim)}
+.login-btn{width:100%;height:44px;border-radius:10px;border:1px solid var(--accent);background:var(--accent);color:var(--bg);font-family:'Fira Code',monospace;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s}
+.login-btn:hover{filter:brightness(1.1);box-shadow:0 0 20px var(--accent-dim)}
+.login-error{color:var(--rose);font-size:12px;margin-top:8px;min-height:18px}
+.login-hint{font-size:10px;color:var(--text-dim);margin-top:16px;padding:10px;border-radius:8px;background:var(--bg3);text-align:left}
+.login-hint strong{color:var(--accent)}
+.login-cred{font-family:'Fira Code',monospace;font-size:11px;color:var(--text-muted);display:flex;justify-content:space-between;padding:4px 0}
+
+/* ═══ CALL LAYOUT ═══ */
+.call-layout{display:flex;flex-direction:column;height:100vh;position:relative;z-index:1}
+.call-layout.hidden{display:none}
+
+/* ═══ TOP BAR ═══ */
+.topbar{display:flex;align-items:center;gap:12px;padding:10px 20px;background:rgba(28,28,28,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);flex-shrink:0}
+.logo{font-family:'Fira Code',monospace;font-size:14px;font-weight:700;color:var(--accent);letter-spacing:1px;white-space:nowrap}
+.logo span{color:var(--text)}
+.user-badge{display:flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:6px;font-size:10px;font-weight:700;font-family:'Fira Code',monospace;letter-spacing:1px}
+.user-badge.teacher{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(163,230,53,.25)}
+.user-badge.student{background:rgba(167,139,250,.1);color:var(--violet);border:1px solid rgba(167,139,250,.25)}
+.user-badge .dot{width:6px;height:6px;border-radius:50%}
+.user-badge.teacher .dot{background:var(--accent)}
+.user-badge.student .dot{background:var(--violet)}
+.room-info{flex:1;text-align:center;font-size:12px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.room-info .room-code{color:var(--amber);font-weight:700;font-family:'Fira Code',monospace}
+.topbar-btn{height:32px;padding:0 12px;border-radius:6px;border:1px solid var(--border);background:var(--bg3);color:var(--text-muted);font-size:10px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;font-family:'Fira Code',monospace;display:flex;align-items:center;gap:6px}
+.topbar-btn:hover{border-color:var(--accent);color:var(--accent)}
+.topbar-btn.danger:hover{border-color:var(--rose);color:var(--rose)}
+.topbar-icon{width:14px;height:14px;flex-shrink:0}
+
+/* ═══ MAIN AREA ═══ */
+.main-area{flex:1;display:flex;overflow:hidden;position:relative}
+
+/* ═══ VIDEO PANEL ═══ */
+.video-panel{flex:1;display:flex;flex-direction:column;padding:16px;gap:12px;overflow:hidden;transition:margin-right .3s}
+.video-panel.widget-open{margin-right:360px}
+.video-grid{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:12px;min-height:0}
+.video-box{position:relative;background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.video-box video{width:100%;height:100%;object-fit:cover}
+.video-box.local video{transform:scaleX(-1)}
+.video-label{position:absolute;bottom:8px;left:8px;padding:4px 10px;border-radius:6px;background:rgba(28,28,28,.8);backdrop-filter:blur(4px);font-size:10px;font-weight:700;color:var(--text-muted);font-family:'Fira Code',monospace}
+.video-label .status-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px}
+.video-label .status-dot.active{background:var(--green);box-shadow:0 0 6px var(--green)}
+.video-label .status-dot.inactive{background:var(--text-dim)}
+.video-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--text-dim)}
+.video-placeholder .text{font-size:11px}
+.placeholder-icon{width:48px;height:48px;opacity:.3}
+.video-box.connecting{border-color:var(--amber)}
+.video-box.connected{border-color:var(--green);box-shadow:0 0 20px rgba(52,211,153,.1)}
+
+/* ═══ CONTROLS BAR ═══ */
+.controls-bar{display:flex;align-items:center;justify-content:center;gap:10px;padding:14px;background:var(--bg4);border:1px solid var(--border);border-radius:14px;flex-shrink:0;flex-wrap:wrap}
+.ctrl-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:10px 16px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--text-muted);cursor:pointer;transition:all .2s;min-width:60px}
+.ctrl-btn:hover{border-color:var(--accent);color:var(--accent);box-shadow:0 0 16px var(--accent-dim);transform:translateY(-1px)}
+.ctrl-btn.active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+.ctrl-btn.danger{border-color:var(--rose);color:var(--rose)}
+.ctrl-btn.danger:hover{background:rgba(251,113,133,.12);box-shadow:0 0 16px rgba(251,113,133,.25)}
+.ctrl-btn.large{padding:12px 20px;min-width:70px}
+.ctrl-icon{width:20px;height:20px;flex-shrink:0}
+.ctrl-label{font-family:'Fira Code',monospace;font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase}
+
+/* ═══ TIMER ═══ */
+.call-timer{font-family:'Fira Code',monospace;font-size:36px;font-weight:700;color:var(--text-dim);min-width:120px;text-align:center;letter-spacing:2px;line-height:1}
+.call-timer.active{color:var(--green)}
+.call-timer.warning{color:var(--amber);text-shadow:0 0 12px rgba(251,191,36,.4)}
+.call-timer.danger{color:var(--rose);text-shadow:0 0 20px rgba(251,113,133,.6);animation:timerThrob 1s ease-in-out infinite}
+@keyframes timerThrob{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(1.08)}}
+
+/* ═══ SIDEBAR (CHAT) ═══ */
+.sidebar{width:280px;flex-shrink:0;background:var(--bg4);border-left:1px solid var(--border);display:flex;flex-direction:column}
+.sidebar-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.sidebar-title{font-family:'Fira Code',monospace;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px}
+.sidebar-toggle{display:none;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px}
+.chat-messages{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
+.chat-msg{max-width:85%;padding:8px 12px;border-radius:10px;font-size:12px;line-height:1.5}
+.chat-msg.self{background:var(--accent-dim);border:1px solid rgba(163,230,53,.2);align-self:flex-end;color:var(--text)}
+.chat-msg.other{background:var(--bg3);border:1px solid var(--border);align-self:flex-start;color:var(--text-muted)}
+.chat-msg .sender{font-family:'Fira Code',monospace;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
+.chat-msg.self .sender{color:var(--accent)}
+.chat-msg.other .sender{color:var(--violet)}
+.chat-msg .time{font-size:9px;color:var(--text-dim);margin-top:4px;text-align:right}
+.chat-system{text-align:center;font-size:10px;color:var(--text-dim);padding:4px}
+.chat-input-area{padding:12px;border-top:1px solid var(--border);display:flex;gap:8px}
+.chat-input{flex:1;height:36px;padding:0 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px;outline:none;font-family:inherit}
+.chat-input:focus{border-color:var(--accent)}
+.chat-send{height:36px;padding:0 14px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--bg);font-size:11px;font-weight:700;cursor:pointer;font-family:'Fira Code',monospace;transition:all .15s}
+.chat-send:hover{filter:brightness(1.1);box-shadow:0 0 12px var(--accent-dim)}
+
+/* ═══ LANGUAGE WIDGET PANEL (inside video call) ═══ */
+.lw-panel{position:absolute;right:0;top:0;bottom:0;width:360px;background:var(--bg4);border-left:1px solid var(--border);z-index:20;transform:translateX(100%);transition:transform .3s;display:flex;flex-direction:column}
+.lw-panel.open{transform:translateX(0)}
+.lw-panel-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.lw-panel-header h3{font-family:'Fira Code',monospace;font-size:11px;font-weight:700;color:var(--accent);display:flex;align-items:center;gap:8px;margin:0}
+.lw-panel-close{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:16px;cursor:pointer;border:none;background:transparent;transition:all .15s}
+.lw-panel-close:hover{background:var(--bg3);color:var(--text)}
+.lw-panel-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0}
+.lw-panel-tab{flex:1;padding:10px 4px;font-size:10px;font-weight:600;color:var(--text-dim);text-align:center;cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:all .15s;font-family:'Fira Code',monospace}
+.lw-panel-tab:hover{color:var(--text-muted)}
+.lw-panel-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.lw-panel-content{flex:1;overflow-y:auto;padding:12px}
+.lw-panel-content::-webkit-scrollbar{width:4px}
+.lw-panel-content::-webkit-scrollbar-track{background:transparent}
+.lw-panel-content::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.lw-tab-content{display:none}
+.lw-tab-content.active{display:block}
+.lw-select-row{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.lw-select-row select{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-size:12px;cursor:pointer;font-family:inherit;appearance:none}
+.lw-select-row select:focus{outline:none;border-color:var(--accent)}
+.lw-swap-btn{width:30px;height:30px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--accent);font-size:14px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.lw-textarea{width:100%;min-height:70px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:13px;font-family:inherit;resize:vertical;line-height:1.5;box-sizing:border-box;margin-bottom:8px}
+.lw-textarea:focus{outline:none;border-color:var(--accent)}
+.lw-textarea::placeholder{color:var(--text-dim)}
+.lw-btn-primary{width:100%;padding:9px;background:var(--accent);color:var(--bg);border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:10px;font-family:'Fira Code',monospace;transition:all .2s}
+.lw-btn-primary:hover{filter:brightness(1.1)}
+.lw-result{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:8px}
+.lw-result-label{font-size:9px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-family:'Fira Code',monospace}
+.lw-result-text{font-size:13px;color:var(--text);line-height:1.5}
+.lw-action-row{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.lw-action-btn{padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
+.lw-action-btn:hover{border-color:var(--accent);color:var(--accent)}
+.lw-action-btn.saved{background:var(--accent-dim);color:var(--accent)}
+.lw-share-btn{margin-top:8px;padding:6px 12px;border-radius:6px;border:1px solid var(--violet);background:rgba(167,139,250,.1);color:var(--violet);font-size:10px;font-weight:600;cursor:pointer;font-family:'Fira Code',monospace;display:inline-flex;align-items:center;gap:4px;transition:all .15s}
+.lw-share-btn:hover{background:rgba(167,139,250,.2);box-shadow:0 0 12px rgba(167,139,250,.15)}
+.lw-share-btn.sent{background:rgba(52,211,153,.1);border-color:var(--green);color:var(--green)}
+.lw-empty{font-size:12px;color:var(--text-dim);text-align:center;padding:20px 0}
+.lw-vocab-item{display:flex;align-items:center;gap:8px;padding:8px;border-bottom:1px solid var(--border)}
+.lv-info{flex:1}
+.lv-source{font-size:13px;font-weight:600;color:var(--text)}
+.lv-target{font-size:11px;color:var(--text-muted)}
+.lv-delete{width:24px;height:24px;border-radius:4px;border:none;background:transparent;color:var(--text-dim);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center}
+.lv-delete:hover{color:var(--rose)}
+.lw-toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:8px 16px;border-radius:8px;background:var(--accent);color:var(--bg);font-size:11px;font-weight:700;font-family:'Fira Code',monospace;z-index:200;opacity:0;transition:opacity .3s}
+.lw-toast.show{opacity:1}
+
+/* ═══ WIDGET TOGGLE BUTTON ═══ */
+.widget-toggle-btn{position:absolute;right:0;top:50%;transform:translateY(-50%);z-index:25;background:var(--bg4);border:1px solid var(--border);border-right:none;color:var(--accent);padding:10px 6px;border-radius:8px 0 0 8px;cursor:pointer;font-size:14px;transition:all .2s;font-family:'Fira Code',monospace;font-weight:600;letter-spacing:1px;writing-mode:vertical-rl;text-orientation:mixed}
+.widget-toggle-btn:hover{padding:10px 12px;background:var(--accent-dim)}
+.widget-toggle-btn.open{right:360px;border-color:var(--accent);background:var(--accent-dim)}
+
+/* ═══ RESPONSIVE ═══ */
+.chat-toggle-btn{display:none}
+@media(max-width:900px){
+  .lw-panel{width:300px}
+  .video-panel.widget-open{margin-right:300px}
+  .widget-toggle-btn.open{right:300px}
+}
+@media(max-width:700px){
+  .sidebar{position:fixed;right:0;top:0;bottom:0;z-index:40;transform:translateX(100%);transition:transform .3s}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-toggle{display:block}
+  .chat-toggle-btn{display:flex}
+  .video-grid{grid-template-columns:1fr}
+  .video-box.local{position:absolute;bottom:80px;right:16px;width:120px;height:90px;z-index:10;border-radius:8px}
+  .lw-panel{width:100%}
+  .video-panel.widget-open{margin-right:0}
+  .widget-toggle-btn{display:none}
+  .widget-toggle-btn.open{display:flex;right:0}
+}
+@media(max-width:520px){
+  .controls-bar{gap:6px;padding:10px}
+  .ctrl-btn{padding:8px 12px;min-width:50px}
+  .call-timer{font-size:24px;min-width:80px}
+}
+</style>
+</head>
+<body>
+
+<!-- Stars -->
+<div class="stars" id="stars"></div>
+
+<!-- ═══ TOAST ═══ -->
+<div class="lw-toast" id="lwToast"></div>
+
+<!-- ═══ LOGIN SCREEN ═══ -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <h1>WTE <span>VIDEO</span></h1>
+    <p class="subtitle">William Thomason English — Video Classroom</p>
+
+    <div class="login-tabs">
+      <button class="login-tab active" id="tabTeacher" onclick="switchLoginTab('teacher')">Teacher</button>
+      <button class="login-tab" id="tabStudent" onclick="switchLoginTab('student')">Student</button>
+    </div>
+
+    <form class="login-form active" id="formTeacher" onsubmit="doLogin(event,'teacher')">
+      <input type="text" class="login-field" id="teacherUser" placeholder="Username" autocomplete="off">
+      <input type="password" class="login-field" id="teacherPass" placeholder="Password" autocomplete="off">
+      <button type="submit" class="login-btn">Enter as Teacher</button>
+    </form>
+
+    <form class="login-form" id="formStudent" onsubmit="doLogin(event,'student')">
+      <input type="text" class="login-field" id="studentUser" placeholder="Username" autocomplete="off">
+      <input type="password" class="login-field" id="studentPass" placeholder="Password" autocomplete="off">
+      <button type="submit" class="login-btn">Enter as Student</button>
+    </form>
+
+    <div class="login-error" id="loginError"></div>
+
+    <div class="login-hint">
+      <strong>Test credentials:</strong>
+      <div class="login-cred"><span>teacher / teach123</span><span>student / learn123</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CALL LAYOUT ═══ -->
+<div class="call-layout" id="callLayout">
+  <div class="topbar">
+    <div class="logo">WTE <span>VIDEO</span></div>
+    <div class="user-badge" id="userBadge">
+      <span class="dot"></span>
+      <span id="userBadgeText">Teacher</span>
+    </div>
+    <div class="room-info">
+      Room: <span class="room-code" id="displayRoomCode">---</span>
+    </div>
+    <button class="topbar-btn" onclick="copyInvite()">
+      <svg class="topbar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+      Invite
+    </button>
+    <button class="topbar-btn danger" onclick="leaveCall()">
+      <svg class="topbar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      Leave
+    </button>
+  </div>
+
+  <div class="main-area">
+    <div class="video-panel" id="videoPanel">
+      <div class="video-grid">
+        <div class="video-box local" id="localBox">
+          <video id="localVideo" autoplay muted playsinline></video>
+          <div class="video-label">
+            <span class="status-dot active"></span>
+            You (<span id="localRoleLabel">Teacher</span>)
+          </div>
+        </div>
+        <div class="video-box" id="remoteBox">
+          <div class="video-placeholder" id="remotePlaceholder">
+            <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <div class="text">Waiting for peer...</div>
+          </div>
+          <video id="remoteVideo" autoplay playsinline style="display:none"></video>
+          <div class="video-label" id="remoteLabel" style="display:none">
+            <span class="status-dot inactive" id="remoteStatusDot"></span>
+            <span id="remoteRoleLabel">Peer</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="controls-bar">
+        <button class="ctrl-btn active" id="callMicBtn" onclick="callToggleMic()" title="Toggle Microphone">
+          <svg class="ctrl-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          <span class="ctrl-label">MIC</span>
+        </button>
+        <button class="ctrl-btn active" id="callCamBtn" onclick="callToggleCam()" title="Toggle Camera">
+          <svg class="ctrl-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          <span class="ctrl-label">CAM</span>
+        </button>
+        <button class="ctrl-btn" id="screenShareBtn" onclick="toggleScreenShare()" title="Screen Share">
+          <svg class="ctrl-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          <span class="ctrl-label">SCREEN</span>
+        </button>
+        <button class="ctrl-btn chat-toggle-btn" id="chatToggleBtn" onclick="toggleSidebar()" title="Chat">
+          <svg class="ctrl-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span class="ctrl-label">CHAT</span>
+        </button>
+        <button class="ctrl-btn" id="widgetToggleCtrlBtn" onclick="toggleLwPanel()" title="Language Tools">
+          <svg class="ctrl-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          <span class="ctrl-label">LANG</span>
+        </button>
+        <div class="call-timer" id="callTimer">30:00</div>
+        <button class="ctrl-btn danger large" onclick="leaveCall()" title="Leave Call">
+          <svg class="ctrl-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.42 19.42 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91"/></svg>
+          <span class="ctrl-label">END</span>
+        </button>
+      </div>
+
+      <!-- ═══ LANGUAGE WIDGET PANEL ═══ -->
+      <button class="widget-toggle-btn" id="widgetToggleBtn" onclick="toggleLwPanel()" title="Language Tools">LT</button>
+      <div class="lw-panel" id="lwPanel">
+        <div class="lw-panel-header">
+          <h3>Language Tools</h3>
+          <button class="lw-panel-close" onclick="toggleLwPanel()">&#x2715;</button>
+        </div>
+        <div class="lw-panel-tabs">
+          <button class="lw-panel-tab" data-tab="translate" onclick="lwSwitchTab('translate')">Translate</button>
+          <button class="lw-panel-tab" data-tab="synonyms" onclick="lwSwitchTab('synonyms')">Synonyms</button>
+          <button class="lw-panel-tab" data-tab="conjugate" onclick="lwSwitchTab('conjugate')">Conjugate</button>
+          <button class="lw-panel-tab" data-tab="grammar" onclick="lwSwitchTab('grammar')">Grammar</button>
+          <button class="lw-panel-tab active" data-tab="vocab" onclick="lwSwitchTab('vocab')">My Words</button>
+        </div>
+        <div class="lw-panel-content">
+          <div class="lw-tab-content" id="lw-tab-translate">
+            <div class="lw-select-row">
+              <select id="lw-lang-from">
+                <option value="en">English</option><option value="de">German</option>
+                <option value="es">Spanish</option><option value="fr">French</option>
+                <option value="it">Italian</option><option value="pt">Portuguese</option>
+                <option value="ru">Russian</option><option value="ja">Japanese</option>
+                <option value="ko">Korean</option><option value="zh">Chinese</option>
+                <option value="ar">Arabic</option><option value="hi">Hindi</option>
+                <option value="nl">Dutch</option><option value="pl">Polish</option>
+                <option value="tr">Turkish</option><option value="sv">Swedish</option>
+              </select>
+              <button class="lw-swap-btn" onclick="lwSwapLangs()">&#x21C4;</button>
+              <select id="lw-lang-to">
+                <option value="de">German</option><option value="en">English</option>
+                <option value="es">Spanish</option><option value="fr">French</option>
+                <option value="it">Italian</option><option value="pt">Portuguese</option>
+                <option value="ru">Russian</option><option value="ja">Japanese</option>
+                <option value="ko">Korean</option><option value="zh">Chinese</option>
+                <option value="ar">Arabic</option><option value="hi">Hindi</option>
+                <option value="nl">Dutch</option><option value="pl">Polish</option>
+                <option value="tr">Turkish</option><option value="sv">Swedish</option>
+              </select>
+            </div>
+            <textarea class="lw-textarea" id="lw-lang-input" placeholder="Type or paste text to translate..."></textarea>
+            <button class="lw-btn-primary" onclick="lwDoTranslate()">Translate</button>
+            <div id="lw-translate-results"></div>
+            <button class="lw-share-btn" id="lwShareTranslateBtn" onclick="lwShareWidget('translate')">
+              &#x1F517; Share with peer
+            </button>
+          </div>
+          <div class="lw-tab-content" id="lw-tab-synonyms">
+            <input type="text" class="lw-textarea" id="lw-synonym-input" placeholder="Enter a word..." style="min-height:48px">
+            <button class="lw-btn-primary" onclick="lwDoSynonyms()">Find Synonyms</button>
+            <div id="lw-synonym-results"></div>
+          </div>
+          <div class="lw-tab-content" id="lw-tab-conjugate">
+            <input type="text" class="lw-textarea" id="lw-conjugate-input" placeholder="Enter a verb..." style="min-height:48px">
+            <button class="lw-btn-primary" onclick="lwDoConjugate()">Conjugate</button>
+            <div id="lw-conjugate-results"></div>
+          </div>
+          <div class="lw-tab-content" id="lw-tab-grammar">
+            <textarea class="lw-textarea" id="lw-grammar-input" placeholder="Write a sentence to check..." style="min-height:100px"></textarea>
+            <button class="lw-btn-primary" onclick="lwDoGrammarCheck()">Check Grammar</button>
+            <div id="lw-grammar-results"></div>
+          </div>
+          <div class="lw-tab-content active" id="lw-tab-vocab">
+            <input type="text" class="lw-textarea" id="lw-vocab-search" placeholder="Search saved words..." style="min-height:48px" oninput="lwFilterVocab()">
+            <div id="lw-vocab-list"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-title">Chat</div>
+        <button class="sidebar-toggle" onclick="toggleSidebar()">&#x2715;</button>
+      </div>
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="chat-input-area">
+        <input type="text" class="chat-input" id="chatInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter')sendChat()">
+        <button class="chat-send" onclick="sendChat()">Send</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+<script>
+// ═══ STARS ═══
+function initStars(){
+  var el=document.getElementById('stars');
+  for(var i=0;i<60;i++){
+    var s=document.createElement('div');s.className='star';
+    s.style.cssText='left:'+Math.random()*100+'%;top:'+Math.random()*100+'%;width:'+(1+Math.random()*2)+'px;height:'+(1+Math.random()*2)+'px;--dur:'+(2+Math.random()*4)+'s;--op:'+(0.2+Math.random()*0.5);
+    el.appendChild(s);
+  }
+}
+initStars();
+
+// ═══ TOAST ═══
+function showToast(msg){
+  var t=document.getElementById('lwToast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show')},2500);
+}
+
+// ═══ LOGIN ═══
+var currentUser=null;
+var currentRole=null;
+
+var TEST_CREDENTIALS={
+  teacher:{username:'teacher',password:'teach123'},
+  student:{username:'student',password:'learn123'}
+};
+
+function switchLoginTab(role){
+  document.getElementById('tabTeacher').classList.toggle('active',role==='teacher');
+  document.getElementById('tabStudent').classList.toggle('active',role==='student');
+  document.getElementById('formTeacher').classList.toggle('active',role==='teacher');
+  document.getElementById('formStudent').classList.toggle('active',role==='student');
+  document.getElementById('loginError').textContent='';
+}
+
+function doLogin(e,role){
+  e.preventDefault();
+  var u=document.getElementById(role+'User').value.trim();
+  var p=document.getElementById(role+'Pass').value;
+  var cred=TEST_CREDENTIALS[role];
+  if(u===cred.username&&p===cred.password){
+    currentUser=u;currentRole=role;
+    localStorage.setItem('wte_video_user',JSON.stringify({username:u,role:role}));
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('callLayout').classList.remove('hidden');
+    document.getElementById('callLayout').style.display='flex';
+    // Update UI
+    var badge=document.getElementById('userBadge');
+    badge.className='user-badge '+role;
+    document.getElementById('userBadgeText').textContent=role==='teacher'?'Teacher':'Student';
+    document.getElementById('localRoleLabel').textContent=role==='teacher'?'Teacher':'Student';
+    // Check URL for room
+    checkUrlRoom();
+  }else{
+    document.getElementById('loginError').textContent='Invalid credentials. Use the test accounts shown below.';
+  }
+}
+
+// Auto-login from session
+(function(){
+  try{
+    var saved=localStorage.getItem('wte_video_user');
+    if(saved){
+      var u=JSON.parse(saved);
+      if(u.username&&u.role){
+        currentUser=u.username;currentRole=u.role;
+        document.getElementById('loginScreen').classList.add('hidden');
+        document.getElementById('callLayout').classList.remove('hidden');
+        document.getElementById('callLayout').style.display='flex';
+        var badge=document.getElementById('userBadge');
+        badge.className='user-badge '+u.role;
+        document.getElementById('userBadgeText').textContent=u.role==='teacher'?'Teacher':'Student';
+        document.getElementById('localRoleLabel').textContent=u.role==='teacher'?'Teacher':'Student';
+      }
+    }
+  }catch(e){}
+})();
+
+// ═══ LANGUAGE WIDGET ═══
+var lwVocabList=[];
+try{var s=localStorage.getItem('wte_video_vocab');if(s)lwVocabList=JSON.parse(s);}catch(e){}
+
+function toggleLwPanel(){
+  var panel=document.getElementById('lwPanel');
+  var btn=document.getElementById('widgetToggleBtn');
+  var vp=document.getElementById('videoPanel');
+  var isOpen=panel.classList.contains('open');
+  if(isOpen){
+    panel.classList.remove('open');
+    btn.classList.remove('open');
+    vp.classList.remove('widget-open');
+  }else{
+    panel.classList.add('open');
+    btn.classList.add('open');
+    vp.classList.add('widget-open');
+  }
+}
+
+function lwSwitchTab(tab){
+  document.querySelectorAll('.lw-panel-tab').forEach(function(t){t.classList.remove('active')});
+  document.querySelectorAll('.lw-tab-content').forEach(function(c){c.classList.remove('active')});
+  var tabBtn=document.querySelector('.lw-panel-tab[data-tab="'+tab+'"]');
+  if(tabBtn)tabBtn.classList.add('active');
+  var content=document.getElementById('lw-tab-'+tab);
+  if(content)content.classList.add('active');
+}
+
+function lwSwapLangs(){
+  var from=document.getElementById('lw-lang-from');
+  var to=document.getElementById('lw-lang-to');
+  var tmp=from.value;from.value=to.value;to.value=tmp;
+}
+
+function lwDoTranslate(){
+  var text=document.getElementById('lw-lang-input').value.trim();
+  if(!text)return;
+  var from=document.getElementById('lw-lang-from').value;
+  var to=document.getElementById('lw-lang-to').value;
+  var results=document.getElementById('lw-translate-results');
+  results.innerHTML='<div class="lw-result"><div class="lw-result-text" style="color:var(--text-dim)">Translating...</div></div>';
+  fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(text)+'&langpair='+from+'|'+to)
+    .then(function(r){return r.json()})
+    .then(function(data){
+      if(data.responseStatus&&data.responseStatus!==200)throw new Error('Translation failed');
+      var tr=data.responseData&&data.responseData.translatedText?data.responseData.translatedText:'';
+      if(!tr)throw new Error('No translation');
+      var escTr=tr.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      var escText=text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      var html='<div class="lw-result">'+
+        '<div class="lw-result-label">Translation ('+from+' → '+to+')</div>'+
+        '<div class="lw-result-text">'+escTr+'</div>'+
+        '<div class="lw-action-row">'+
+          '<button class="lw-action-btn" onclick="lwSpeak(\''+to+'\',\''+escTr.replace(/'/g,"\\'")+'\')">&#x1F50A; Speak</button>'+
+          '<button class="lw-action-btn" onclick="lwSaveVocab(\''+escText.replace(/'/g,"\\'")+'\',\''+escTr.replace(/'/g,"\\'")+'\',\''+from+'\',\''+to+'\')">&#x1F4BE; Save</button>'+
+        '</div></div>';
+      results.innerHTML=html;
+    })
+    .catch(function(e){
+      results.innerHTML='<div class="lw-result"><div class="lw-result-text" style="color:var(--rose)">'+(e.message||'Failed')+'</div></div>';
+    });
+}
+
+function lwDoSynonyms(){
+  var word=document.getElementById('lw-synonym-input').value.trim();
+  if(!word)return;
+  var results=document.getElementById('lw-synonym-results');
+  results.innerHTML='<div class="lw-result"><div class="lw-result-text" style="color:var(--text-dim)">Finding synonyms...</div></div>';
+  fetch('https://api.datamuse.com/words?rel_syn='+encodeURIComponent(word)+'&max=15')
+    .then(function(r){return r.json()})
+    .then(function(data){
+      if(!data||data.length===0){
+        results.innerHTML='<div class="lw-result"><div class="lw-result-text" style="color:var(--text-dim)">No synonyms found.</div></div>';
+        return;
+      }
+      var html='<div class="lw-result"><div class="lw-result-label">Synonyms for "'+word.replace(/&/g,'&amp;').replace(/</g,'&lt;')+'"</div>';
+      html+='<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">';
+      data.forEach(function(item){
+        var score=item.score||0;
+        var cls=score>5000?style="border-color:var(--accent);color:var(--accent);background:var(--accent-dim)" : (score>1000?style="border-color:var(--amber);color:var(--amber)" : '');
+        html+='<span style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);font-size:11px;'+cls+'">'+item.word+'</span>';
+      });
+      html+='</div></div>';
+      results.innerHTML=html;
+    })
+    .catch(function(){
+      results.innerHTML='<div class="lw-result"><div class="lw-result-text" style="color:var(--rose)">Request failed.</div></div>';
+    });
+}
+
+function lwDoConjugate(){
+  var verb=document.getElementById('lw-conjugate-input').value.trim().toLowerCase();
+  if(!verb)return;
+  var results=document.getElementById('lw-conjugate-results');
+  results.innerHTML='<div class="lw-result"><div class="lw-result-text" style="color:var(--text-dim)">Conjugating...</div></div>';
+  var forms=[
+    {tense:'Infinitive',form:verb},
+    {tense:'Present (I/you/we/they)',form:verb},
+    {tense:'Present (he/she/it)',form:c3rd(verb)},
+    {tense:'Past Simple',form:cPast(verb)},
+    {tense:'Present Participle',form:cPart(verb)},
+    {tense:'Past Participle',form:cPast(verb)}
+  ];
+  var html='<div class="lw-result"><table style="width:100%;border-collapse:collapse"><thead><tr><th style="text-align:left;padding:4px 6px;font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border);font-family:Fira Code,monospace">Tense</th><th style="text-align:left;padding:4px 6px;font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border);font-family:Fira Code,monospace">Form</th></tr></thead><tbody>';
+  forms.forEach(function(f){
+    html+='<tr><td style="padding:5px 6px;font-size:10px;color:var(--accent);font-weight:600;font-family:Fira Code,monospace;border-bottom:1px solid var(--border)">'+f.tense+'</td><td style="padding:5px 6px;font-size:13px;border-bottom:1px solid var(--border)">'+f.form+'</td></tr>';
+  });
+  html+='</tbody></table></div>';
+  results.innerHTML=html;
+}
+
+function c3rd(v){
+  if(v.endsWith('s')||v.endsWith('sh')||v.endsWith('ch')||v.endsWith('x')||v.endsWith('z')||v.endsWith('o'))return v+'es';
+  if(v.endsWith('y')&&'aeiou'.indexOf(v.charAt(v.length-2))===-1)return v.slice(0,-1)+'ies';
+  return v+'s';
+}
+function cPast(v){
+  if(v.endsWith('e'))return v+'d';
+  if(v.endsWith('y')&&'aeiou'.indexOf(v.charAt(v.length-2))===-1)return v.slice(0,-1)+'ied';
+  if(v.length<=4&&'aeiou'.indexOf(v.charAt(v.length-2))===-1&&'aeiou'.indexOf(v.charAt(v.length-3))!==-1)return v+v.charAt(v.length-1)+'ed';
+  return v+'ed';
+}
+function cPart(v){
+  if(v.endsWith('e'))return v.slice(0,-1)+'ing';
+  if(v.length<=4&&'aeiou'.indexOf(v.charAt(v.length-2))===-1&&'aeiou'.indexOf(v.charAt(v.length-3))!==-1)return v+v.charAt(v.length-1)+'ing';
+  return v+'ing';
+}
+
+function lwDoGrammarCheck(){
+  var text=document.getElementById('lw-grammar-input').value.trim();
+  if(!text)return;
+  var results=document.getElementById('lw-grammar-results');
+  results.innerHTML='<div class="lw-result"><div class="lw-result-text" style="color:var(--text-dim)">Checking...</div></div>';
+  fetch('https://api.languagetool.org/v2/check',{
+    method:'POST',
+    headers:{'Content-Type':'application/x-www-form-urlencoded'},
+    body:'text='+encodeURIComponent(text)+'&language=en-US'
+  })
+  .then(function(r){return r.json()})
+  .then(function(data){
+    if(!data.matches||data.matches.length===0){
+      results.innerHTML='<div class="lw-result"><div class="lw-result-text" style="color:var(--green)">&#x2713; No grammar issues!</div></div>';
+      return;
+    }
+    var html='';
+    data.matches.forEach(function(m){
+      var offset=m.offset||0,length=m.length||0;
+      var et=text.substring(offset,offset+length);
+      var sug=(m.replacements||[]).slice(0,3).map(function(r){return r.value||''}).join(', ');
+      html+='<div style="background:rgba(251,113,133,.05);border:1px solid rgba(251,113,133,.2);border-radius:8px;padding:8px;margin-bottom:6px">'+
+        '<div style="color:#fca5a5;font-size:12px;text-decoration:line-through">'+et+'</div>'+
+        '<div style="color:var(--green);font-size:12px">'+sug+'</div></div>';
+    });
+    results.innerHTML=html;
+  })
+  .catch(function(){
+    results.innerHTML='<div class="lw-result"><div class="lw-result-text" style="color:var(--rose)">Check failed.</div></div>';
+  });
+}
+
+function lwSaveVocab(src,tgt,from,to){
+  lwVocabList.unshift({source:src,target:tgt,from:from,to:to,time:new Date().toLocaleDateString()});
+  if(lwVocabList.length>200)lwVocabList=lwVocabList.slice(0,200);
+  try{localStorage.setItem('wte_video_vocab',JSON.stringify(lwVocabList));}catch(e){}
+  lwRenderVocab();
+  showToast('Word saved!');
+}
+
+function lwRenderVocab(){
+  var c=document.getElementById('lw-vocab-list');
+  if(!c)return;
+  if(lwVocabList.length===0){c.innerHTML='<div class="lw-empty">Saved words appear here</div>';return;}
+  var html='';
+  lwVocabList.forEach(function(v,i){
+    html+='<div class="lw-vocab-item">'+
+      '<div class="lv-info"><div class="lv-source">'+v.source+'</div><div class="lv-target">'+v.target+'</div></div>'+
+      '<button class="lv-delete" onclick="lwDeleteVocab('+i+')">&#x2715;</button></div>';
+  });
+  c.innerHTML=html;
+}
+lwRenderVocab();
+
+function lwDeleteVocab(idx){
+  lwVocabList.splice(idx,1);
+  try{localStorage.setItem('wte_video_vocab',JSON.stringify(lwVocabList));}catch(e){}
+  lwRenderVocab();
+}
+
+function lwFilterVocab(){
+  var q=document.getElementById('lw-vocab-search').value.toLowerCase();
+  var items=document.querySelectorAll('#lw-vocab-list .lw-vocab-item');
+  items.forEach(function(item){
+    item.style.display=item.textContent.toLowerCase().includes(q)?'flex':'none';
+  });
+}
+
+function lwSpeak(lang,text){
+  if(!('speechSynthesis'in window))return;
+  speechSynthesis.cancel();
+  var u=new SpeechSynthesisUtterance(text);
+  var langMap={en:'en-US',de:'de-DE',es:'es-ES',fr:'fr-FR',it:'it-IT',pt:'pt-PT',ru:'ru-RU',ja:'ja-JP',ko:'ko-KR',zh:'zh-CN',ar:'ar-SA',hi:'hi-IN',nl:'nl-NL',pl:'pl-PL',tr:'tr-TR',sv:'sv-SE'};
+  u.lang=langMap[lang]||'en-US';
+  u.rate=0.85;
+  speechSynthesis.speak(u);
+}
+
+// ═══ SHARE WIDGET TO PEER ═══
+function lwShareWidget(tab){
+  if(peerDataConn&&peerDataConn.open){
+    peerDataConn.send({type:'share_widget',tab:tab});
+    var btn=document.getElementById('lwShareTranslateBtn');
+    if(btn){btn.textContent='&#x2713; Shared!';btn.classList.add('sent');}
+    showToast('Language tools opened on peer\'s side!');
+  }else{
+    showToast('No peer connected yet.');
+  }
+}
+
+// ═══ STATE ═══
+var localStream=null,remoteStream=null;
+var roomCode='';
+var camOn=true,micOn=true;
+var callStartTime=null,timerInterval=null;
+var isHost=false;
+var peer=null;
+var peerCall=null;
+var peerDataConn=null;
+var peerConnected=false;
+
+// ═══ MEDIA ═══
+async function getMedia(){
+  try{
+    localStream=await navigator.mediaDevices.getUserMedia({video:true,audio:true});
+    document.getElementById('localVideo').srcObject=localStream;
+    return true;
+  }catch(e){
+    console.error('Media error:',e);
+    showToast('Camera/Mic access denied');
+    return false;
+  }
+}
+getMedia();
+
+// ═══ CAM/MIC ═══
+function callToggleCam(){
+  camOn=!camOn;
+  if(localStream)localStream.getVideoTracks().forEach(function(t){t.enabled=camOn});
+  document.getElementById('callCamBtn').classList.toggle('active',camOn);
+}
+function callToggleMic(){
+  micOn=!micOn;
+  if(localStream)localStream.getAudioTracks().forEach(function(t){t.enabled=micOn});
+  document.getElementById('callMicBtn').classList.toggle('active',micOn);
+}
+
+// ═══ SCREEN SHARE ═══
+async function toggleScreenShare(){
+  try{
+    var screenStream=await navigator.mediaDevices.getDisplayMedia({video:true});
+    var screenTrack=screenStream.getVideoTracks()[0];
+    if(peerCall&&peerCall.peerConnection){
+      var sender=peerCall.peerConnection.getSenders().find(function(s){return s.track&&s.track.kind==='video'});
+      if(sender)sender.replaceTrack(screenTrack);
+    }
+    document.getElementById('localVideo').srcObject=screenStream;
+    document.getElementById('screenShareBtn').classList.add('active');
+    screenTrack.onended=function(){
+      if(localStream){
+        if(peerCall&&peerCall.peerConnection){
+          var camTrack=localStream.getVideoTracks()[0];
+          var sender2=peerCall.peerConnection.getSenders().find(function(s){return s.track&&s.track.kind==='video'});
+          if(sender2)sender2.replaceTrack(camTrack);
+        }
+        document.getElementById('localVideo').srcObject=localStream;
+        document.getElementById('screenShareBtn').classList.remove('active');
+      }
+    };
+  }catch(e){console.error('Screen share error:',e)}
+}
+
+// ═══ PEERJS ═══
+var SESSION_DURATION=30*60;
+var sessionEndTime=null;
+
+function startCall(){
+  addSystemMessage('Connecting...');
+  var roomPeerId='wte-'+roomCode;
+  peer=new Peer(roomPeerId,{debug:2,config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]}});
+  peer.on('open',function(id){
+    addSystemMessage('Connected as host — waiting for peer...');
+    isHost=true;
+  });
+  peer.on('call',function(call){
+    addSystemMessage('Incoming call...');
+    peerCall=call;
+    call.answer(localStream);
+    call.on('stream',function(rs){handleRemoteStream(rs);});
+    call.on('close',function(){addSystemMessage('Peer disconnected');resetRemoteVideo();});
+  });
+  peer.on('connection',function(conn){
+    addSystemMessage('Data channel connected');
+    peerDataConn=conn;
+    conn.on('data',function(d){
+      if(d.type==='chat')addChatMessage('Peer',d.msg,false);
+      if(d.type==='share_widget'){
+        // Peer wants us to open language tools
+        var panel=document.getElementById('lwPanel');
+        if(!panel.classList.contains('open')){
+          toggleLwPanel();
+          lwSwitchTab(d.tab||'translate');
+          showToast('Peer shared Language Tools');
+        }
+      }
+    });
+    conn.on('close',function(){peerDataConn=null});
+  });
+  peer.on('error',function(err){
+    console.error('Peer error:',err);
+    if(err.type==='unavailable-id'){connectAsSecondPeer();}
+    else{addSystemMessage('Error: '+err.type);}
+  });
+}
+
+function connectAsSecondPeer(){
+  isHost=false;
+  addSystemMessage('Room found — connecting as peer...');
+  var myPeerId='wte-'+roomCode+'-'+Math.random().toString(36).substring(2,8);
+  var myPeer=new Peer(myPeerId,{debug:2});
+  myPeer.on('open',function(){
+    var call=myPeer.call('wte-'+roomCode,localStream);
+    call.on('stream',function(rs){handleRemoteStream(rs);});
+    call.on('close',function(){addSystemMessage('Peer disconnected');resetRemoteVideo();});
+    peerCall=call;
+    var conn=myPeer.connect('wte-'+roomCode,{reliable:true});
+    conn.on('open',function(){
+      addSystemMessage('Data channel connected');
+      peerDataConn=conn;
+      conn.on('data',function(data){
+        if(data.type==='chat')addChatMessage('Peer',data.msg,false);
+        if(data.type==='share_widget'){
+          var panel=document.getElementById('lwPanel');
+          if(!panel.classList.contains('open')){
+            toggleLwPanel();
+            lwSwitchTab(data.tab||'translate');
+            showToast('Peer shared Language Tools');
+          }
+        }
+      });
+      conn.on('close',function(){peerDataConn=null});
+    });
+  });
+  myPeer.on('error',function(err){
+    addSystemMessage('Error: '+err.type);
+  });
+}
+
+function handleRemoteStream(stream){
+  remoteStream=stream;
+  document.getElementById('remoteVideo').srcObject=remoteStream;
+  document.getElementById('remoteVideo').style.display='block';
+  document.getElementById('remotePlaceholder').style.display='none';
+  document.getElementById('remoteLabel').style.display='block';
+  document.getElementById('remoteStatusDot').classList.add('active');
+  document.getElementById('remoteStatusDot').classList.remove('inactive');
+  document.getElementById('remoteBox').classList.add('connected');
+  peerConnected=true;
+  startTimer();
+  addSystemMessage('Peer connected!');
+}
+
+function resetRemoteVideo(){
+  document.getElementById('remoteVideo').srcObject=null;
+  document.getElementById('remoteVideo').style.display='none';
+  document.getElementById('remotePlaceholder').style.display='flex';
+  document.getElementById('remoteLabel').style.display='none';
+  document.getElementById('remoteBox').classList.remove('connected');
+  peerConnected=false;
+  stopTimer();
+}
+
+// ═══ TIMER ═══
+function startTimer(){
+  callStartTime=Date.now();
+  sessionEndTime=callStartTime+SESSION_DURATION*1000;
+  document.getElementById('callTimer').classList.add('active');
+  document.getElementById('callTimer').classList.remove('warning','danger');
+  timerInterval=setInterval(updateTimer,1000);
+  updateTimer();
+}
+function updateTimer(){
+  var now=Date.now();
+  var remaining=Math.max(0,Math.floor((sessionEndTime-now)/1000));
+  var m=Math.floor(remaining/60);var s=remaining%60;
+  var timerEl=document.getElementById('callTimer');
+  timerEl.textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  timerEl.classList.remove('warning','danger');
+  if(remaining<=120&&remaining>0)timerEl.classList.add('danger');
+  else if(remaining<=300&&remaining>0)timerEl.classList.add('warning');
+  if(remaining<=0){clearInterval(timerInterval);timerEl.textContent='00:00';}
+}
+function stopTimer(){
+  clearInterval(timerInterval);
+  document.getElementById('callTimer').textContent='30:00';
+  document.getElementById('callTimer').classList.remove('active','warning','danger');
+}
+
+// ═══ CHAT ═══
+function sendChat(){
+  var input=document.getElementById('chatInput');
+  var msg=input.value.trim();
+  if(!msg)return;
+  addChatMessage('You',msg,true);
+  input.value='';
+  if(peerDataConn&&peerDataConn.open)peerDataConn.send({type:'chat',msg:msg});
+}
+function addChatMessage(sender,msg,self){
+  var div=document.createElement('div');
+  div.className='chat-msg '+(self?'self':'other');
+  var senderDiv=document.createElement('div');senderDiv.className='sender';senderDiv.textContent=sender;
+  var textDiv=document.createElement('div');textDiv.className='text';textDiv.textContent=msg;
+  var timeDiv=document.createElement('div');timeDiv.className='time';timeDiv.textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  div.appendChild(senderDiv);div.appendChild(textDiv);div.appendChild(timeDiv);
+  var msgs=document.getElementById('chatMessages');
+  msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
+}
+function addSystemMessage(msg){
+  var div=document.createElement('div');div.className='chat-system';div.textContent=msg;
+  var msgs=document.getElementById('chatMessages');
+  msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
+}
+
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+// ═══ INVITE ═══
+function copyInvite(){
+  var origin=window.location.origin;
+  var path=window.location.pathname;
+  var basePath=path.split('?')[0];
+  if(!basePath.endsWith('/'))basePath=basePath.substring(0,basePath.lastIndexOf('/')+1);
+  var cleanLink=origin+basePath+'?room='+roomCode;
+  navigator.clipboard.writeText(cleanLink);
+  showToast('Invite link copied!');
+}
+
+// ═══ LEAVE ═══
+function leaveCall(){
+  if(peerCall)peerCall.close();
+  if(peer)peer.destroy();
+  if(localStream)localStream.getTracks().forEach(function(t){t.stop()});
+  peerConnected=false;isHost=false;peerCall=null;peer=null;peerDataConn=null;
+  stopTimer();
+  document.getElementById('remoteVideo').srcObject=null;
+  document.getElementById('remoteVideo').style.display='none';
+  document.getElementById('remotePlaceholder').style.display='flex';
+  document.getElementById('remoteLabel').style.display='none';
+  document.getElementById('remoteBox').classList.remove('connected');
+  document.getElementById('chatMessages').innerHTML='';
+  localStream=null;remoteStream=null;
+  getMedia();
+  // Hide call layout, show nothing (user must re-login or reload)
+  document.getElementById('callLayout').style.display='none';
+  document.getElementById('callLayout').classList.add('hidden');
+  document.getElementById('loginScreen').classList.remove('hidden');
+  localStorage.removeItem('wte_video_user');
+}
+
+// ═══ AUTO-JOIN FROM URL ═══
+function checkUrlRoom(){
+  var room='';
+  var params=new URLSearchParams(window.location.search);
+  room=params.get('room');
+  if(!room){
+    var path=window.location.pathname.replace(/^\/+/,'');
+    if(path&&path!=='index.html'&&path.length>=4)room=path.toUpperCase();
+  }
+  if(room){
+    room=room.toUpperCase().replace(/[^A-Z0-9]/g,'');
+    document.getElementById('displayRoomCode').textContent=room;
+    roomCode=room;
+    var checkMedia=setInterval(function(){
+      if(localStream){clearInterval(checkMedia);joinCallAuto();}
+    },500);
+    setTimeout(function(){clearInterval(checkMedia)},10000);
+  }
+}
+
+function joinCallAuto(){
+  document.getElementById('displayRoomCode').textContent=roomCode;
+  document.getElementById('localVideo').srcObject=localStream;
+  startCall();
+}
+</script>
+</body>
+</html>

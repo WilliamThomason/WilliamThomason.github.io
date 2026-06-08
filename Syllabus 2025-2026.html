@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Syllabus 2025&ndash;2026 — English Language Programme</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=Blogger+Sans:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #1c1c1c; --bg2: #161616; --bg3: #222222;
+  --bg-card: #232323; --bg-card2: #1a1a1a;
+  --border: #333333; --border-light: #444444;
+  --text: #e8e8e8; --text-muted: #999999; --text-dim: #555555;
+  --accent: #a3e635; --accent-dim: rgba(163,230,53,.08); --accent-glow: rgba(163,230,53,.3);
+  --cta: #fcbe6a; --cta-hover: #fdb553; --cta-text: #1c1c1c;
+  --secondary-accent: #a3e635;
+  --green: #34d399; --amber: #fbbf24; --violet: #a78bfa; --rose: #fb7185;
+}
+[data-theme="light"] {
+  --bg: #f5f5f5; --bg2: #eeeeee; --bg3: #e0e0e0;
+  --bg-card: #ffffff; --bg-card2: #f0f0f0;
+  --border: #d0d0d0; --border-light: #b0b0b0;
+  --text: #2f2f2f; --text-muted: #666666; --text-dim: #888888;
+  --accent: #3097cf; --accent-dim: rgba(48,151,207,.08); --accent-glow: rgba(48,151,207,.25);
+  --cta: #f59e0b; --cta-hover: #e08e00; --cta-text: #ffffff;
+  --secondary-accent: #84cc16;
+  --green: #10b981; --amber: #f59e0b; --violet: #8b5cf6; --rose: #f43f5e;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { font-size:16px; scroll-behavior:smooth; }
+body {
+  font-family:'Blogger Sans','Inter',system-ui,sans-serif;
+  background:var(--bg); color:var(--text); line-height:1.6; overflow-x:hidden;
+  transition:background .3s ease,color .3s ease;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+@keyframes fadeInUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+@keyframes limeGlow { 0%,100%{box-shadow:0 0 8px rgba(163,230,53,.2)} 50%{box-shadow:0 0 20px rgba(163,230,53,.4)} }
+[data-theme="light"] @keyframes limeGlow { 0%,100%{box-shadow:0 0 8px rgba(48,151,207,.15)} 50%{box-shadow:0 0 20px rgba(48,151,207,.3)} }
+
+.fade-in { opacity:0; transform:translateY(24px); transition:opacity .6s ease,transform .6s ease; }
+.fade-in.visible { opacity:1; transform:translateY(0); }
+
+/* Nav */
+.nav {
+  position:sticky; top:0; z-index:50;
+  background:rgba(28,28,28,.92); backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  padding:0 40px; height:60px;
+  display:flex; align-items:center; justify-content:space-between;
+  transition:background .3s ease,border-color .3s ease;
+}
+[data-theme="light"] .nav { background:rgba(245,245,245,.92); }
+.nav-logo {
+  font-family:'Fira Code',monospace; font-size:1.1rem; font-weight:600;
+  color:var(--text); letter-spacing:1px; text-decoration:none;
+}
+.nav-logo span { color:var(--accent); }
+.nav-links { display:flex; gap:20px; align-items:center; }
+.nav-links a {
+  color:var(--text-muted); text-decoration:none;
+  font-size:.83rem; font-weight:500; transition:color .15s;
+}
+.nav-links a:hover { color:var(--text); }
+.nav-cta {
+  padding:8px 20px; border-radius:8px;
+  background:var(--cta); color:var(--cta-text);
+  text-decoration:none; font-size:.8rem; font-weight:700;
+  transition:all .15s; white-space:nowrap;
+  animation:limeGlow 3s ease-in-out infinite;
+}
+.nav-cta:hover { background:var(--cta-hover); transform:translateY(-1px); }
+
+/* Hero */
+.hero { padding:80px 40px 60px; text-align:center; max-width:860px; margin:0 auto; }
+.hero-badge {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:6px 16px; border-radius:20px;
+  background:var(--bg3); border:1px solid var(--border);
+  font-size:.75rem; font-weight:600; color:var(--accent);
+  margin-bottom:20px; letter-spacing:1px; text-transform:uppercase;
+}
+.hero-badge .dot {
+  width:6px; height:6px; border-radius:50%;
+  background:var(--green); animation:pulse 2s ease-in-out infinite;
+}
+.hero h1 {
+  font-family:'Fira Code',monospace; font-size:3.2rem; font-weight:700;
+  line-height:1.1; margin-bottom:12px; color:var(--text);
+}
+.hero h1 .accent { color:var(--accent); }
+.hero h1 .cta-accent { color:var(--cta); }
+.hero-tagline {
+  font-family:'Fira Code',monospace; font-size:1.15rem; color:var(--accent);
+  margin-bottom:20px; letter-spacing:0; font-weight:500;
+}
+.hero p {
+  font-size:1.05rem; color:var(--text-muted);
+  margin-bottom:32px; max-width:600px;
+  margin-left:auto; margin-right:auto; line-height:1.7;
+}
+.hero-cta {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:14px 32px; border-radius:10px;
+  background:var(--cta); color:var(--cta-text);
+  text-decoration:none; font-size:1rem; font-weight:700;
+  transition:all .2s; box-shadow:0 0 20px rgba(252,190,106,.2);
+}
+.hero-cta:hover { background:var(--cta-hover); transform:translateY(-2px); box-shadow:0 4px 30px rgba(252,190,106,.35); }
+
+/* Sections */
+.section { padding:80px 40px; max-width:1100px; margin:0 auto; }
+.section-header { text-align:center; margin-bottom:56px; }
+.section-header h2 {
+  font-family:'Fira Code',monospace; font-size:2.2rem; font-weight:700; margin-bottom:12px;
+}
+.section-header p { color:var(--text-muted); font-size:1rem; max-width:560px; margin:0 auto; line-height:1.7; }
+.section-num {
+  font-family:'Fira Code',monospace; font-size:.7rem; font-weight:600; color:var(--accent);
+  letter-spacing:3px; text-transform:uppercase; margin-bottom:8px;
+}
+
+/* Overview Table */
+.overview-table { width:100%; border-collapse:collapse; margin-top:20px; }
+.overview-table th {
+  font-family:'Fira Code',monospace; font-size:.65rem; font-weight:700;
+  letter-spacing:2px; text-transform:uppercase; color:var(--accent);
+  padding:10px 14px; text-align:left; border-bottom:2px solid var(--border);
+}
+.overview-table td {
+  padding:12px 14px; border-bottom:1px solid var(--border);
+  font-size:.85rem; color:var(--text-muted); vertical-align:top;
+}
+.overview-table tr:hover td { background:var(--bg2); }
+.overview-table .month {
+  font-family:'Fira Code',monospace; font-size:.7rem; font-weight:700;
+  color:var(--cta); letter-spacing:1px; white-space:nowrap;
+}
+.overview-table .grammar {
+  font-size:.75rem; color:var(--text-dim); font-style:italic; margin-top:2px;
+}
+
+/* Lesson Cards */
+.lesson-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:20px; }
+.lesson-card {
+  background:var(--bg-card); border:1px solid var(--border);
+  border-radius:14px; padding:28px; transition:all .2s;
+}
+.lesson-card:hover { border-color:var(--accent); transform:translateY(-3px); box-shadow:0 12px 40px rgba(0,0,0,.3); }
+.lesson-card-header {
+  display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:16px;
+}
+.lesson-num {
+  font-family:'Fira Code',monospace; font-size:2rem; font-weight:700;
+  color:var(--accent); opacity:.25; line-height:1; flex-shrink:0; margin-left:16px;
+}
+.lesson-card h3 {
+  font-family:'Fira Code',monospace; font-size:1.05rem; font-weight:600; color:var(--text); margin-bottom:4px;
+}
+.lesson-date { font-size:.75rem; color:var(--text-dim); }
+.lesson-card p { font-size:.85rem; color:var(--text-muted); line-height:1.7; margin-bottom:8px; }
+.lesson-block {
+  background:var(--bg2); border-left:3px solid var(--accent);
+  padding:10px 14px; border-radius:0 8px 8px 0; margin-top:10px;
+}
+.lesson-block-label {
+  font-family:'Fira Code',monospace; font-size:.6rem; font-weight:700;
+  letter-spacing:2px; text-transform:uppercase; color:var(--accent); margin-bottom:4px;
+}
+.lesson-block p { font-size:.8rem; margin-bottom:0; }
+.lesson-card.featured { border-color:var(--cta); }
+.lesson-card.featured .lesson-num { color:var(--cta); opacity:.4; }
+
+/* Presentation */
+.pres-slide {
+  background:var(--bg-card); border:1px solid var(--border);
+  border-radius:14px; padding:24px; margin-bottom:16px;
+}
+.pres-slide-num {
+  font-family:'Fira Code',monospace; font-size:.6rem; font-weight:700;
+  letter-spacing:2px; text-transform:uppercase; color:var(--accent); margin-bottom:8px;
+}
+.pres-slide h3 { font-family:'Fira Code',monospace; font-size:1rem; font-weight:600; margin-bottom:8px; }
+.pres-slide p { font-size:.85rem; color:var(--text-muted); line-height:1.7; }
+.pres-example {
+  background:var(--accent-dim); border-left:3px solid var(--accent);
+  padding:10px 14px; border-radius:0 8px 8px 0; margin-top:10px;
+  font-size:.8rem; color:var(--text-muted); font-style:italic;
+}
+
+/* Routine */
+.routine-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+.routine-step { text-align:center; padding:24px 16px; background:var(--bg-card); border:1px solid var(--border); border-radius:12px; }
+.routine-num {
+  width:36px; height:36px; border-radius:50%;
+  background:var(--accent); color:var(--bg);
+  font-family:'Fira Code',monospace;
+  font-size:.9rem; font-weight:700;
+  display:flex; align-items:center; justify-content:center; margin:0 auto 12px;
+}
+.routine-step h3 { font-family:'Fira Code',monospace; font-size:.85rem; font-weight:600; margin-bottom:6px; }
+.routine-step p { font-size:.75rem; color:var(--text-muted); line-height:1.6; }
+
+/* CTA */
+.cta-section {
+  padding:80px 40px; text-align:center;
+  background:var(--bg2);
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+}
+.cta-section h2 {
+  font-family:'Fira Code',monospace; font-size:2rem; font-weight:700; margin-bottom:12px;
+}
+.cta-section p { color:var(--text-muted); margin-bottom:28px; font-size:1rem; max-width:500px; margin-left:auto; margin-right:auto; }
+
+/* Footer */
+.footer { padding:40px; text-align:center; font-size:.75rem; color:var(--text-dim); }
+
+/* Responsive */
+@media(max-width:900px) {
+  .lesson-grid { grid-template-columns:1fr; }
+  .routine-grid { grid-template-columns:repeat(2,1fr); }
+  .hero h1 { font-size:2.2rem; }
+  .nav { padding:0 20px; }
+  .section, .hero, .cta-section { padding-left:20px; padding-right:20px; }
+}
+@media(max-width:520px) {
+  .hero h1 { font-size:1.8rem; }
+  .routine-grid { grid-template-columns:1fr; }
+  .nav-links { display:none; }
+}
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<div class="nav">
+  <a href="#" class="nav-logo"><span>&#9670;</span> WTE</a>
+  <div class="nav-links">
+    <a href="#overview">Overview</a>
+    <a href="#lessons">Lessons</a>
+    <a href="#presentation">Presentation</a>
+    <a href="#routine">Methodology</a>
+  </div>
+  <a href="#contact" class="nav-cta">Book a Lesson</a>
+</div>
+
+<!-- Hero -->
+<div class="hero fade-in">
+  <div class="hero-badge"><span class="dot"></span> Syllabus 2025&ndash;2026</div>
+  <h1>English Language <span class="accent">Programme</span></h1>
+  <div class="hero-tagline">A structured approach to confident communication</div>
+  <p>A full-year curriculum focused on building genuine speaking confidence through real-world topics, structured grammar progression, and creative interaction. Designed to take learners from controlled practice to fluent, spontaneous expression.</p>
+  <a href="#lessons" class="hero-cta">View the Full Curriculum &#8594;</a>
+</div>
+
+<!-- Overview -->
+<div class="section fade-in" id="overview">
+  <div class="section-header">
+    <div class="section-num">01</div>
+    <h2>Programme <span class="accent">Overview</span></h2>
+    <p>Eleven months of structured learning, each building on the last. Grammar is always taught in context, with speaking as the primary output.</p>
+  </div>
+  <table class="overview-table">
+    <thead>
+      <tr><th>Month</th><th>Unit</th><th>Grammar Focus</th><th>Key Activity</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="month">APR</td><td>Descriptive Language &amp; Picture Storytelling</td><td class="grammar">Adjectives, prepositions of place, there is/are</td><td>Describe a photo for 1&ndash;2 minutes</td></tr>
+      <tr><td class="month">MAY</td><td>Present Perfect Continuous</td><td class="grammar">"I've been [verb]ing for/since..."</td><td>"How long have you been...?" interviews</td></tr>
+      <tr><td class="month">JUN</td><td>Reported Speech</td><td class="grammar">Direct vs. reported, said that, told me</td><td>Gossip game: what did your friend say?</td></tr>
+      <tr><td class="month">JUL</td><td>Passive Voice</td><td class="grammar">Active vs. passive, is made, was invented</td><td>Describe how things are done locally</td></tr>
+      <tr><td class="month">AUG</td><td>Mid-Year Review</td><td class="grammar">Mixed revision across all topics</td><td>Board game with grammar cards</td></tr>
+      <tr><td class="month">SEP</td><td>Conditionals</td><td class="grammar">Zero, 1st, 2nd conditionals</td><td>"What would you do if...?" scenarios</td></tr>
+      <tr><td class="month">OCT</td><td>Idioms &amp; Everyday Expressions</td><td class="grammar">Common idioms, phrasal verbs</td><td>Skits and idiom charades</td></tr>
+      <tr><td class="month">NOV</td><td>Formal &amp; Informal Communication</td><td class="grammar">Polite phrases, connectors, register</td><td>Role-play: emails and messages</td></tr>
+      <tr><td class="month">DEC</td><td>Describing a Process</td><td class="grammar">Sequencing words, imperatives, passive</td><td>"How to..." demonstrations</td></tr>
+      <tr><td class="month">JAN</td><td>Revision &amp; Presentation Prep</td><td class="grammar">Full-year review</td><td>Picture description practice, project planning</td></tr>
+      <tr><td class="month">FEB</td><td>Year-End Project &amp; Presentations</td><td class="grammar">All grammar integrated fluently</td><td>2&ndash;3 minute personal presentation</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Lessons -->
+<div class="section fade-in" id="lessons">
+  <div class="section-header">
+    <div class="section-num">02</div>
+    <h2>Lesson <span class="accent">Details</span></h2>
+    <p>Each unit follows a consistent session structure: warm-up, main focus, interactive activity, and reflection.</p>
+  </div>
+  <div class="lesson-grid">
+
+    <div class="lesson-card fade-in">
+      <div class="lesson-card-header">
+        <div>
+          <h3>Unit 1 &mdash; Descriptive Language</h3>
+          <div class="lesson-date">April &middot; Adjectives, prepositions, there is/are</div>
+        </div>
+        <div class="lesson-num">01</div>
+      </div>
+      <p>Build vivid descriptions using sensory details, spatial language, and clear structure. Learners practise describing images, scenes, and personal spaces aloud.</p>
+      <div class="lesson-block"><div class="lesson-block-label">Speaking Focus</div><p>Describe a picture (event, place, or daily scene) for 1&ndash;2 minutes using full sentences.</p></div>
+      <div class="lesson-block" style="border-left-color:var(--cta)"><div class="lesson-block-label" style="color:var(--cta)">Activity</div><p>Picture Chain &mdash; pass an image around; each person adds one descriptive sentence.</p></div>
+    </div>
+
+    <div class="lesson-card fade-in">
+      <div class="lesson-card-header">
+        <div>
+          <h3>Unit 2 &mdash; Present Perfect Continuous</h3>
+          <div class="lesson-date">May &middot; Actions that started in the past and continue</div>
+        </div>
+        <div class="lesson-num">02</div>
+      </div>
+      <p>Talk about ongoing activities, habits, and experiences with time expressions. Focus on the difference between duration and completion.</p>
+      <div class="lesson-block"><div class="lesson-block-label">Speaking Focus</div><p>"How long have you been...?" pair interviews about hobbies, studies, and interests.</p></div>
+      <div class="lesson-block" style="border-left-color:var(--cta)"><div class="lesson-block-label" style="color:var(--cta)">Activity</div><p>Club interviews &mdash; share one interesting fact about a partner with the group.</p></div>
+    </div>
+
+    <div class="lesson-card fade-in">
+      <div class="lesson-card-header">
+        <div>
+          <h3>Unit 3 &mdash; Reported Speech</h3>
+          <div class="lesson-date">June &middot; Reporting what others say</div>
+        </div>
+        <div class="lesson-num">03</div>
+      </div>
+      <p>Learn to relay conversations, share opinions, and report news accurately. Covers tense shifts and reporting verbs in a conversational context.</p>
+      <div class="lesson-block"><div class="lesson-block-label">Speaking Focus</div><p>"What did your friend say about...?" &mdash; practise retelling real or imagined conversations.</p></div>
+      <div class="lesson-block" style="border-left-color:var(--cta)"><div class="lesson-block-label" style="color:var(--cta)">Activity</div><p>Role-play a phone call, then report it to the class: "She told me that..."</p></div>
+    </div>
+
+    <div class="lesson-card fade-in">
+      <div class="lesson-card-header">
+        <div>
+          <h3>Unit 4 &mdash; Passive Voice</h3>
+          <div class="lesson-date">July &middot; Focusing on the action, not the actor</div>
+        </div>
+        <div class="lesson-num">04</div>
+      </div>
+      <p>Shift focus from the doer to the action. Particularly useful for describing processes, traditions, and how things work in the real world.</p>
+      <div class="lesson-block"><div class="lesson-block-label">Speaking Focus</div><p>Describe how everyday things are made or done: food, crafts, local customs, school rules.</p></div>
+      <div class="lesson-block" style="border-left-color:var(--cta)"><div class="lesson-block-label" style="color:var(--cta)">Activity</div><p>Photo descriptions using passive: "This temple was built in..." / "Rice is grown in..."</p></div>
+    </div>
+
+    <div class="lesson-card fade-in">
+      <div class="lesson-card-header">
+        <div>
+          <h3>Unit 5 &mdash; Mid-Year Review</h3>
+          <div class="lesson-date">August &middot; Consolidation and confidence check</div>
+        </div>
+        <div class="lesson-num">05</div>
+      </div>
+      <p>A chance to revisit the first four units through games, error correction, and student-led mini-talks. Identifies strengths and areas to develop in the second half.</p>
+      <div class="lesson-block"><div class="lesson-block-label">Activities</div><p>Review quiz with grammar cards, board games, and short student presentations on any topic from Units 1&ndash;4.</p></div>
+    </div>
+
+    <div class="lesson-card fade-in">
+      <div class="lesson-card-header">
+        <div>
+          <h3>Unit 6 &mdash; Conditionals</h3>
+          <div class="lesson-date">September &middot; Real situations and imaginary scenarios</div>
+        </div>
+        <div class="lesson-num">06</div>
+      </div>
+      <p>From everyday truths to wild hypotheticals. Zero, first, and second conditionals taught through scenario-based speaking rather than drill.</p>
+      <div class="lesson-block"><div class="lesson-block-label">Speaking Focus</div><p>"What will you do if...?" (real) and "What would you do if you were...?" (imaginary).</p></div>
+      <div class="lesson-block" style="border-left-color:var(--cta)"><div class="lesson-block-label" style="color:var(--cta)">Activity</div><p>Interview game: "If you could meet anyone, who would it be? What would you ask them?"</p></div>
+    </div>
+
+    <div class="lesson-card fade-in">
+      <div class="lesson-card-header">
+        <div>
+          <h3>Unit 7 &mdash; Idioms &amp; Expressions</h3>
+          <div class="lesson-date">October &middot; Natural, everyday English</div>
+        </div>
+        <div class="lesson-num">07</div>
+      </div>
+      <p>Common idioms and phrasal verbs that native speakers use constantly. Focus on understanding and using them in context, not memorising lists.</p>
+      <div class="lesson-block"><div class="lesson-block-label">Speaking Focus</div><p>Create short skits or stories that naturally incorporate target idioms.</p></div>
+      <div class="lesson-block" style="border-left-color:var(--cta)"><div class="lesson-block-label" style="color:var(--cta)">Activity</div><p>Idiom matching + charades. "Idom of the Day" mini-presentations.</p></div>
+    </div>
+
+    <div class="lesson-card fade-in">
+      <div class="lesson-card-header">
+        <div>
+          <h3>Unit 8 &mdash; Emails &amp; Messages</h3>
+          <div class="lesson-date">November &middot; Formal vs. informal register</div>
+        </div>
+        <div class="lesson-num">08</div>
+      </div>
+      <p>Navigate the difference between writing to a friend, a teacher, or a company. Practical communication skills for the real world.</p>
+      <div class="lesson-block"><div class="lesson-block-label">Speaking Focus</div><p>Read a message aloud, then role-play a spoken response. Practise tone and register.</p></div>
+      <div class="lesson-block" style="border-left-color:var(--cta)"><div class="lesson-block-label" style="color:var(--cta)">Activity</div><p>Write and act out a reply to a sample email or invitation.</p></div>
+    </div>
+
+    <div class="lesson-card fade-in">
+      <div class="lesson-card-header">
+        <div>
+          <h3>Unit 9 &mdash; Describing a Process</h3>
+          <div class="lesson-date">December &middot; Sequencing and instructions</div>
+        </div>
+        <div class="lesson-num">09</div>
+      </div>
+      <p>Explain how something is made or done &mdash; from recipes to daily routines to cultural events. Sequencing language is the backbone.</p>
+      <div class="lesson-block"><div class="lesson-block-label">Speaking Focus</div><p>"How to..." &mdash; give step-by-step instructions for a real process you know well.</p></div>
+      <div class="lesson-block" style="border-left-color:var(--cta)"><div class="lesson-block-label" style="color:var(--cta)">Activity</div><p>Short live demonstration with spoken commentary: a recipe, a game, a craft.</p></div>
+    </div>
+
+    <div class="lesson-card fade-in">
+      <div class="lesson-card-header">
+        <div>
+          <h3>Unit 10 &mdash; Revision &amp; Prep</h3>
+          <div class="lesson-date">January &middot; Bringing it all together</div>
+        </div>
+        <div class="lesson-num">10</div>
+      </div>
+      <p>Consolidate the full year's grammar. Focus on picture description fluency and begin planning the end-of-year presentation project.</p>
+      <div class="lesson-block"><div class="lesson-block-label">Activities</div><p>Extended picture description practice, project outlining, peer feedback sessions.</p></div>
+    </div>
+
+    <div class="lesson-card featured fade-in" id="presentation">
+      <div class="lesson-card-header">
+        <div>
+          <h3>Unit 11 &mdash; Year-End <span class="cta-accent">Presentation</span></h3>
+          <div class="lesson-date">February &middot; "My Dream Future" &mdash; speak 2&ndash;3 minutes</div>
+        </div>
+        <div class="lesson-num">11</div>
+      </div>
+      <p>The capstone project. Learners deliver a 2&ndash;3 minute presentation using grammar from the entire year: present, past, future, conditionals, passive, reported speech, and descriptive language.</p>
+      <div class="lesson-block" style="border-left-color:var(--cta)"><div class="lesson-block-label" style="color:var(--cta)">Final Presentation</div><p>Peer feedback via Compliment Circle. Visual supports (slides or drawings) encouraged but not required.</p></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Presentation Slides -->
+<div class="section fade-in" id="presentation">
+  <div class="section-header">
+    <div class="section-num">03</div>
+    <h2>Final <span class="accent">Presentation</span> Guide</h2>
+    <p>Four slides. Every grammar point from the year. Speak for 2&ndash;3 minutes with confidence.</p>
+  </div>
+
+  <div class="pres-slide">
+    <div class="pres-slide-num">Slide 1 &mdash; My Dream Place</div>
+    <h3>Where? Why?</h3>
+    <p>Describe a real or imagined location. Use present and future tenses, vivid adjectives, and sensory detail.</p>
+    <div class="pres-example">Example: <em>"My ideal home is in a quiet city because I love being close to nature. It has large windows and a garden."</em></div>
+  </div>
+
+  <div class="pres-slide">
+    <div class="pres-slide-num">Slide 2 &mdash; Daily Life</div>
+    <h3>What does it look like? What happens there?</h3>
+    <p>Describe rooms, routines, and surroundings. Use adjectives, passive voice, and present continuous.</p>
+    <div class="pres-example">Example: <em>"The living room is decorated with art from my travels. People are always sharing meals together."</em></div>
+  </div>
+
+  <div class="pres-slide">
+    <div class="pres-slide-num">Slide 3 &mdash; What I Can Do There</div>
+    <h3>Hobbies, goals, adventures</h3>
+    <p>Talk about possibilities and imagined experiences. Use modals (can, could) and conditionals.</p>
+    <div class="pres-example">Example: <em>"If I lived there, I would explore the coast every weekend. You can learn to cook local dishes."</em></div>
+  </div>
+
+  <div class="pres-slide">
+    <div class="pres-slide-num">Slide 4 &mdash; Who &amp; Why It Matters</div>
+    <h3>The people. The meaning.</h3>
+    <p>Describe relationships, role models, and personal significance. Use present perfect, reported speech, and descriptive language.</p>
+    <div class="pres-example">Example: <em>"I have been dreaming about this for years. My best friend said that we should make it happen together."</em></div>
+  </div>
+</div>
+
+<!-- Routine -->
+<div class="section fade-in" id="routine">
+  <div class="section-header">
+    <div class="section-num">04</div>
+    <h2>Session <span class="accent">Methodology</span></h2>
+    <p>Every session follows the same predictable flow. Familiarity breeds confidence.</p>
+  </div>
+  <div class="routine-grid">
+    <div class="routine-step">
+      <div class="routine-num">1</div>
+      <h3>Warm-up</h3>
+      <p>10&ndash;15 minutes of low-pressure speaking. Quick questions, pair-share, or picture description. Topics from daily life: family, hobbies, school, friends.</p>
+    </div>
+    <div class="routine-step">
+      <div class="routine-num">2</div>
+      <h3>Main Focus</h3>
+      <p>Grammar and vocabulary introduced in context, immediately practised through structured speaking tasks tied to the unit topic.</p>
+    </div>
+    <div class="routine-step">
+      <div class="routine-num">3</div>
+      <h3>Interactive Activity</h3>
+      <p>Games, role-plays, or video-based tasks. Dice games, charades, interviews, picture chains. The goal is spontaneous, joyful use of the target language.</p>
+    </div>
+    <div class="routine-step">
+      <div class="routine-num">4</div>
+      <h3>Wrap-up</h3>
+      <p>Brief reflection or mini-presentation. Students share what they learned, what they found challenging, or what they want to practise next time.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Additional Resources -->
+<div class="section fade-in">
+  <div class="section-header">
+    <div class="section-num">05</div>
+    <h2>Additional <span class="accent">Resources</span></h2>
+    <p>Supporting materials that extend learning beyond the session.</p>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-card">
+      <div class="lesson-block"><div class="lesson-block-label">Conversation Practice</div><p>Curated question lists (300+ topics) for warm-ups and free discussion. Organised by theme: identity, daily life, opinions, future plans.</p></div>
+    </div>
+    <div class="lesson-card">
+      <div class="lesson-block"><div class="lesson-block-label">Video Content</div><p>Short ESL clips, explainer videos, and fun content from YouTube. Always tied to the unit's grammar or topic focus.</p></div>
+    </div>
+    <div class="lesson-card">
+      <div class="lesson-block"><div class="lesson-block-label">Games &amp; Activities</div><p>Story dice, charades, board games with grammar cards, picture chains, interview grids. Designed for pairs and small groups.</p></div>
+    </div>
+    <div class="lesson-card">
+      <div class="lesson-block"><div class="lesson-block-label">Cultural Tie-ins</div><p>Topics drawn from the learner's own context and interests &mdash; local culture, festivals, current events, shared media. Relevance drives engagement.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-section" id="contact">
+  <h2>Ready to <span class="accent">begin</span>?</h2>
+  <p>This syllabus is a living document. Each unit can be adapted to the learner's level, interests, and pace. The goal is always the same: genuine communication, not just correct answers.</p>
+  <a href="#" class="hero-cta">Book a Lesson &#8594;</a>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <p>&copy; 2026 William Thomason English. All rights reserved. This document is confidential.</p>
+</div>
+
+<script>
+// Scroll-triggered fade-in
+var observer=new IntersectionObserver(function(entries){
+  entries.forEach(function(entry){
+    if(entry.isIntersecting) entry.target.classList.add('visible');
+  });
+},{threshold:0.1});
+document.querySelectorAll('.fade-in').forEach(function(el){observer.observe(el);});
+</script>
+</body>
+</html>

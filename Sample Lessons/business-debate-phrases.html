@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Business Debate Phrases — William Thomason English</title>
+<meta name="description" content="50+ native speaker phrases for business debate, ethics discussions, and professional opinion-giving. With vocabulary exercises. From William Thomason English sample lessons.">
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Blogger+Sans:wght@400;500;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #1c1c1c; --bg-card: #232323; --bg-hover: #2a2a2a;
+  --border: #333333; --border-light: #444444;
+  --text: #e8e8e8; --text-muted: #999999; --text-dim: #666666;
+  --accent: #a3e635; --amber: #fbbf24; --emerald: #34d399;
+  --rose: #fb7185; --violet: #a78bfa;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Blogger Sans','Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;font-size:15px}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.container{max-width:960px;margin:0 auto;padding:0 24px}
+
+/* Header */
+.header{padding:48px 0 32px;text-align:center;border-bottom:1px solid var(--border);margin-bottom:32px}
+.header h1{font-size:1.8rem;font-weight:800;letter-spacing:-.5px;margin-bottom:8px}
+.header h1 span{color:var(--accent)}
+.header p{color:var(--text-muted);font-size:1rem;max-width:600px;margin:0 auto}
+.stats{display:flex;gap:32px;margin-top:24px;justify-content:center}
+.stat-num{font-size:24px;font-weight:800;color:var(--accent)}
+.stat-label{font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px}
+
+/* Nav */
+.nav{display:flex;gap:6px;margin-bottom:32px;flex-wrap:wrap;justify-content:center}
+.nav-btn{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-muted);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
+.nav-btn:hover{border-color:var(--text-dim);color:var(--text)}
+.nav-btn.active{background:rgba(163,230,53,.10);border-color:var(--accent);color:var(--accent)}
+
+/* Category section */
+.cat{margin-bottom:48px}
+.cat-title{font-size:1.3rem;font-weight:700;margin-bottom:20px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.cat-count{font-size:11px;font-weight:600;color:var(--text-dim);background:var(--bg-card);padding:2px 8px;border-radius:10px}
+
+/* Phrase card */
+.phrase-list{display:flex;flex-direction:column;gap:12px}
+.phrase-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:18px 20px;transition:border .15s}
+.phrase-card:hover{border-color:var(--border-light)}
+.phrase-text{font-size:1.05rem;font-weight:700;color:var(--amber);margin-bottom:6px}
+.phrase-def{font-size:13px;color:var(--text-muted);margin-bottom:8px;line-height:1.5}
+.phrase-example{font-size:12px;color:var(--text-dim);font-style:italic;padding-left:12px;border-left:2px solid var(--border-light)}
+.phrase-example::before{content:"💬 ";font-style:normal}
+
+/* Exercise section */
+.exercise-section{margin-bottom:48px}
+.ex-section-title{font-size:1.3rem;font-weight:700;margin-bottom:20px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.ex-type-nav{display:flex;gap:6px;margin-bottom:24px;flex-wrap:wrap}
+.ex-type-btn{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-muted);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
+.ex-type-btn:hover{border-color:var(--text-dim);color:var(--text)}
+.ex-type-btn.active{background:rgba(167,139,250,.12);border-color:var(--violet);color:var(--violet)}
+.ex-box{display:none}
+.ex-box.active{display:block}
+
+/* Quiz */
+.quiz-question{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:12px}
+.quiz-q{font-weight:600;margin-bottom:12px}
+.quiz-options{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.quiz-opt{padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text-muted);font-size:13px;cursor:pointer;transition:all .15s;text-align:left}
+.quiz-opt:hover{border-color:var(--text-dim);color:var(--text)}
+.quiz-opt.correct{border-color:var(--emerald);background:rgba(52,211,153,.08);color:var(--emerald)}
+.quiz-opt.wrong{border-color:var(--rose);background:rgba(251,113,133,.08);color:var(--rose)}
+
+/* Fill blank */
+.blank-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:12px}
+.blank-text{font-size:14px;margin-bottom:10px;line-height:1.6}
+.blank-input{width:100%;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;outline:none;transition:border .15s;margin-bottom:8px}
+.blank-input:focus{border-color:var(--accent)}
+.blank-input.correct{border-color:var(--emerald);background:rgba(52,211,153,.05)}
+.blank-input.wrong{border-color:var(--rose);background:rgba(251,113,133,.05)}
+.blank-check{padding:4px 12px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text-muted);font-size:12px;cursor:pointer}
+.blank-check:hover{border-color:var(--text-dim)}
+
+/* Match */
+.match-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.match-col{display:flex;flex-direction:column;gap:8px}
+.match-col-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:4px;padding:0 4px}
+.match-item{padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card);font-size:13px;cursor:pointer;transition:all .15s;text-align:center}
+.match-item:hover{border-color:var(--text-dim)}
+.match-item.selected{border-color:var(--accent);background:rgba(34,211,238,.08)}
+.match-item.matched{border-color:var(--emerald);background:rgba(52,211,153,.08);cursor:default}
+.match-item.no-match{border-color:var(--rose);background:rgba(251,113,133,.08)}
+
+/* Role play */
+.rp-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:12px}
+.rp-title{font-weight:700;color:var(--violet);margin-bottom:8px;font-size:14px}
+.rp-desc{color:var(--text-muted);font-size:13px;line-height:1.6}
+
+/* Score */
+.score-box{text-align:center;padding:32px}
+.score-num{font-size:48px;font-weight:800;color:var(--amber)}
+.score-label{color:var(--text-muted);margin-top:8px}
+
+/* Slide mode */
+.slide-view{display:none}
+.slide-view.active{display:block}
+.slide-controls{display:flex;gap:8px;justify-content:center;margin-top:24px}
+.slide-btn{padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card);color:var(--text);font-size:13px;cursor:pointer;transition:all .15s}
+.slide-btn:hover{border-color:var(--border-light)}
+.slide-counter{text-align:center;font-size:12px;color:var(--text-dim);margin-top:8px}
+
+/* Footer */
+.footer{text-align:center;padding:40px 0;color:var(--text-dim);font-size:12px;border-top:1px solid var(--border);margin-top:48px}
+
+/* Print */
+@media print{
+  .nav,.nav-btn,.ex-type-nav,.ex-type-btn,.blank-check,.slide-controls,.slide-counter{display:none!important}
+  body{background:#fff;color:#000;font-size:12px}
+  .phrase-card,.quiz-question,.blank-card,.rp-card{break-inside:avoid;border:1px solid #ccc}
+  .phrase-text{color:#d97706
+  .cat{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+  <a href="/home/irieb/William's Projects/William Thomason English/index.html" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;border:1px solid var(--border);color:var(--text-muted);font-size:12px;font-weight:600;text-decoration:none;margin-bottom:20px;transition:all .15s;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">← Back to William Thomason English</a>
+
+  <h1>Business <span>Debate</span> Phrases</h1>
+  <p>Native speaker phrases for stating opinions, debating ethics, and driving decisions in professional English.</p>
+  <div class="stats">
+    <div><div class="stat-num">60</div><div class="stat-label">Phrases</div></div>
+    <div><div class="stat-num">6</div><div class="stat-label">Categories</div></div>
+    <div><div class="stat-num">4</div><div class="stat-label">Exercise Types</div></div>
+  </div>
+</div>
+
+<!-- Category Nav -->
+<div class="nav" id="catNav">
+  <button class="nav-btn active" onclick="showCat('all',this)">All Phrases</button>
+  <button class="nav-btn" onclick="showCat('Taking a Stance',this)">Taking a Stance</button>
+  <button class="nav-btn" onclick="showCat('Agreeing & Supporting',this)">Agreeing & Supporting</button>
+  <button class="nav-btn" onclick="showCat('Disagreeing & Challenging',this)">Disagreeing & Challenging</button>
+  <button class="nav-btn" onclick="showCat('Hedging & Softening',this)">Hedging & Softening</button>
+  <button class="nav-btn" onclick="showCat('Ethics & Values',this)">Ethics & Values</button>
+  <button class="nav-btn" onclick="showCat('Driving to Action',this)">Driving to Action</button>
+</div>
+
+<!-- Phrase Cards by Category -->
+<div id="phraseSection">
+<div class="cat" data-cat="Taking a Stance">
+  <div class="cat-title">Taking a Stance <span class="cat-count">10 phrases</span></div>
+  <div class="phrase-list">
+    <div class="phrase-card">
+      <div class="phrase-text">Where I stand on this is...</div>
+      <div class="phrase-def">Used to clearly state your personal position on a controversial issue.</div>
+      <div class="phrase-example">Where I stand on this is that remote work should be a right, not a privilege.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">I'm firmly convinced that...</div>
+      <div class="phrase-def">Expresses strong belief with confidence, harder to challenge than 'I think'.</div>
+      <div class="phrase-example">I'm firmly convinced that transparency builds long-term trust with customers.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">My gut feeling tells me...</div>
+      <div class="phrase-def">Appeals to intuition when data is incomplete; common in executive decision-making.</div>
+      <div class="phrase-example">My gut feeling tells me this merger will damage both brands.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">I'd stake my reputation on...</div>
+      <div class="phrase-def">The strongest way to commit to a position; implies personal risk.</div>
+      <div class="phrase-example">I'd stake my reputation on the fact that this strategy will double our revenue.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">From where I'm sitting...</div>
+      <div class="phrase-def">Softens a stance by acknowledging it's from your specific vantage point.</div>
+      <div class="phrase-example">From where I'm sitting, we're overcomplicating the supply chain.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">I hold the view that...</div>
+      <div class="phrase-def">Formal way to state an opinion; common in panel discussions and board meetings.</div>
+      <div class="phrase-example">I hold the view that we should prioritize sustainability over short-term profit.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">The way I see it...</div>
+      <div class="phrase-def">Casual but effective way to frame your interpretation of a situation.</div>
+      <div class="phrase-example">The way I see it, our competitors are already three steps ahead.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">I'm of two minds about...</div>
+      <div class="phrase-def">Shows intellectual honesty by admitting internal conflict on a topic.</div>
+      <div class="phrase-example">I'm of two minds about outsourcing — it saves costs but hurts quality control.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">If push came to shove...</div>
+      <div class="phrase-def">Hypothetical commitment — what you'd actually do under pressure.</div>
+      <div class="phrase-example">If push came to shove, I'd rather lose the client than compromise our values.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">I've come around to the idea that...</div>
+      <div class="phrase-def">Shows you changed your mind after consideration; signals open-mindedness.</div>
+      <div class="phrase-example">I've come around to the idea that four-day weeks actually boost productivity.</div>
+    </div>
+  </div>
+</div>
+<div class="cat" data-cat="Agreeing & Supporting">
+  <div class="cat-title">Agreeing & Supporting <span class="cat-count">10 phrases</span></div>
+  <div class="phrase-list">
+    <div class="phrase-card">
+      <div class="phrase-text">I'm with you on that.</div>
+      <div class="phrase-def">Quick, natural way to show alignment in a fast-paced discussion.</div>
+      <div class="phrase-example">Your point about market saturation — I'm with you on that.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">That's exactly where I'm coming from.</div>
+      <div class="phrase-def">Deep agreement — shows you share the same reasoning, not just the conclusion.</div>
+      <div class="phrase-example">That's exactly where I'm coming from — we need to invest in R&D now.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">I'd go even further and say...</div>
+      <div class="phrase-def">Agrees then extends the argument; shows active engagement.</div>
+      <div class="phrase-example">I'd go even further and say we should eliminate all single-use plastics by Q3.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">You've hit the nail on the head.</div>
+      <div class="phrase-def">Strong compliment meaning someone identified the core issue perfectly.</div>
+      <div class="phrase-example">You've hit the nail on the head — retention is our real problem, not acquisition.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">That resonates with me.</div>
+      <div class="phrase-def">Personal, thoughtful agreement; implies the idea connects to your experience.</div>
+      <div class="phrase-example">Your point about founder burnout really resonates with me.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">I couldn't agree more.</div>
+      <div class="phrase-def">Emphatic agreement; stronger than 'I agree' and sounds more native.</div>
+      <div class="phrase-example">We need to diversify our supplier base — I couldn't agree more.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">That's a fair point.</div>
+      <div class="phrase-def">Acknowledges the merit of someone's argument, even if you don't fully agree.</div>
+      <div class="phrase-example">That's a fair point about the timeline — we may need an extra quarter.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">I echo what [name] said.</div>
+      <div class="phrase-def">Formally supports a colleague's point; common in meetings and panels.</div>
+      <div class="phrase-example">I echo what Sarah said about the need for ethical AI guidelines.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">That's in line with our thinking.</div>
+      <div class="phrase-def">Corporate phrase meaning an idea matches your company's strategic direction.</div>
+      <div class="phrase-example">Your proposal for a subscription model is in line with our thinking.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">I'll back you up on that.</div>
+      <div class="phrase-def">Offers active support; implies you'll defend the position if challenged.</div>
+      <div class="phrase-example">Present the data to the board — I'll back you up on that.</div>
+    </div>
+  </div>
+</div>
+<div class="cat" data-cat="Disagreeing & Challenging">
+  <div class="cat-title">Disagreeing & Challenging <span class="cat-count">10 phrases</span></div>
+  <div class="phrase-list">
+    <div class="phrase-card">
+      <div class="phrase-text">I see it differently.</div>
+      <div class="phrase-def">Polite but firm disagreement; avoids direct confrontation.</div>
+      <div class="phrase-example">I see it differently — I think the risk of inaction is greater than the cost.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">With all due respect...</div>
+      <div class="phrase-def">Signals a strong disagreement coming; the polite version of 'you're wrong'.</div>
+      <div class="phrase-example">With all due respect, that strategy has failed three times in our industry.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">I take your point, but...</div>
+      <div class="phrase-def">Acknowledges the other side before countering; classic debate structure.</div>
+      <div class="phrase-example">I take your point about costs, but the long-term brand damage is worse.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">That's a tough sell.</div>
+      <div class="phrase-def">Skeptical — implies you think the idea won't convince stakeholders.</div>
+      <div class="phrase-example">Doubling the marketing budget in Q4? That's a tough sell to the CFO.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">I'm not buying it.</div>
+      <div class="phrase-def">Direct, informal rejection of an argument or claim.</div>
+      <div class="phrase-example">Their excuse about supply chain issues — I'm not buying it.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">That's a load of bunk.</div>
+      <div class="phrase-def">Strong dismissal; use carefully in professional settings.</div>
+      <div class="phrase-example">The report says our carbon footprint is neutral — that's a load of bunk.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">You're barking up the wrong tree.</div>
+      <div class="phrase-def">Idiom meaning someone is pursuing the wrong line of reasoning.</div>
+      <div class="phrase-example">You're barking up the wrong tree if you think price cuts will fix retention.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">I beg to differ.</div>
+      <div class="phrase-def">Formal, slightly old-fashioned way to disagree; carries weight in debates.</div>
+      <div class="phrase-example">I beg to differ — the data shows the opposite trend.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">That begs the question...</div>
+      <div class="phrase-def">Points out that an argument raises an unaddressed deeper issue.</div>
+      <div class="phrase-example">That begs the question — who decides what counts as ethical AI?</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">I have serious reservations about...</div>
+      <div class="phrase-def">Professional way to express strong doubt without shutting down discussion.</div>
+      <div class="phrase-example">I have serious reservations about partnering with a company that uses child labor.</div>
+    </div>
+  </div>
+</div>
+<div class="cat" data-cat="Hedging & Softening">
+  <div class="cat-title">Hedging & Softening <span class="cat-count">10 phrases</span></div>
+  <div class="phrase-list">
+    <div class="phrase-card">
+      <div class="phrase-text">I'm not entirely sold on...</div>
+      <div class="phrase-def">Expresses doubt without outright rejection; leaves room for persuasion.</div>
+      <div class="phrase-example">I'm not entirely sold on the rebranding — we risk losing brand recognition.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">There's a grain of truth in that, but...</div>
+      <div class="phrase-def">Validates a partial point before pivoting to your counterargument.</div>
+      <div class="phrase-example">There's a grain of truth in that, but the sample size is too small to generalize.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">It's a double-edged sword.</div>
+      <div class="phrase-def">Acknowledges that an argument or decision has both benefits and risks.</div>
+      <div class="phrase-example">AI automation is a double-edged sword — it cuts costs but also cuts jobs.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">I'd want to see more data before...</div>
+      <div class="phrase-def">Defers commitment by requesting evidence; buys time without rejecting.</div>
+      <div class="phrase-example">I'd want to see more data before committing to a full rollout.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">In an ideal world...</div>
+      <div class="phrase-def">Signals you're about to introduce real-world constraints to a theoretical argument.</div>
+      <div class="phrase-example">In an ideal world, we'd pay every intern. But our budget tells a different story.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">Let's not get ahead of ourselves.</div>
+      <div class="phrase-def">Cautions against premature conclusions; common in risk-aware cultures.</div>
+      <div class="phrase-example">Let's not get ahead of ourselves — we haven't even secured Series A yet.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">That remains to be seen.</div>
+      <div class="phrase-def">Neutral way to withhold judgment on a claim about the future.</div>
+      <div class="phrase-example">Whether the new CEO can turn the company around remains to be seen.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">I'm on the fence about...</div>
+      <div class="phrase-def">Honestly declares you haven't decided; invites others to persuade you.</div>
+      <div class="phrase-example">I'm on the fence about the acquisition — the tech is great but the culture fit worries me.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">It's not cut and dried.</div>
+      <div class="phrase-def">Indicates a situation is more complex than someone is presenting it.</div>
+      <div class="phrase-example">It's not cut and dried — there are regulatory implications we haven't considered.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">I'd echo that with a caveat.</div>
+      <div class="phrase-def">Agrees conditionally; signals an important exception is coming.</div>
+      <div class="phrase-example">I'd echo that with a caveat — it works for B2B but falls apart in B2C.</div>
+    </div>
+  </div>
+</div>
+<div class="cat" data-cat="Ethics & Values">
+  <div class="cat-title">Ethics & Values <span class="cat-count">10 phrases</span></div>
+  <div class="phrase-list">
+    <div class="phrase-card">
+      <div class="phrase-text">Just because we doesn't mean we should.</div>
+      <div class="phrase-def">Classic ethics boundary line distinguishing capability from morality.</div>
+      <div class="phrase-example">Just because we *can* monetize user data doesn't mean we should.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">Where do we draw the line?</div>
+      <div class="phrase-def">Forces a conversation about ethical boundaries before they're crossed.</div>
+      <div class="phrase-example">We're using AI to screen job candidates — but where do we draw the line?</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">It's a slippery slope.</div>
+      <div class="phrase-def">Warns that one decision leads to progressively worse ones.</div>
+      <div class="phrase-example">Allowing one vendor to self-report emissions is a slippery slope.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">The ends don't justify the means.</div>
+      <div class="phrase-def">Absolute ethical stance against achieving goals through unethical methods.</div>
+      <div class="phrase-example">Falsifying the safety report? The ends don't justify the means.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">It comes down to...</div>
+      <div class="phrase-def">Frames the core issue when a debate has too many variables.</div>
+      <div class="phrase-example">It comes down to whether we value profit or people more.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">We have a duty of care to...</div>
+      <div class="phrase-def">Appeals to moral obligation; powerful in ethics discussions.</div>
+      <div class="phrase-example">We have a duty of care to the communities where we manufacture.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">That's a breach of trust.</div>
+      <div class="phrase-def">Accusation of violating an implicit or explicit agreement.</div>
+      <div class="phrase-example">Selling user data without consent — that's a breach of trust.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">It crosses a red line for me.</div>
+      <div class="phrase-def">Personal ethical boundary; signals you won't support something past this point.</div>
+      <div class="phrase-example">Using sweatshop labor crosses a red line for me.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">The optics on this are terrible.</div>
+      <div class="phrase-def">Focuses on public perception and reputational risk of a decision.</div>
+      <div class="phrase-example">Laying off staff while the CEO gets a bonus — the optics are terrible.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">Is this who we want to be as a company?</div>
+      <div class="phrase-def">The ultimate values-check question; forces alignment with company identity.</div>
+      <div class="phrase-example">Is this who we want to be as a company — one that lobbies against climate regulation?</div>
+    </div>
+  </div>
+</div>
+<div class="cat" data-cat="Driving to Action">
+  <div class="cat-title">Driving to Action <span class="cat-count">10 phrases</span></div>
+  <div class="phrase-list">
+    <div class="phrase-card">
+      <div class="phrase-text">Let's circle back to...</div>
+      <div class="phrase-def">Returns the discussion to the main topic after a tangent.</div>
+      <div class="phrase-example">Let's circle back to the budget — how do we fund this initiative?</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">What's our next move?</div>
+      <div class="phrase-def">Pushes from discussion to decision; forces ownership of action items.</div>
+      <div class="phrase-example">We've debated this for an hour — what's our next move?</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">I suggest we table this until...</div>
+      <div class="phrase-def">Formally proposes postponing a decision to gather more information.</div>
+      <div class="phrase-example">I suggest we table this until we have the Q3 numbers.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">Let's not reinvent the wheel.</div>
+      <div class="phrase-def">Advises using existing solutions rather than building from scratch.</div>
+      <div class="phrase-example">Let's not reinvent the wheel — Salesforce already has a module for this.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">We need to be proactive, not reactive.</div>
+      <div class="phrase-def">Calls for anticipation instead of crisis management.</div>
+      <div class="phrase-example">We need to be proactive, not reactive, about the new regulations.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">What's the worst-case scenario?</div>
+      <div class="phrase-def">Risk assessment question; forces the team to stress-test the plan.</div>
+      <div class="phrase-example">What's the worst-case scenario if the launch fails?</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">Let's agree to disagree.</div>
+      <div class="phrase-def">Ends a deadlocked debate respectfully without resolution.</div>
+      <div class="phrase-example">We're not going to resolve this today — let's agree to disagree.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">Who owns this?</div>
+      <div class="phrase-def">Forces accountability by assigning a single responsible person.</div>
+      <div class="phrase-example">This initiative is stalling — who owns this?</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">Let's put a pin in that.</div>
+      <div class="phrase-def">Acknowledges an idea but defers it for later discussion.</div>
+      <div class="phrase-example">Your point about office space is valid — let's put a pin in that for now.</div>
+    </div>
+    <div class="phrase-card">
+      <div class="phrase-text">Time to fish or cut bait.</div>
+      <div class="phrase-def">Idiom demanding a decision — commit or walk away.</div>
+      <div class="phrase-example">We've been exploring this partnership for six months — time to fish or cut bait.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Exercises -->
+<div class="exercise-section">
+  <div class="ex-section-title">📝 Vocabulary Exercises</div>
+  <div class="ex-type-nav">
+    <button class="ex-type-btn active" onclick="showEx('quiz',this)">Quiz</button>
+    <button class="ex-type-btn" onclick="showEx('fill',this)">Fill the Blank</button>
+    <button class="ex-type-btn" onclick="showEx('match',this)">Match</button>
+    <button class="ex-type-btn" onclick="showEx('roleplay',this)">Role Play</button>
+  </div>
+
+  <!-- Quiz -->
+  <div class="ex-box active" id="ex-quiz">
+    <div class="quiz-question">
+      <div class="quiz-q">1. Which phrase means 'I have strong doubts but won't outright reject'?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="checkQuiz(this,false)">I'm not buying it</button>
+        <button class="quiz-opt" onclick="checkQuiz(this,true)">I'm not entirely sold on</button>
+        <button class="quiz-opt" onclick="checkQuiz(this,false)">With all due respect</button>
+        <button class="quiz-opt" onclick="checkQuiz(this,false)">That's a tough sell</button>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <div class="quiz-q">2. When someone says 'that begs the question', they mean...</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="checkQuiz(this,false)">The question is stupid</button>
+        <button class="quiz-opt" onclick="checkQuiz(this,true)">The argument raises an unaddressed deeper issue</button>
+        <button class="quiz-opt" onclick="checkQuiz(this,false)">They want to ask a question</button>
+        <button class="quiz-opt" onclick="checkQuiz(this,false)">The debate should end</button>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <div class="quiz-q">3. 'It's a slippery slope' warns that...</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="checkQuiz(this,false)">The terrain is dangerous</button>
+        <button class="quiz-opt" onclick="checkQuiz(this,true)">One decision leads to progressively worse ones</button>
+        <button class="quiz-opt" onclick="checkQuiz(this,false)">We should avoid outdoor activities</button>
+        <button class="quiz-opt" onclick="checkQuiz(this,false)">The argument is falling apart</button>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <div class="quiz-q">4. Which phrase is the politest way to disagree?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="checkQuiz(this,false)">That's a load of bunk</button>
+        <button class="quiz-opt" onclick="checkQuiz(this,false)">I'm not buying it</button>
+        <button class="quiz-opt" onclick="checkQuiz(this,true)">I see it differently</button>
+        <button class="quiz-opt" onclick="checkQuiz(this,false)">You're barking up the wrong tree</button>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <div class="quiz-q">5. 'The optics on this are terrible' refers to...</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="checkQuiz(this,false)">Eye exams for employees</button>
+        <button class="quiz-opt" onclick="checkQuiz(this,false)">Visual design quality</button>
+        <button class="quiz-opt" onclick="checkQuiz(this,true)">How the public will perceive the decision</button>
+        <button class="quiz-opt" onclick="checkQuiz(this,false)">The camera equipment we purchased</button>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <div class="quiz-q">6. Which phrase signals you've changed your mind after consideration?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="checkQuiz(this,false)">My gut feeling tells me</button>
+        <button class="quiz-opt" onclick="checkQuiz(this,true)">I've come around to the idea that</button>
+        <button class="quiz-opt" onclick="checkQuiz(this,false)">I'm firmly convinced that</button>
+        <button class="quiz-opt" onclick="checkQuiz(this,false)">I hold the view that</button>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <div class="quiz-q">7. 'Time to fish or cut bait' means:</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="checkQuiz(this,false)">We should go fishing</button>
+        <button class="quiz-opt" onclick="checkQuiz(this,true)">Commit to a decision or walk away</button>
+        <button class="quiz-opt" onclick="checkQuiz(this,false)">The bait is too expensive</button>
+        <button class="quiz-opt" onclick="checkQuiz(this,false)">We need more time</button>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <div class="quiz-q">8. Which phrase is used to assign accountability?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="checkQuiz(this,false)">Let's circle back to</button>
+        <button class="quiz-opt" onclick="checkQuiz(this,false)">What's the worst-case scenario?</button>
+        <button class="quiz-opt" onclick="checkQuiz(this,true)">Who owns this?</button>
+        <button class="quiz-opt" onclick="checkQuiz(this,false)">Let's put a pin in that</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fill the Blank -->
+  <div class="ex-box" id="ex-fill">
+    <div class="blank-card">
+      <div class="blank-text">I'm not entirely ____ on the rebranding</div>
+      <input type="text" class="blank-input" placeholder="Type the missing word..." onkeydown="if(event.key==='Enter')checkBlank(this,'sold')">
+      <button class="blank-check" onclick="checkBlank(this.previousElementSibling,'sold')">Check</button>
+    </div>
+    <div class="blank-card">
+      <div class="blank-text">Just because we can doesn't mean we ____</div>
+      <input type="text" class="blank-input" placeholder="Type the missing word..." onkeydown="if(event.key==='Enter')checkBlank(this,'should')">
+      <button class="blank-check" onclick="checkBlank(this.previousElementSibling,'should')">Check</button>
+    </div>
+    <div class="blank-card">
+      <div class="blank-text">You're ____ up the wrong tree</div>
+      <input type="text" class="blank-input" placeholder="Type the missing word..." onkeydown="if(event.key==='Enter')checkBlank(this,'barking')">
+      <button class="blank-check" onclick="checkBlank(this.previousElementSibling,'barking')">Check</button>
+    </div>
+    <div class="blank-card">
+      <div class="blank-text">Let's not ____ ahead of ourselves</div>
+      <input type="text" class="blank-input" placeholder="Type the missing word..." onkeydown="if(event.key==='Enter')checkBlank(this,'get')">
+      <button class="blank-check" onclick="checkBlank(this.previousElementSibling,'get')">Check</button>
+    </div>
+    <div class="blank-card">
+      <div class="blank-text">Is this who we want to be ____ a company</div>
+      <input type="text" class="blank-input" placeholder="Type the missing word..." onkeydown="if(event.key==='Enter')checkBlank(this,'as')">
+      <button class="blank-check" onclick="checkBlank(this.previousElementSibling,'as')">Check</button>
+    </div>
+    <div class="blank-card">
+      <div class="blank-text">The ends don't ____ the means</div>
+      <input type="text" class="blank-input" placeholder="Type the missing word..." onkeydown="if(event.key==='Enter')checkBlank(this,'justify')">
+      <button class="blank-check" onclick="checkBlank(this.previousElementSibling,'justify')">Check</button>
+    </div>
+    <div class="blank-card">
+      <div class="blank-text">I'd stake my ____ on the fact that this strategy will work</div>
+      <input type="text" class="blank-input" placeholder="Type the missing word..." onkeydown="if(event.key==='Enter')checkBlank(this,'reputation')">
+      <button class="blank-check" onclick="checkBlank(this.previousElementSibling,'reputation')">Check</button>
+    </div>
+    <div class="blank-card">
+      <div class="blank-text">Your point about burnout really ____ with me</div>
+      <input type="text" class="blank-input" placeholder="Type the missing word..." onkeydown="if(event.key==='Enter')checkBlank(this,'resonates')">
+      <button class="blank-check" onclick="checkBlank(this.previousElementSibling,'resonates')">Check</button>
+    </div>
+  </div>
+
+  <!-- Match -->
+  <div class="ex-box" id="ex-match">
+    <p style="color:var(--text-muted);font-size:13px;margin-bottom:16px">Click a phrase on the left, then its meaning on the right to match them.</p>
+    <div class="match-grid">
+      <div class="match-col">
+        <div class="match-col-title">Phrase</div>
+        <div id="matchLeft">
+          <div class="match-item" data-idx="4" onclick="selectMatch(this,'left')">There's a grain of truth in that</div>
+          <div class="match-item" data-idx="2" onclick="selectMatch(this,'left')">I'll back you up on that</div>
+          <div class="match-item" data-idx="7" onclick="selectMatch(this,'left')">I echo what Sarah said</div>
+          <div class="match-item" data-idx="3" onclick="selectMatch(this,'left')">Let's agree to disagree</div>
+          <div class="match-item" data-idx="6" onclick="selectMatch(this,'left')">What's our next move?</div>
+          <div class="match-item" data-idx="5" onclick="selectMatch(this,'left')">It crosses a red line for me</div>
+          <div class="match-item" data-idx="0" onclick="selectMatch(this,'left')">It's a double-edged sword</div>
+          <div class="match-item" data-idx="1" onclick="selectMatch(this,'left')">That resonates with me</div>
+        </div>
+      </div>
+      <div class="match-col">
+        <div class="match-col-title">Meaning</div>
+        <div id="matchRight">
+          <div class="match-item" data-idx="4" onclick="selectMatch(this,'right')">Partial agreement before countering</div>
+          <div class="match-item" data-idx="3" onclick="selectMatch(this,'right')">End a deadlock respectfully</div>
+          <div class="match-item" data-idx="0" onclick="selectMatch(this,'right')">Has both benefits and risks</div>
+          <div class="match-item" data-idx="1" onclick="selectMatch(this,'right')">Connects to my personal experience</div>
+          <div class="match-item" data-idx="2" onclick="selectMatch(this,'right')">I'll support you publicly</div>
+          <div class="match-item" data-idx="5" onclick="selectMatch(this,'right')">Violates my ethical boundary</div>
+          <div class="match-item" data-idx="7" onclick="selectMatch(this,'right')">Formally support a colleague's point</div>
+          <div class="match-item" data-idx="6" onclick="selectMatch(this,'right')">Push toward action</div>
+        </div>
+      </div>
+    </div>
+    <div id="matchScore" style="text-align:center;margin-top:16px;color:var(--text-muted);font-size:13px"></div>
+  </div>
+
+  <!-- Role Play -->
+  <div class="ex-box" id="ex-roleplay">
+    <p style="color:var(--text-muted);font-size:13px;margin-bottom:16px">Practice using the phrases in realistic business scenarios. Speak or write your response using at least 3 phrases from the deck.</p>
+    <div class="rp-card">
+      <div class="rp-title">Scenario 1</div>
+      <div class="rp-desc">Your team wants to use customer data for an AI model without explicit consent. You believe this is unethical. Use at least 3 phrases from the Ethics & Values section to argue your position.</div>
+    </div>
+    <div class="rp-card">
+      <div class="rp-title">Scenario 2</div>
+      <div class="rp-desc">Your colleague proposes cutting 20% of staff to meet quarterly targets. You disagree firmly. Use disagreeing phrases and propose an alternative.</div>
+    </div>
+    <div class="rp-card">
+      <div class="rp-title">Scenario 3</div>
+      <div class="rp-desc">You're in a meeting where everyone is debating a decision endlessly. Use 2 'Driving to Action' phrases to move the team forward.</div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <p>Business Debate Phrases — William Thomason English Sample Lesson</p>
+  <p style="margin-top:4px">From the <a href="/home/irieb/William's Projects/William Thomason English/index.html">William Thomason English</a> sample lessons collection.</p>
+</div>
+
+</div>
+
+<script>
+// Category filter
+function showCat(cat, btn) {
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.cat').forEach(c => {
+    c.style.display = (cat === 'all' || c.dataset.cat === cat) ? '' : 'none';
+  });
+}
+
+// Exercise tabs
+function showEx(type, btn) {
+  document.querySelectorAll('.ex-type-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.ex-box').forEach(b => b.classList.remove('active'));
+  document.getElementById('ex-' + type).classList.add('active');
+}
+
+// Quiz
+function checkQuiz(btn, correct) {
+  var opts = btn.parentElement.querySelectorAll('.quiz-opt');
+  opts.forEach(o => { o.style.pointerEvents = 'none'; });
+  if (correct) {
+    btn.classList.add('correct');
+  } else {
+    btn.classList.add('wrong');
+    opts.forEach(o => { if (o.onclick && o.onclick.toString().includes('true')) o.classList.add('correct'); });
+  }
+}
+
+// Fill blank
+function checkBlank(input, answer) {
+  var val = input.value.trim().toLowerCase();
+  var ans = answer.toLowerCase();
+  input.classList.remove('correct', 'wrong');
+  if (val === ans) {
+    input.classList.add('correct');
+  } else {
+    input.classList.add('wrong');
+    input.value = input.value + ' → ' + answer;
+  }
+}
+
+// Match
+var matchState = { left: null, right: null, matched: 0 };
+function selectMatch(el, side) {
+  if (el.classList.contains('matched')) return;
+  var col = el.closest('.match-col');
+  col.querySelectorAll('.match-item').forEach(i => i.classList.remove('selected'));
+  el.classList.add('selected');
+  matchState[side] = el;
+  if (matchState.left && matchState.right) {
+    if (matchState.left.dataset.idx === matchState.right.dataset.idx) {
+      matchState.left.classList.remove('selected');
+      matchState.left.classList.add('matched');
+      matchState.right.classList.remove('selected');
+      matchState.right.classList.add('matched');
+      matchState.matched++;
+      document.getElementById('matchScore').textContent = matchState.matched + ' / 8 matched';
+    } else {
+      matchState.left.classList.add('no-match');
+      matchState.right.classList.add('no-match');
+      setTimeout(function() {
+        matchState.left.classList.remove('selected', 'no-match');
+        matchState.right.classList.remove('selected', 'no-match');
+      }, 600);
+    }
+    matchState.left = null;
+    matchState.right = null;
+  }
+}
+
+// Shift+wheel for horizontal scroll (side scrolling)
+document.addEventListener('wheel',function(e){
+  if(e.shiftKey){
+    e.preventDefault();
+    window.scrollBy(e.deltaY, 0);
+  }
+},{passive:false});
+</script>
+</body>
+</html>
