@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>WTE Admin — Coupon Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=Blogger+Sans:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#1c1c1c;--bg2:#161616;--bg3:#222222;--bg4:#232323;--border:#333333;--border-light:#444444;--text:#e8e8e8;--text-muted:#999999;--text-dim:#555555;--accent:#a3e635;--accent-dim:rgba(163,230,53,.08);--accent-glow:rgba(163,230,53,.3);--green:#34d399;--amber:#fbbf24;--violet:#a78bfa;--rose:#fb7185}
+*{margin:0;padding:0;box-sizing:border-box}
+html{font-size:16px}
+body{font-family:'Blogger Sans','Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+button{font-family:inherit}
+
+/* Login */
+.login-screen{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;align-items:center;justify-content:center}
+.login-screen.hidden{display:none}
+.login-box{width:360px;max-width:90vw;background:var(--bg4);border:1px solid var(--border);border-radius:16px;padding:28px;text-align:center}
+.login-box h1{font-family:'Fira Code',monospace;font-size:1.1rem;font-weight:700;margin-bottom:4px}
+.login-box h1 span{color:var(--accent)}
+.login-box .subtitle{font-size:12px;color:var(--text-muted);margin-bottom:20px}
+.login-field{width:100%;height:40px;padding:0 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:14px;outline:none;margin-bottom:12px;font-family:inherit}
+.login-field:focus{border-color:var(--accent)}
+.login-btn{width:100%;height:40px;border-radius:8px;border:none;background:var(--accent);color:var(--bg);font-family:'Fira Code',monospace;font-size:12px;font-weight:700;cursor:pointer}
+.login-btn:hover{filter:brightness(1.1)}
+.login-error{color:var(--rose);font-size:11px;margin-top:8px;min-height:16px}
+
+/* Layout */
+.layout{display:none;min-height:100vh;flex-direction:column}
+.layout.active{display:flex}
+
+/* Topbar */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 24px;border-bottom:1px solid var(--border);background:var(--bg4);flex-shrink:0}
+.logo{font-family:'Fira Code',monospace;font-size:13px;font-weight:700;color:var(--accent);letter-spacing:1px}
+.logo span{color:var(--text)}
+.topbar-actions{display:flex;gap:8px;align-items:center}
+.topbar-btn{height:30px;padding:0 12px;border-radius:6px;border:1px solid var(--border);background:var(--bg3);color:var(--text-muted);font-size:10px;font-weight:600;cursor:pointer;font-family:'Fira Code',monospace;transition:all .15s}
+.topbar-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* Content */
+.content{flex:1;display:flex;overflow:hidden}
+.sidebar{width:240px;flex-shrink:0;background:var(--bg4);border-right:1px solid var(--border);padding:16px 0}
+.nav-item{display:flex;align-items:center;gap:8px;padding:10px 20px;font-size:12px;color:var(--text-muted);cursor:pointer;transition:all .15s;border-left:3px solid transparent;font-family:'Fira Code',monospace}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:var(--accent-dim);color:var(--accent);border-left-color:var(--accent)}
+.main{flex:1;overflow-y:auto;padding:24px}
+
+/* Cards */
+.card{background:var(--bg4);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px}
+.card-title{font-family:'Fira Code',monospace;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:12px}
+
+/* Form */
+.form-row{display:flex;gap:10px;margin-bottom:10px}
+.form-row .form-group{flex:1}
+.form-group{margin-bottom:10px}
+.form-group label{display:block;font-family:'Fira Code',monospace;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-dim);margin-bottom:4px}
+.form-input{width:100%;height:36px;padding:0 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;outline:none;font-family:inherit}
+.form-input:focus{border-color:var(--accent)}
+.form-input::placeholder{color:var(--text-dim)}
+textarea.form-input{height:auto;min-height:60px;padding:8px 12px;resize:vertical}
+select.form-input{cursor:pointer;appearance:none}
+.form-hint{font-size:10px;color:var(--text-dim);margin-top:3px}
+
+/* Btn */
+.btn{height:36px;padding:0 16px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text-muted);font-size:11px;font-weight:600;cursor:pointer;font-family:'Fira Code',monospace;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.1);box-shadow:0 0 16px var(--accent-dim)}
+.btn.danger:hover{border-color:var(--rose);color:var(--rose)}
+.btn-sm{height:26px;padding:0 10px;font-size:9px}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat-card{background:var(--bg4);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.stat-value{font-family:'Fira Code',monospace;font-size:22px;font-weight:700;color:var(--accent)}
+.stat-label{font-size:10px;color:var(--text-dim);margin-top:2px}
+
+/* Table */
+.table{width:100%;border-collapse:collapse}
+.table th{text-align:left;padding:8px 12px;font-family:'Fira Code',monospace;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);border-bottom:1px solid var(--border)}
+.table td{padding:10px 12px;font-size:12px;color:var(--text-muted);border-bottom:1px solid var(--bg3);vertical-align:middle}
+.table tr:hover td{background:var(--bg4)}
+.table .code{font-family:'Fira Code',monospace;font-size:11px;font-weight:700;color:var(--amber)}
+.table .price{font-family:'Fira Code',monospace;font-weight:700;color:var(--accent)}
+.table .status{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600}
+.table .status .dot{width:6px;height:6px;border-radius:50%}
+.table .status.active .dot{background:var(--green)}
+.table .status.inactive .dot{background:var(--text-dim)}
+.table .status.expired .dot{background:var(--rose)}
+.table-actions{display:flex;gap:4px}
+
+/* Link display */
+.link-box{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px;margin-top:10px;display:flex;align-items:center;gap:8px}
+.link-box input{flex:1;background:none;border:none;color:var(--text);font-size:12px;font-family:'Fira Code',monospace;outline:none}
+.link-box .btn{flex-shrink:0}
+.copied-toast{position:fixed;bottom:20px;right:20px;padding:8px 16px;border-radius:8px;background:var(--accent);color:var(--bg);font-size:11px;font-weight:700;font-family:'Fira Code',monospace;z-index:200;opacity:0;transition:opacity .3s}
+.copied-toast.show{opacity:1}
+
+/* Toast */
+.toast{position:fixed;bottom:20px;right:20px;padding:10px 18px;border-radius:8px;font-size:12px;font-weight:600;z-index:200;opacity:0;transition:opacity .3s}
+.toast.show{opacity:1}
+.toast.success{background:var(--green);color:#0a2e1a}
+.toast.error{background:var(--rose);color:#2e0a0a}
+
+@media(max-width:700px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .sidebar{display:none}
+  .form-row{flex-direction:column;gap:0}
+}
+</style>
+</head>
+<body>
+
+<!-- Login -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <h1>WTE <span>ADMIN</span></h1>
+    <p class="subtitle">Coupon & Student Management</p>
+    <input type="password" class="login-field" id="adminPass" placeholder="Admin password" onkeypress="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Sign In</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- Copied toast -->
+<div class="copied-toast" id="copiedToast">Link copied!</div>
+<div class="toast" id="toast"></div>
+
+<!-- Layout -->
+<div class="layout" id="layout">
+  <div class="topbar">
+    <div class="logo">WTE <span>ADMIN</span></div>
+    <div class="topbar-actions">
+      <span style="font-size:11px;color:var(--text-dim)" id="adminName"></span>
+      <button class="topbar-btn" onclick="doLogout()">Logout</button>
+    </div>
+  </div>
+  <div class="content">
+    <div class="sidebar">
+      <div class="nav-item active" data-nav="dashboard" onclick="switchNav('dashboard')">&#x1F4CA; Dashboard</div>
+      <div class="nav-item" data-nav="coupons" onclick="switchNav('coupons')">&#x1F3F7; Coupons</div>
+      <div class="nav-item" data-nav="students" onclick="switchNav('students')">&#x1F464; Students</div>
+      <div class="nav-item" data-nav="payments" onclick="switchNav('payments')">&#x1F4B0; Payments</div>
+    </div>
+    <div class="main" id="mainContent"></div>
+  </div>
+</div>
+
+<script>
+var adminToken=null;
+var coupons=[],students=[],payments=[];
+
+// ═══ AUTH ═══
+(function(){
+  var t=localStorage.getItem('wte_admin_token');
+  if(t){adminToken=t;showLayout();}
+})();
+
+function doLogin(){
+  var p=document.getElementById('adminPass').value;
+  fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:p})})
+    .then(function(r){return r.json()})
+    .then(function(d){
+      if(d.success){adminToken=d.token;localStorage.setItem('wte_admin_token',d.token);showLayout();}
+      else{document.getElementById('loginError').textContent='Invalid password';}
+    });
+}
+
+function doLogout(){
+  adminToken=null;localStorage.removeItem('wte_admin_token');
+  document.getElementById('layout').classList.remove('active');
+  document.getElementById('loginScreen').classList.remove('hidden');
+}
+
+function showLayout(){
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('layout').classList.add('active');
+  loadData();
+}
+
+function apiGet(url){
+  return fetch(url,{headers:{'x-admin-token':adminToken}}).then(function(r){return r.json()});
+}
+
+function apiPost(url,data){
+  return fetch(url,{method:'POST',headers:{'Content-Type':'application/json','x-admin-token':adminToken},body:JSON.stringify(data)}).then(function(r){return r.json()});
+}
+
+function apiDelete(url){
+  return fetch(url,{method:'DELETE',headers:{'x-admin-token':adminToken}}).then(function(r){return r.json()});
+}
+
+// ═══ LOAD DATA ═══
+function loadData(){
+  Promise.all([
+    apiGet('/api/admin/coupons'),
+    apiGet('/api/admin/students'),
+    apiGet('/api/admin/payments')
+  ]).then(function(results){
+    coupons=results[0];students=results[1];payments=results[2];
+    switchNav('dashboard');
+  });
+}
+
+// ═══ NAV ═══
+function switchNav(page){
+  document.querySelectorAll('.nav-item').forEach(function(el){el.classList.toggle('active',el.dataset.nav===page);});
+  if(page==='dashboard')renderDashboard();
+  else if(page==='coupons')renderCoupons();
+  else if(page==='students')renderStudents();
+  else if(page==='payments')renderPayments();
+}
+
+// ═══ DASHBOARD ═══
+function renderDashboard(){
+  var activeCoupons=coupons.filter(function(c){return!c.disabled;}).length;
+  var totalRevenue=payments.filter(function(p){return p.status==='complete'||p.status==='paid';}).reduce(function(s,p){return s+(p.amountReceived||p.amount||0);},0);
+  var totalLessons=coupons.reduce(function(s,c){return s+(c.lessons||1)*c.usedCount;},0);
+
+  document.getElementById('mainContent').innerHTML=
+    '<div class="stats">'+
+      '<div class="stat-card"><div class="stat-value">'+coupons.length+'</div><div class="stat-label">Total coupons</div></div>'+
+      '<div class="stat-card"><div class="stat-value">'+activeCoupons+'</div><div class="stat-label">Active</div></div>'+
+      '<div class="stat-card"><div class="stat-value">'+students.length+'</div><div class="stat-label">Students</div></div>'+
+      '<div class="stat-card"><div class="stat-value">EUR '+totalRevenue.toFixed(2)+'</div><div class="stat-label">Revenue</div></div>'+
+    '</div>'+
+    '<div class="card"><div class="card-title">Recent Payments</div>'+
+    '<table class="table"><thead><tr><th>Date</th><th>Student</th><th>Amount</th><th>Status</th></tr></thead><tbody>'+
+    payments.slice(-10).reverse().map(function(p){
+      return '<tr><td>'+new Date(p.createdAt).toLocaleDateString()+'</td><td>'+(p.studentName||'—')+'</td><td class="price">EUR '+(p.amount||p.amountReceived||0).toFixed(2)+'</td><td><span class="status '+(p.status||'pending')+'"><span class="dot"></span>'+(p.status||'pending')+'</span></td></tr>';
+    }).join('')+'</tbody></table></div>'+
+    '<div class="card"><div class="card-title">Quick Create Coupon</div>'+
+    '<div class="form-row"><div class="form-group"><label>Package name</label><input class="form-input" id="quickName" placeholder="e.g. Beta Student Pack"></div><div class="form-group"><label>Price (EUR)</label><input class="form-input" id="quickPrice" type="number" placeholder="18.00" step="0.01"></div></div>'+
+    '<div class="form-row"><div class="form-group"><label>Lessons</label><input class="form-input" id="quickLessons" type="number" value="1"></div><div class="form-group"><label>Max uses</label><input class="form-input" id="quickMax" type="number" placeholder="50"></div></div>'+
+    '<button class="btn primary" onclick="quickCreate()">Generate Link</button>'+
+    '<div id="quickResult"></div></div>';
+}
+
+function quickCreate(){
+  var data={
+    name:document.getElementById('quickName').value,
+    price:parseFloat(document.getElementById('quickPrice').value),
+    lessons:parseInt(document.getElementById('quickLessons').value)||1,
+    maxUses:parseInt(document.getElementById('quickMax').value)||null,
+    description:'WTE lesson package'
+  };
+  apiPost('/api/admin/coupons',data).then(function(result){
+    if(result.success){
+      showLinkBox(result.coupon,result.joinLink);
+      loadData();
+    }else{
+      showToast(result.error,'error');
+    }
+  });
+}
+
+// ═══ COUPONS ═══
+function renderCoupons(){
+  document.getElementById('mainContent').innerHTML=
+    '<div class="card"><div class="card-title">Create New Coupon</div>'+
+    '<div class="form-row"><div class="form-group"><label>Package name *</label><input class="form-input" id="cName" placeholder="e.g. Beta Student Pack"></div><div class="form-group"><label>Description</label><input class="form-input" id="cDesc" placeholder="4 lessons per month"></div></div>'+
+    '<div class="form-row"><div class="form-group"><label>Price (EUR) *</label><input class="form-input" id="cPrice" type="number" placeholder="18.00" step="0.01"><div class="form-hint">Price per session in EUR</div></div><div class="form-group"><label>Original price (EUR)</label><input class="form-input" id="cOrigPrice" type="number" placeholder="21.00" step="0.01"><div class="form-hint">Strikethrough price (optional)</div></div></div>'+
+    '<div class="form-row"><div class="form-group"><label>Lessons included</label><input class="form-input" id="cLessons" type="number" value="1" min="1"></div><div class="form-group"><label>Max total uses</label><input class="form-input" id="cMaxUses" type="number" placeholder="50"><div class="form-hint">Leave empty for unlimited</div></div></div>'+
+    '<div class="form-row"><div class="form-group"><label>Expiry date</label><input class="form-input" id="cExpiry" type="date"></div><div class="form-group"><label>Restrict to email</label><input class="form-input" id="cEmail" type="email" placeholder="student@email.com"><div class="form-hint">Optional</div></div></div>'+
+    '<button class="btn primary" onclick="createCoupon()">Create &amp; Generate Link</button>'+
+    '<div id="createResult"></div></div>'+
+    '<div class="card"><div class="card-title">All Coupons ('+coupons.length+')</div>'+
+    '<table class="table"><thead><tr><th>Code</th><th>Name</th><th>Price</th><th>Uses</th><th>Expires</th><th>Status</th><th>Actions</th></tr></thead><tbody>'+
+    coupons.map(function(c){
+      var isExpired=c.expiresAt&&new Date(c.expiresAt)<new Date();
+      var statusClass=c.disabled?'inactive':(isExpired?'expired':'active');
+      var statusText=c.disabled?'Disabled':(isExpired?'Expired':'Active');
+      return '<tr><td class="code">'+c.code+'</td><td>'+c.name+'</td><td class="price">EUR '+c.price.toFixed(2)+'</td><td>'+(c.usedCount||0)+(c.maxUses?'/'+c.maxUses:'')+'</td><td>'+(c.expiresAt?new Date(c.expiresAt).toLocaleDateString():'Never')+'</td><td><span class="status '+statusClass+'"><span class="dot"></span>'+statusText+'</span></td>'+
+      '<td class="table-actions"><button class="btn btn-sm" onclick="copyLink(\''+c.code+'\')">Copy</button><button class="btn btn-sm" onclick="toggleCoupon(\''+c.code+'\')">'+(c.disabled?'Enable':'Disable')+'</button><button class="btn btn-sm danger" onclick="deleteCoupon(\''+c.code+'\')">&#x2715;</button></td></tr>';
+    }).join('')+'</tbody></table></div>';
+}
+
+function createCoupon(){
+  var data={
+    name:document.getElementById('cName').value,
+    description:document.getElementById('cDesc').value,
+    price:parseFloat(document.getElementById('cPrice').value),
+    originalPrice:parseFloat(document.getElementById('cOrigPrice').value)||null,
+    lessons:parseInt(document.getElementById('cLessons').value)||1,
+    maxUses:parseInt(document.getElementById('cMaxUses').value)||null,
+    expiresAt:document.getElementById('cExpiry').value||null,
+    email:document.getElementById('cEmail').value||null
+  };
+  apiPost('/api/admin/coupons',data).then(function(result){
+    if(result.success){
+      showLinkBox(result.coupon,result.joinLink);
+      loadData();
+    }else{
+      showToast(result.error,'error');
+    }
+  });
+}
+
+function showLinkBox(coupon,link){
+  document.getElementById('createResult').innerHTML=
+    '<div class="link-box"><input type="text" value="'+link+'" readonly><button class="btn primary btn-sm" onclick="copyToClipboard(\''+link.replace(/'/g,"\\'")+'\')">Copy</button></div>'+
+    '<div style="margin-top:8px;font-size:11px;color:var(--text-dim)">Send this link to the student. The coupon will be auto-applied.</div>';
+}
+
+function copyLink(code){
+  var link=window.location.origin+'/join?ref='+code;
+  copyToClipboard(link);
+}
+
+function copyToClipboard(text){
+  navigator.clipboard.writeText(text).then(function(){
+    var t=document.getElementById('copiedToast');
+    t.classList.add('show');
+    setTimeout(function(){t.classList.remove('show');},2000);
+  });
+}
+
+function toggleCoupon(code){
+  apiPost('/api/admin/coupons/'+code+'/toggle',{}).then(function(){loadData();});
+}
+
+function deleteCoupon(code){
+  if(!confirm('Delete coupon '+code+'?'))return;
+  apiDelete('/api/admin/coupons/'+code).then(function(){loadData();showToast('Deleted','success');});
+}
+
+// ═══ STUDENTS ═══
+function renderStudents(){
+  document.getElementById('mainContent').innerHTML=
+    '<div class="card"><div class="card-title">Registered Students ('+students.length+')</div>'+
+    (students.length===0?'<div style="text-align:center;padding:20px;color:var(--text-dim);font-size:12px">No students yet</div>':
+    '<table class="table"><thead><tr><th>Name</th><th>Email</th><th>Coupon</th><th>Amount</th><th>Lessons</th><th>Registered</th></tr></thead><tbody>'+
+    students.map(function(s){
+      return '<tr><td>'+s.name+'</td><td style="font-size:11px">'+s.email+'</td><td class="code">'+s.couponCode+'</td><td class="price">EUR '+(s.amountPaid||0).toFixed(2)+'</td><td>'+(s.lessonsUsed||0)+'/'+(s.lessons||1)+'</td><td>'+new Date(s.registeredAt).toLocaleDateString()+'</td></tr>';
+    }).join('')+'</tbody></table>')+'</div>';
+}
+
+// ═══ PAYMENTS ═══
+function renderPayments(){
+  document.getElementById('mainContent').innerHTML=
+    '<div class="card"><div class="card-title">Payment History ('+payments.length+')</div>'+
+    (payments.length===0?'<div style="text-align:center;padding:20px;color:var(--text-dim);font-size:12px">No payments yet</div>':
+    '<table class="table"><thead><tr><th>Date</th><th>ID</th><th>Student</th><th>Coupon</th><th>Amount</th><th>Status</th></tr></thead><tbody>'+
+    payments.slice().reverse().map(function(p){
+      return '<tr><td>'+new Date(p.createdAt).toLocaleDateString()+'</td><td style="font-size:10px;font-family:monospace">'+(p.id||'—').substring(0,20)+'</td><td>'+(p.studentName||'—')+'</td><td class="code">'+(p.couponCode||'—')+'</td><td class="price">EUR '+(p.amount||p.amountReceived||0).toFixed(2)+'</td><td><span class="status '+(p.status||'pending')+'"><span class="dot"></span>'+(p.status||'pending')+'</span></td></tr>';
+    }).join('')+'</tbody></table>')+'</div>';
+}
+
+// ═══ UTILS ═══
+function showToast(msg,type){
+  var el=document.getElementById('toast');
+  el.textContent=msg;
+  el.className='toast show '+(type||'success');
+  setTimeout(function(){el.classList.remove('show');},3000);
+}
+</script>
+</body>
+</html>

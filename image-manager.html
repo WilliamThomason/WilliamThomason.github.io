@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Manager — Sliding In</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=Blogger+Sans:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {--bg:#1c1c1c;--text:#e8e8e8;--accent:#a3e635;}
+        * {margin:0;padding:0;box-sizing:border-box;}
+        body {font-family:sans-serif;background:var(--bg);color:var(--text);line-height:1.6;}
+        .topbar {position:sticky;top:0;background:rgba(28,28,28,.95);display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:52px;border-bottom:1px solid #333;}
+        .topbar-logo {font-family:monospace;font-size:1rem;font-weight:700;color:var(--text);}
+        .topbar-logo span {color:var(--accent);}
+        .topbar-stats {font-size:.85rem;color:var(--text-muted);}
+        .topbar-stats strong {color:var(--accent);}
+        .container {max-width:900px;margin:0 auto;padding:20px;}
+        .topic-nav {display:flex;gap:8px;align-items:center;margin-bottom:20px;flex-wrap:wrap;}
+        .topic-nav button {padding:6px 14px;border:1px solid #333;background:#232323;color:#e8e8e8;border-radius:8px;cursor:pointer;font-size:.8rem;transition:all .15s;}
+        .topic-nav button:hover {border-color:var(--accent);}
+        .topic-nav button.active {background:var(--accent);color:#1c1c1c;font-weight:700;}
+        .topic-nav .nav-arrow {font-size:1.2rem;padding:6px 10px;}
+        .topic-card {background:#232323;border:1px solid #333;border-radius:12px;padding:24px;margin-bottom:16px;}
+        .topic-card h2 {font-family:monospace;font-size:1.1rem;margin-bottom:4px;}
+        .topic-card .meta {font-size:.75rem;color:#999;margin-bottom:16px;}
+        .image-slots {display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+        .image-slot {background:#1a1a1a;border:1px dashed #444;border-radius:8px;padding:12px;min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+        .image-slot img {max-width:100%;max-height:140px;border-radius:6px;margin-bottom:8px;}
+        .image-slot .placeholder {font-size:.7rem;color:#555;}
+        .image-slot input {width:100%;padding:6px 10px;background:#1c1c1c;border:1px solid #333;border-radius:6px;color:#e8e8e8;font-size:.75rem;margin-top:4px;}
+        .image-slot input:focus {border-color:var(--accent);outline:none;}
+        .image-slot .remove-btn {margin-top:6px;padding:4px 10px;background:#333;border:1px solid #444;border-radius:4px;color:#999;cursor:pointer;font-size:.7rem;}
+        .image-slot .remove-btn:hover {background:#444;color:#e8e8e8;}
+        .save-btn {padding:10px 24px;background:var(--accent);color:#1c1c1c;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:.85rem;transition:all .15s;}
+        .save-btn:hover {opacity:.9;}
+        .unsplash-link {font-size:.75rem;color:#999;margin-top:8px;}
+        .unsplash-link a {color:var(--accent);text-decoration:none;}
+        .progress-bar {height:4px;background:#333;border-radius:2px;margin-bottom:20px;overflow:hidden;}
+        .progress-bar .fill {height:100%;background:var(--accent);transition:width .3s;}
+        .category-badge {display:inline-block;padding:2px 8px;background:#333;border-radius:4px;font-size:.65rem;color:#999;margin-left:8px;}
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="topbar-logo">Image <span>Manager</span></div>
+        <div class="topbar-stats"><strong id="statDone">0</strong> / <span id="statTotal">0</span> topics with images</div>
+    </div>
+    <div class="container">
+        <div class="progress-bar"><div class="fill" id="progressFill" style="width:0%"></div></div>
+        <div class="topic-nav" id="topicNav"></div>
+        <div id="topicCard"></div>
+        <div class="unsplash-link">Find images: <a href="https://unsplash.com" target="_blank">unsplash.com</a> — right-click image → Copy image address</div>
+    </div>
+    <script>
+        var ALL_TOPICS = [{"slug": "age", "title": "Age and Ageing (16 questions)", "category": "Personal Life & Identity", "questions": 16}, {"slug": "appearance", "title": "Appearance (11 questions)", "category": "Personal Life & Identity", "questions": 11}, {"slug": "childhood", "title": "Childhood (14 questions)", "category": "Personal Life & Identity", "questions": 14}, {"slug": "choices", "title": "Choices (14 questions)", "category": "Personal Life & Identity", "questions": 14}, {"slug": "dreams", "title": "Dreams (12 questions)", "category": "Personal Life & Identity", "questions": 12}, {"slug": "favouritethings", "title": "Favourite Things (14 questions)", "category": "Personal Life & Identity", "questions": 14}, {"slug": "happiness", "title": "Happiness (13 questions)", "category": "Personal Life & Identity", "questions": 13}, {"slug": "healthwellbeing", "title": "Health and Well-Being (17 questions)", "category": "Personal Life & Identity", "questions": 17}, {"slug": "moodemotion", "title": "Mood and Emotion (14 questions)", "category": "Personal Life & Identity", "questions": 14}, {"slug": "personality", "title": "Personality (13 questions)", "category": "Personal Life & Identity", "questions": 13}, {"slug": "doyouthinkyouare", "title": "Do You Think You Are...? (15 questions)", "category": "Personal Life & Identity", "questions": 15}, {"slug": "fearsphobias", "title": "Fears and Phobias (14 questions)", "category": "Personal Life & Identity", "questions": 14}, {"slug": "sleep", "title": "Sleep (12 questions)", "category": "Personal Life & Identity", "questions": 12}, {"slug": "stress", "title": "Stress (12 questions)", "category": "Personal Life & Identity", "questions": 12}, {"slug": "beautyselfcare", "title": "Beauty and Self-Care (20 questions)", "category": "Personal Life & Identity", "questions": 20}, {"slug": "bodylanguage", "title": "Body Language (11 questions)", "category": "Personal Life & Identity", "questions": 11}, {"slug": "family", "title": "Family (13 questions)", "category": "Family, Friends & Relationships", "questions": 13}, {"slug": "friendsfriendship", "title": "Friends and Friendship (16 questions)", "category": "Family, Friends & Relationships", "questions": 16}, {"slug": "dating", "title": "Dating (15 questions)", "category": "Family, Friends & Relationships", "questions": 15}, {"slug": "marriage", "title": "Marriage (15 questions)", "category": "Family, Friends & Relationships", "questions": 15}, {"slug": "birthdays", "title": "Birthdays (11 questions)", "category": "Family, Friends & Relationships", "questions": 11}, {"slug": "gendersexism", "title": "Gender and Sexism (11 questions)", "category": "Family, Friends & Relationships", "questions": 11}, {"slug": "conflictarguments", "title": "Conflict and Arguments (12 questions)", "category": "Family, Friends & Relationships", "questions": 12}, {"slug": "complaintscriticisms", "title": "Complaints and Criticisms (14 questions)", "category": "Family, Friends & Relationships", "questions": 14}, {"slug": "education", "title": "Education (12 questions)", "category": "Education & Learning", "questions": 12}, {"slug": "learningenglish", "title": "Learning English (12 questions)", "category": "Education & Learning", "questions": 12}, {"slug": "intelligenceability", "title": "Intelligence and Ability (13 questions)", "category": "Education & Learning", "questions": 13}, {"slug": "booksreading", "title": "Books and Reading (18 questions)", "category": "Education & Learning", "questions": 18}, {"slug": "canyoudescribe", "title": "Can You Describe...? (12 questions)", "category": "Education & Learning", "questions": 12}, {"slug": "doyouknowhowto", "title": "Do You Know How To...? (12 questions)", "category": "Education & Learning", "questions": 12}, {"slug": "workjobs", "title": "Work and Jobs (19 questions)", "category": "Work, Money & Business", "questions": 19}, {"slug": "business", "title": "Business (12 questions)", "category": "Work, Money & Business", "questions": 12}, {"slug": "money", "title": "Money (16 questions)", "category": "Work, Money & Business", "questions": 16}, {"slug": "investing", "title": "Investing (14 questions)", "category": "Work, Money & Business", "questions": 14}, {"slug": "theeconomy", "title": "The Economy (12 questions)", "category": "Work, Money & Business", "questions": 12}, {"slug": "futureplansgoals", "title": "Future Plans and Goals (16 questions)", "category": "Work, Money & Business", "questions": 16}, {"slug": "doyouagreeordisagree", "title": "Do You Agree or Disagree? (13 questions)", "category": "Work, Money & Business", "questions": 13}, {"slug": "fooddiet", "title": "Food and Diet (17 questions)", "category": "Food, Health & Lifestyle", "questions": 17}, {"slug": "dieting", "title": "Dieting (12 questions)", "category": "Food, Health & Lifestyle", "questions": 12}, {"slug": "cooking", "title": "Cooking (12 questions)", "category": "Food, Health & Lifestyle", "questions": 12}, {"slug": "restaurantseatingout", "title": "Restaurants and Eating Out (20 questions)", "category": "Food, Health & Lifestyle", "questions": 20}, {"slug": "sickness", "title": "Sickness (12 questions)", "category": "Food, Health & Lifestyle", "questions": 12}, {"slug": "healthwellbeing", "title": "Health and Well-Being (17 questions)", "category": "Personal Life & Identity", "questions": 17}, {"slug": "sportsexercise", "title": "Sports and Exercise (18 questions)", "category": "Food, Health & Lifestyle", "questions": 18}, {"slug": "freetimehobbies", "title": "Free Time and Hobbies (13 questions)", "category": "Food, Health & Lifestyle", "questions": 13}, {"slug": "shopping", "title": "Shopping (14 questions)", "category": "Food, Health & Lifestyle", "questions": 14}, {"slug": "fashion", "title": "Fashion (11 questions)", "category": "Food, Health & Lifestyle", "questions": 11}, {"slug": "manners", "title": "Manners (12 questions)", "category": "Food, Health & Lifestyle", "questions": 12}, {"slug": "culturetradition", "title": "Culture and Tradition (12 questions)", "category": "Society & Culture", "questions": 12}, {"slug": "socialissues", "title": "Social Issues (14 questions)", "category": "Society & Culture", "questions": 14}, {"slug": "socialdemographictrends", "title": "Social and Demographic Trends (12 questions)", "category": "Society & Culture", "questions": 12}, {"slug": "modernlife", "title": "Modern Life (14 questions)", "category": "Society & Culture", "questions": 14}, {"slug": "prejudicebiasesstereotypes", "title": "Prejudice, Biases and Stereotypes (12 questions)", "category": "Society & Culture", "questions": 12}, {"slug": "raceracism", "title": "Race and Racism (12 questions)", "category": "Society & Culture", "questions": 12}, {"slug": "privacy", "title": "Privacy (10 questions)", "category": "Society & Culture", "questions": 10}, {"slug": "police", "title": "Police (12 questions)", "category": "Society & Culture", "questions": 12}, {"slug": "lawjustice", "title": "Law and Justice (11 questions)", "category": "Society & Culture", "questions": 11}, {"slug": "politics", "title": "Politics (18 questions)", "category": "Society & Culture", "questions": 18}, {"slug": "poverty", "title": "Poverty (12 questions)", "category": "Society & Culture", "questions": 12}, {"slug": "war", "title": "War (13 questions)", "category": "Society & Culture", "questions": 13}, {"slug": "religionfaith", "title": "Religion and Faith (14 questions)", "category": "Society & Culture", "questions": 14}, {"slug": "proverbssayings", "title": "Proverbs and Sayings (13 questions)", "category": "Society & Culture", "questions": 13}, {"slug": "namesancestry", "title": "Names and Ancestry (12 questions)", "category": "Society & Culture", "questions": 12}, {"slug": "sciencetechnology", "title": "Science and Technology (15 questions)", "category": "Science, Technology & Future", "questions": 15}, {"slug": "robotsartificialintelligence", "title": "Robots and Artificial Intelligence (11 questions)", "category": "Science, Technology & Future", "questions": 11}, {"slug": "geneticscloning", "title": "Genetics and Cloning (12 questions)", "category": "Science, Technology & Future", "questions": 12}, {"slug": "theenvironment", "title": "The Environment (13 questions)", "category": "Science, Technology & Future", "questions": 13}, {"slug": "weatherclimateseasons", "title": "Weather, Climate and Seasons (13 questions)", "category": "Science, Technology & Future", "questions": 13}, {"slug": "spacealiens", "title": "Space and Aliens (11 questions)", "category": "Science, Technology & Future", "questions": 11}, {"slug": "ghostssupernatural", "title": "Ghosts and The Supernatural (15 questions)", "category": "Science, Technology & Future", "questions": 15}, {"slug": "doyoubelieve", "title": "Do You Believe...? (13 questions)", "category": "Science, Technology & Future", "questions": 13}, {"slug": "entertainment", "title": "Entertainment (14 questions)", "category": "Entertainment & Leisure", "questions": 14}, {"slug": "music", "title": "Music (17 questions)", "category": "Entertainment & Leisure", "questions": 17}, {"slug": "tvmovies", "title": "TV and Movies (16 questions)", "category": "Entertainment & Leisure", "questions": 16}, {"slug": "jokeshumour", "title": "Jokes and Humour (13 questions)", "category": "Entertainment & Leisure", "questions": 13}, {"slug": "artdesign", "title": "Art and Design (17 questions)", "category": "Entertainment & Leisure", "questions": 17}, {"slug": "famecelebrities", "title": "Fame and Celebrities (11 questions)", "category": "Entertainment & Leisure", "questions": 11}, {"slug": "animalspets", "title": "Animals and Pets (12 questions)", "category": "Entertainment & Leisure", "questions": 12}, {"slug": "holidays", "title": "Holidays (11 questions)", "category": "Entertainment & Leisure", "questions": 11}, {"slug": "travel", "title": "Travel (21 questions)", "category": "Entertainment & Leisure", "questions": 21}, {"slug": "yourneighbourhood", "title": "Your Neighbourhood (13 questions)", "category": "Entertainment & Leisure", "questions": 13}, {"slug": "airportsflying", "title": "Airports and Flying (13 questions)", "category": "Entertainment & Leisure", "questions": 13}, {"slug": "carsdriving", "title": "Cars and Driving (12 questions)", "category": "Entertainment & Leisure", "questions": 12}, {"slug": "conversation", "title": "Conversation (13 questions)", "category": "Communication & Social", "questions": 13}, {"slug": "cellphones", "title": "Cell Phones (12 questions)", "category": "Communication & Social", "questions": 12}, {"slug": "socialnetworksmessaging", "title": "Social Networks and Messaging (12 questions)", "category": "Communication & Social", "questions": 12}, {"slug": "introductions", "title": "Introductions (12 questions)", "category": "Communication & Social", "questions": 12}, {"slug": "doyoulike", "title": "Do You Like...? (16 questions)", "category": "Communication & Social", "questions": 16}, {"slug": "doyouprefer", "title": "Do You Prefer...? (11 questions)", "category": "Communication & Social", "questions": 11}, {"slug": "advice", "title": "Advice (13 questions)", "category": "Communication & Social", "questions": 13}, {"slug": "truthhonesty", "title": "Truth and Honesty (13 questions)", "category": "Communication & Social", "questions": 13}, {"slug": "okornotok", "title": "OK or Not OK? (15 questions)", "category": "Communication & Social", "questions": 15}, {"slug": "risksdanger", "title": "Risks and Danger (13 questions)", "category": "Communication & Social", "questions": 13}, {"slug": "whatwouldyoudo", "title": "What Would You Do...? (16 questions)", "category": "Hypotheticals & Opinions", "questions": 16}, {"slug": "wouldyouever", "title": "Would You Ever...? (14 questions)", "category": "Hypotheticals & Opinions", "questions": 14}, {"slug": "haveyouever", "title": "Have You Ever...? (15 questions)", "category": "Hypotheticals & Opinions", "questions": 15}, {"slug": "whatsthebestage", "title": "What's The Best Age To...? (12 questions)", "category": "Hypotheticals & Opinions", "questions": 12}, {"slug": "whatsthebestway", "title": "What's The Best Way To...? (12 questions)", "category": "Hypotheticals & Opinions", "questions": 12}, {"slug": "whattime", "title": "What Time...? (12 questions)", "category": "Hypotheticals & Opinions", "questions": 12}, {"slug": "howmany", "title": "How Many...? (12 questions)", "category": "Hypotheticals & Opinions", "questions": 12}, {"slug": "howoften", "title": "How Often Do You...? (15 questions)", "category": "Hypotheticals & Opinions", "questions": 15}, {"slug": "howspecialisit", "title": "How Special Is It...? (13 questions)", "category": "Hypotheticals & Opinions", "questions": 13}, {"slug": "where", "title": "Where...? (14 questions)", "category": "Hypotheticals & Opinions", "questions": 14}, {"slug": "who", "title": "Who...? (13 questions)", "category": "Hypotheticals & Opinions", "questions": 13}, {"slug": "whodoyouusuallygoto", "title": "Who Do You Usually Go To...? (12 questions)", "category": "Hypotheticals & Opinions", "questions": 12}, {"slug": "advantagesdisadvantages", "title": "Advantages and Disadvantages (14 questions)", "category": "Hypotheticals & Opinions", "questions": 14}, {"slug": "annoyingthings", "title": "Annoying Things (16 questions)", "category": "Hypotheticals & Opinions", "questions": 16}];
+        var topicImages = {};
+        var currentIdx = 0;
+        
+        function init() {
+            loadSavedImages();
+            renderNav();
+            renderTopic();
+            updateStats();
+        }
+        
+        function loadSavedImages() {
+            try {
+                var saved = localStorage.getItem("slidingInImages");
+                if (saved) topicImages = JSON.parse(saved);
+            } catch(e) {}
+        }
+        
+        function saveImages() {
+            localStorage.setItem("slidingInImages", JSON.stringify(topicImages));
+            updateStats();
+        }
+        
+        function updateStats() {
+            var done = 0;
+            for (var key in topicImages) {
+                if (topicImages[key] && topicImages[key].filter(function(u){return u;}).length > 0) done++;
+            }
+            document.getElementById("statDone").textContent = done;
+            document.getElementById("statTotal").textContent = ALL_TOPICS.length;
+            var pct = ALL_TOPICS.length > 0 ? (done / ALL_TOPICS.length * 100) : 0;
+            document.getElementById("progressFill").style.width = pct + "%";
+        }
+        
+        function renderNav() {
+            var nav = document.getElementById("topicNav");
+            nav.innerHTML = "";
+            var prevBtn = document.createElement("button");
+            prevBtn.className = "nav-arrow";
+            prevBtn.innerHTML = "◀";
+            prevBtn.onclick = function() { if (currentIdx > 0) { currentIdx--; renderTopic(); renderNav(); } };
+            nav.appendChild(prevBtn);
+            
+            var select = document.createElement("select");
+            select.style.cssText = "padding:6px 12px;background:#232323;border:1px solid #333;border-radius:8px;color:#e8e8e8;font-size:.8rem;";
+            ALL_TOPICS.forEach(function(t, i) {
+                var opt = document.createElement("option");
+                opt.value = i;
+                opt.textContent = (i+1) + ". " + t.title;
+                if (i === currentIdx) opt.selected = true;
+                select.appendChild(opt);
+            });
+            select.onchange = function() { currentIdx = parseInt(this.value); renderTopic(); };
+            nav.appendChild(select);
+            
+            var nextBtn = document.createElement("button");
+            nextBtn.className = "nav-arrow";
+            nextBtn.innerHTML = "▶";
+            nextBtn.onclick = function() { if (currentIdx < ALL_TOPICS.length-1) { currentIdx++; renderTopic(); renderNav(); } };
+            nav.appendChild(nextBtn);
+        }
+        
+        function renderTopic() {
+            var topic = ALL_TOPICS[currentIdx];
+            var card = document.getElementById("topicCard");
+            var slug = topic.slug;
+            var imgs = topicImages[slug] || ["", "", ""];
+            
+            var html = "";
+            html += '<div class="topic-card">';
+            html += '<h2>' + (currentIdx+1) + '. ' + topic.title + '<span class="category-badge">' + topic.category + '</span></h2>';
+            html += '<div class="meta">' + topic.questions + ' questions · Slug: ' + slug + '</div>';
+            html += '<div class="image-slots">';
+            for (var i = 0; i < 3; i++) {
+                html += '<div class="image-slot" id="slot' + i + '">';
+                if (imgs[i]) {
+                    html += '<img src="' + imgs[i] + '" alt="Image ' + (i+1) + '" onerror="this.style.display=\'none\'">';
+                } else {
+                    html += '<div class="placeholder">Image ' + (i+1) + '<br><small>Paste URL below</small></div>';
+                }
+                html += '<input type="text" placeholder="Paste Unsplash URL..." value="' + (imgs[i] || "") + '" onchange="updateImage(' + i + ', this.value)">';
+                if (imgs[i]) {
+                    html += '<button class="remove-btn" onclick="removeImage(' + i + ')">Remove</button>';
+                }
+                html += '</div>';
+            }
+            html += '</div>';
+            html += '<button class="save-btn" onclick="saveImages()">Save All Images</button>';
+            html += '</div>';
+            card.innerHTML = html;
+        }
+        
+        function updateImage(idx, url) {
+            var slug = ALL_TOPICS[currentIdx].slug;
+            if (!topicImages[slug]) topicImages[slug] = ["", "", ""];
+            topicImages[slug][idx] = url.trim();
+            renderTopic();
+        }
+        
+        function removeImage(idx) {
+            var slug = ALL_TOPICS[currentIdx].slug;
+            if (topicImages[slug]) topicImages[slug][idx] = "";
+            renderTopic();
+        }
+        
+        init();
+    </script>
+</body>
+</html>

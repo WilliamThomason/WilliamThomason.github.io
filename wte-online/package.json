@@ -1,0 +1,13 @@
+{
+  "name": "wte-online",
+  "version": "1.0.0",
+  "description": "William Thomason English — Online Platform with PayFast",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

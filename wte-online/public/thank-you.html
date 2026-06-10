@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Welcome to WTE — William Thomason English</title>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=Blogger+Sans:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#1c1c1c;--bg2:#161616;--bg3:#222222;--bg4:#232323;--border:#333333;--text:#e8e8e8;--text-muted:#999999;--text-dim:#555555;--accent:#a3e635;--accent-dim:rgba(163,230,53,.08);--accent-glow:rgba(163,230,53,.3);--green:#34d399;--amber:#fbbf24;--rose:#fb7185}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Blogger Sans','Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.page{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px}
+.card{width:480px;max-width:92vw;background:var(--bg4);border:1px solid var(--border);border-radius:16px;padding:40px;text-align:center}
+.icon{width:64px;height:64px;border-radius:50%;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px}
+h1{font-family:'Fira Code',monospace;font-size:1.3rem;font-weight:700;margin-bottom:8px}
+h1 span{color:var(--accent)}
+.subtitle{font-size:13px;color:var(--text-muted);margin-bottom:24px;line-height:1.6}
+.info-box{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:20px;text-align:left}
+.info-row{display:flex;justify-content:space-between;padding:6px 0;font-size:12px;border-bottom:1px solid var(--border)}
+.info-row:last-child{border-bottom:none}
+.info-row .label{color:var(--text-muted)}
+.info-row .value{font-weight:600;color:var(--text);font-family:'Fira Code',monospace;font-size:11px}
+.steps{margin-top:20px;text-align:left}
+.steps h3{font-family:'Fira Code',monospace;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:10px}
+.step{display:flex;gap:10px;padding:8px 0;font-size:12px;color:var(--text-muted)}
+.step-num{width:22px;height:22px;border-radius:50%;background:var(--accent-dim);color:var(--accent);font-family:'Fira Code',monospace;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.btn{display:inline-flex;align-items:center;gap:8px;margin-top:20px;height:42px;padding:0 24px;border-radius:10px;border:none;background:var(--accent);color:var(--bg);font-family:'Fira Code',monospace;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;transition:all .15s}
+.btn:hover{filter:brightness(1.1);box-shadow:0 0 20px var(--accent-glow)}
+.pending{border-color:var(--amber)}
+.pending .icon{background:rgba(251,191,36,.1)}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="card" id="card">
+    <div class="icon" id="icon">&#x2705;</div>
+    <h1>Welcome to <span>WTE</span></h1>
+    <p class="subtitle" id="msg">Your payment was successful. You are now registered for William Thomason English.</p>
+
+    <div class="info-box" id="infoBox"></div>
+
+    <div class="steps" id="steps">
+      <h3>What happens next</h3>
+      <div class="step"><span class="step-num">1</span><span>Check your email for a confirmation message with your booking details.</span></div>
+      <div class="step"><span class="step-num">2</span><span>Your teacher will contact you within 24 hours to schedule your first lesson.</span></div>
+      <div class="step"><span class="step-num">3</span><span>You will receive a video call link before each session.</span></div>
+    </div>
+
+    <a href="/" class="btn">&#x1F3E0; Back to Homepage</a>
+  </div>
+</div>
+
+<script>
+var pid=new URLSearchParams(window.location.search).get('pid');
+var infoBox=document.getElementById('infoBox');
+var icon=document.getElementById('icon');
+var msg=document.getElementById('msg');
+var card=document.getElementById('card');
+
+if(pid){
+  infoBox.innerHTML='<div class="info-row"><span class="label">Payment ID</span><span class="value">'+pid+'</span></div><div class="info-row"><span class="label">Status</span><span class="value" style="color:var(--amber)">Processing</span></div>';
+  icon='&#x23F3;';
+  card.classList.add('pending');
+  msg.textContent='Your payment is being processed. You will receive a confirmation email shortly.';
+
+  // Poll for payment status
+  var attempts=0;
+  var poll=setInterval(function(){
+    attempts++;
+    if(attempts>30){clearInterval(poll);return;}
+    fetch('/api/payments/'+pid)
+      .then(function(r){return r.json()})
+      .then(function(data){
+        if(data.status==='complete'){
+          clearInterval(poll);
+          icon='&#x2705;';
+          card.classList.remove('pending');
+          msg.textContent='Your payment was successful. You are now registered.';
+          if(data.studentName){
+            infoBox.innerHTML='<div class="info-row"><span class="label">Name</span><span class="value">'+data.studentName+'</span></div><div class="info-row"><span class="label">Email</span><span class="value">'+data.studentEmail+'</span></div><div class="info-row"><span class="label">Payment ID</span><span class="value">'+pid+'</span></div><div class="info-row"><span class="label">Status</span><span class="value" style="color:var(--green)">Confirmed</span></div>';
+          }
+        }else if(data.status==='failed'){
+          clearInterval(poll);
+          icon='&#x274C;';
+          msg.textContent='Payment failed. Please try again or contact support.';
+        }
+      }).catch(function(){});
+  },3000);
+}else{
+  infoBox.innerHTML='<div class="info-row"><span class="label">Status</span><span class="value" style="color:var(--green)">Welcome</span></div>';
+}
+</script>
+</body>
+</html>
