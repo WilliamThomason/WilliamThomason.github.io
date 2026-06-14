@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hermes Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0f;--bg-panel:#111118;--bg-card:#16161f;--bg-hover:#1e1e2a;--bg-active:#252535;--accent:#6c5ce7;--accent-dim:rgba(108,92,231,.12);--accent-glow:rgba(108,92,231,.3);--accent2:#22d3ee;--cyan:#22d3ee;--cyan-dim:rgba(34,211,238,.1);--text:#e8e8f0;--text-dim:#8888a0;--text-muted:#55556a;--border:#2a2a3a;--border-light:#333348;--success:#00b894;--warn:#fdcb6e;--error:#e17055;--emerald:#34d399;--amber:#fbbf24;--violet:#a78bfa;--rose:#fb7185;--sbw:260px;--rbw:300px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;display:flex;flex-direction:column;font-size:16px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+
+/* ═══ TOP BAR ═══ */
+#topbar{height:44px;background:var(--bg-panel);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 12px;gap:6px;flex-shrink:0;z-index:100}
+#topbar .logo{font-weight:700;font-size:18px;color:var(--accent);letter-spacing:.5px;margin-right:8px;white-space:nowrap;cursor:pointer}
+#topbar .logo span{color:var(--accent2)}
+.topbar-spacer{flex:1}
+.topbar-btn{background:none;border:1px solid var(--border);color:var(--text-dim);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:14px;display:flex;align-items:center;gap:4px;transition:all .15s}
+.topbar-btn:hover{background:var(--bg-hover);color:var(--text);border-color:var(--border-light)}
+.topbar-btn.active{background:var(--accent-dim);color:var(--accent);border-color:var(--accent)}
+.topbar-btn svg{width:13px;height:13px;fill:currentColor}
+
+/* ═══ MAIN LAYOUT ═══ */
+#main{display:flex;flex:1;overflow:hidden}
+
+/* ═══ LEFT BAR ═══ */
+#leftbar{width:var(--sbw);background:var(--bg-panel);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;transition:width .2s}
+#leftbar.hidden{width:0!important;overflow:hidden;border:none}
+.os-sidebar-header{padding:12px 14px;border-bottom:1px solid var(--border)}
+.os-sidebar-logo{font-size:12px;font-weight:800;display:flex;align-items:center;gap:8px;color:var(--text)}
+.os-dot{width:6px;height:6px;border-radius:50%;background:var(--success);box-shadow:0 0 6px var(--success);animation:pulse 2s infinite}
+.os-sidebar-tag{font-size:9px;color:var(--text-dim);margin-top:2px;text-transform:uppercase;letter-spacing:1px}
+.os-sidebar-nav{flex:1;padding:8px 0;overflow-y:auto}
+.os-nav-section{margin-bottom:4px}
+.os-nav-section-title{padding:6px 14px 2px;font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:1.5px}
+.os-nav-item{display:flex;align-items:center;gap:8px;padding:7px 14px;color:var(--text-dim);font-size:14px;cursor:pointer;transition:all .15s;border-left:2px solid transparent}
+.os-nav-item:hover{background:var(--bg-hover);color:var(--text)}
+.os-nav-item.active{background:var(--accent-dim);color:var(--accent);border-left-color:var(--accent)}
+.os-nav-icon{width:16px;text-align:center;font-size:10px}
+.os-nav-badge{margin-left:auto;font-size:11px;padding:1px 5px;border-radius:6px;background:rgba(255,255,255,.05);color:var(--text-dim)}
+.os-nav-item.active .os-nav-badge{background:rgba(34,211,238,.1);color:var(--accent)}
+.os-sidebar-footer{padding:10px 14px;border-top:1px solid var(--border);font-size:9px;color:var(--text-dim)}
+
+/* ═══ CENTER AREA ═══ */
+#center{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+#proj-switcher{display:flex;align-items:center;background:var(--bg-panel);border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto;gap:2px;padding:0 4px}
+#proj-switcher::-webkit-scrollbar{height:0}
+.proj-sw-tab{display:flex;align-items:center;gap:5px;padding:6px 12px;font-size:14px;font-weight:600;color:var(--text-dim);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;flex-shrink:0;border-radius:4px 4px 0 0}
+.proj-sw-tab:hover{color:var(--text);background:var(--bg-hover)}
+.proj-sw-tab.active{color:var(--accent);border-bottom-color:var(--accent);background:var(--bg-active)}
+.proj-sw-tab .close{width:14px;height:14px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;margin-left:2px;opacity:0;transition:opacity .15s}
+.proj-sw-tab:hover .close{opacity:1}
+.proj-sw-tab .close:hover{background:var(--error);color:#fff}
+
+#proj-view{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#preview-area{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative;min-height:0}
+#preview-toolbar{display:flex;align-items:center;gap:4px;padding:4px 8px;background:var(--bg-panel);border-bottom:1px solid var(--border);flex-shrink:0}
+.pt-btn{background:none;border:1px solid var(--border);color:var(--text-dim);padding:3px 8px;border-radius:4px;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:3px;transition:all .15s}
+.pt-btn:hover{background:var(--bg-hover);color:var(--text)}
+.pt-btn.active{background:var(--accent-dim);color:var(--accent);border-color:var(--accent)}
+.pt-sep{width:1px;height:16px;background:var(--border);margin:0 2px}
+#preview-url{flex:1;background:var(--bg-card);border:1px solid var(--border);color:var(--text);padding:3px 8px;border-radius:4px;font-size:14px;font-family:inherit;outline:none;transition:border-color .15s}
+#preview-url:focus{border-color:var(--accent)}
+#preview-content{flex:1;display:flex;overflow:hidden}
+#browser-frame{flex:1;border:none;background:#fff;display:none}
+#browser-frame.active{display:block}
+#code-view{flex:1;display:none;overflow:auto;background:#0d1117}
+#code-view.active{display:block}
+#code-view pre{margin:0;padding:16px;font-family:'SF Mono','Fira Code',monospace;font-size:12px;line-height:1.6;color:#c9d1d9;white-space:pre-wrap;word-break:break-all}
+
+#chat-area{height:25%;min-height:120px;max-height:60%;display:flex;flex-direction:column;background:var(--bg);border-top:1px solid var(--border);flex-shrink:0;resize:vertical;overflow:auto}
+#chat-area .chat-resize-handle{height:4px;background:transparent;cursor:ns-resize;flex-shrink:0;margin-top:-2px;position:relative;z-index:5}
+#chat-area .chat-resize-handle:hover{background:var(--accent-dim)}
+.chat-container{display:flex;flex-direction:column;height:100%}
+.chat-header{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:var(--bg-panel);border-bottom:1px solid var(--border);flex-shrink:0;cursor:pointer}
+.chat-header:hover{background:var(--bg-hover)}
+.chat-header-left{display:flex;align-items:center;gap:6px}
+.chat-avatar{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px}
+.chat-title{font-size:14px;font-weight:600}
+.chat-subtitle{font-size:9px;color:var(--text-muted)}
+.chat-messages{flex:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:6px;background:var(--bg)}
+.chat-messages::-webkit-scrollbar{width:4px}
+.chat-messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.msg{display:flex;flex-direction:column;max-width:85%;padding:6px 10px;border-radius:10px;font-size:14px;line-height:1.4}
+.msg.agent{align-self:flex-start;background:var(--bg-card);border:1px solid var(--border);border-bottom-left-radius:3px}
+.msg.user{align-self:flex-end;background:var(--accent);color:#fff;border-bottom-right-radius:3px}
+.msg .msg-time{font-size:8px;opacity:.5;margin-top:3px}
+.msg .msg-sender{font-size:9px;font-weight:700;margin-bottom:2px}
+.chat-input-area{display:flex;align-items:center;gap:6px;padding:6px 8px;background:var(--bg-panel);border-top:1px solid var(--border);flex-shrink:0}
+.chat-input{flex:1;background:var(--bg-card);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:16px;font-size:14px;font-family:inherit;outline:none;transition:border-color .15s}
+.chat-input:focus{border-color:var(--accent)}
+.chat-send{width:28px;height:28px;border-radius:50%;border:none;background:var(--accent);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .15s;flex-shrink:0}
+.chat-send:hover{background:#5a4bd1;transform:scale(1.05)}
+
+/* ═══ RIGHT BAR ═══ */
+#rightbar{width:var(--rbw);background:var(--bg-panel);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;transition:width .2s}
+#rightbar.hidden{width:0!important;overflow:hidden;border:none}
+.rtabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0}
+.rtab{flex:1;padding:8px 4px;text-align:center;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
+.rtab:hover{color:var(--text-dim);background:var(--bg-hover)}
+.rtab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.rc{flex:1;overflow-y:auto;padding:8px}
+.rc::-webkit-scrollbar{width:4px}
+.rc::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:6px;transition:border-color .15s}
+.card:hover{border-color:var(--border-light)}
+.card .ct{font-size:16px;font-weight:600;margin-bottom:3px}
+.card .cd{font-size:13px;color:var(--text-muted);line-height:1.4}
+.card .ca{margin-top:6;display:flex;gap:4px}
+.cbtn{background:var(--bg-hover);border:1px solid var(--border);color:var(--text-dim);padding:3px 8px;border-radius:4px;cursor:pointer;font-size:13px;transition:all .15s}
+.cbtn:hover{background:var(--accent-dim);color:var(--accent);border-color:var(--accent)}
+.cbtn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.cbtn.primary:hover{background:#5a4bd1}
+
+/* ═══ OS PAGES ═══ */
+.os-page{display:none}.os-page.active{display:block}
+.os-page-header{margin-bottom:16px}
+.os-page-header h1{font-size:24px;font-weight:800;margin-bottom:2px}
+.os-page-header p{font-size:14px;color:var(--text-muted)}
+.os-card{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px}
+.os-card:hover{border-color:var(--border-light)}
+.os-card-title{font-size:15px;font-weight:600;margin-bottom:6px}
+.os-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.os-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.os-metric{text-align:center;padding:10px}
+.os-metric-num{font-size:28px;font-weight:800;color:var(--accent)}
+.os-metric-label{font-size:12px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+.os-table{width:100%;border-collapse:collapse;font-size:11px}
+.os-table th{text-align:left;padding:6px 8px;font-size:9px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border)}
+.os-table td{padding:6px 8px;border-bottom:1px solid rgba(255,255,255,.03);color:var(--text-muted)}
+.os-tag{display:inline-block;padding:1px 5px;border-radius:4px;font-size:8px;font-weight:600}
+.os-tag-green{background:rgba(52,211,153,.1);color:var(--success)}
+.os-tag-amber{background:rgba(251,191,36,.1);color:var(--warn)}
+.os-tag-cyan{background:rgba(34,211,238,.1);color:var(--accent)}
+.os-tag-rose{background:rgba(251,113,133,.1);color:var(--error)}
+.os-progress{height:3px;background:var(--bg);border-radius:2px;overflow:hidden;margin-top:3px}
+.os-progress-fill{height:100%;border-radius:2px;transition:width .3s}
+.os-status-dot{width:5px;height:5px;border-radius:50%;display:inline-block}
+.os-status-dot.active{background:var(--success);box-shadow:0 0 4px var(--success)}
+.os-status-dot.working{background:var(--warn);animation:pulse 1s infinite}
+.os-status-dot.idle{background:var(--text-dim)}
+
+/* ═══ KANBAN ═══ */
+.kanban-section{margin-bottom:16px;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.kanban-header{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--bg-panel);cursor:pointer;user-select:none}
+.kanban-header:hover{background:var(--bg-hover)}
+.kanban-arrow{font-size:10px;transition:transform .15s;color:var(--text-dim)}
+.kanban-arrow.open{transform:rotate(90deg)}
+.kanban-title{font-size:16px;font-weight:700;flex:1}
+.kanban-count{font-size:9px;color:var(--text-dim);background:var(--bg-card);padding:2px 8px;border-radius:10px}
+.kanban-cols{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px 14px 14px;background:var(--bg)}
+.kanban-col{border:1px solid var(--border);border-radius:10px;padding:10px;min-height:60px}
+.kanban-col-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-dim);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.kanban-col-title .count{font-size:8px;background:var(--bg-card);padding:1px 6px;border-radius:8px;color:var(--text-muted)}
+.kanban-card{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:8px;margin-bottom:6px;cursor:pointer;transition:all .15s;font-size:11px}
+.kanban-card:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.3)}
+.kanban-card-title{font-weight:600;color:var(--text);margin-bottom:4px;line-height:1.3}
+.kanban-card-meta{display:flex;gap:6px;align-items:center;font-size:9px;color:var(--text-dim)}
+.kanban-priority{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.kanban-priority.high{background:var(--rose)}
+.kanban-priority.medium{background:var(--amber)}
+.kanban-priority.low{background:var(--success)}
+.kanban-assignee{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0}
+
+/* ═══ AGENT CONFIG ═══ */
+.agent-project-selector{display:flex;gap:6px;align-items:center;margin-bottom:16px}
+.agent-project-selector select{background:var(--bg-card);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:11px;outline:none;cursor:pointer;min-width:160px}
+.agent-project-selector select:focus{border-color:var(--accent)}
+.agent-card{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:8px;transition:border-color .15s}
+.agent-card:hover{border-color:var(--border-light)}
+.agent-card-header{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.agent-card-avatar{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.agent-card-info{flex:1;min-width:0}
+.agent-card-name{font-size:12px;font-weight:600;color:var(--text)}
+.agent-card-model{font-size:9px;color:var(--text-dim)}
+.agent-card-role{font-size:8px;padding:2px 6px;border-radius:4px;font-weight:600;display:inline-block;margin-top:2px}
+.agent-card-config{background:var(--bg-panel);border-radius:6px;padding:10px;margin-top:8px;display:none}
+.agent-card-config.open{display:block}
+.agent-config-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:10px}
+.agent-config-row label{color:var(--text-dim);min-width:80px;flex-shrink:0;text-align:right}
+.agent-config-row select,.agent-config-row input[type="number"]{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:4px;font-size:10px;outline:none;flex:1;min-width:0}
+.agent-config-row select:focus,.agent-config-row input:focus{border-color:var(--accent)}
+.agent-config-row input[type="number"]{width:70px;flex:none}
+
+/* ═══ WORKFLOWS ═══ */
+.workflow-card{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px}
+.workflow-card:hover{border-color:var(--border-light)}
+.workflow-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.workflow-name{font-size:12px;font-weight:700}
+.workflow-status{font-size:8px;padding:2px 8px;border-radius:4px;font-weight:600}
+.workflow-status.active{background:rgba(52,211,153,.15);color:var(--success)}
+.workflow-status.paused{background:rgba(251,191,36,.15);color:var(--warn)}
+.workflow-status.draft{background:var(--bg-hover);color:var(--text-dim)}
+.workflow-pipeline{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px}
+.wf-stage{background:var(--bg-panel);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:9px;text-align:center;min-width:80px}
+.wf-stage.active{border-color:var(--accent);background:rgba(108,92,231,.08)}
+.wf-stage.done{border-color:var(--success);background:rgba(52,211,153,.08)}
+.wf-stage.error{border-color:var(--error);background:rgba(225,112,85,.08)}
+.wf-stage.waiting{border-color:var(--warn);background:rgba(251,191,36,.08)}
+.wf-arrow{color:var(--text-dim);font-size:10px}
+.wf-agent{font-size:8px;color:var(--text-dim);margin-top:2px}
+
+/* ═══ PIPELINE ENGINE ═══ */
+.pipeline-tile{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;transition:all .15s}
+.pipeline-tile:hover{border-color:var(--border-light)}
+.pipeline-tile-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.pipeline-tile-title{font-size:11px;font-weight:600;flex:1}
+.pipeline-progress{height:4px;background:var(--bg);border-radius:3px;overflow:hidden;margin-bottom:6px}
+.pipeline-progress-bar{height:100%;border-radius:3px;transition:width .4s}
+.stage-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:5px;font-size:8px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.stage-badge-scout{background:rgba(108,92,231,.15);color:var(--accent)}
+.stage-badge-score{background:rgba(251,191,36,.15);color:var(--amber)}
+.stage-badge-research{background:rgba(34,211,238,.15);color:var(--cyan)}
+.stage-badge-route{background:rgba(251,113,133,.15);color:var(--rose)}
+.stage-badge-approve{background:rgba(52,211,153,.15);color:var(--success)}
+.stage-badge-build{background:rgba(167,139,250,.15);color:var(--violet)}
+.stage-badge-test{background:rgba(251,191,36,.15);color:var(--warn)}
+.stage-badge-deliver{background:rgba(52,211,153,.15);color:var(--emerald)}
+.score-display{display:flex;align-items:center;gap:6px;padding:6px 10px;background:var(--bg-panel);border-radius:6px;margin-top:6px;font-size:10px}
+.score-bar{flex:1;height:4px;background:var(--bg);border-radius:2px;overflow:hidden}
+.score-bar-fill{height:100%;border-radius:2px;transition:width .3s}
+.score-value{font-weight:700;min-width:30px;text-align:right}
+.approval-queue{max-height:200px;overflow-y:auto}
+.approval-item{display:flex;align-items:center;gap:8px;padding:8px;background:var(--bg-panel);border-radius:6px;margin-bottom:4px;font-size:10px}
+.approval-item:hover{background:var(--bg-hover)}
+.approval-avatar{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0}
+.approval-info{flex:1;min-width:0}
+.approval-title{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.approval-meta{font-size:8px;color:var(--text-dim)}
+.pipeline-stages-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
+.pipeline-stage-col{background:var(--bg-panel);border:1px solid var(--border);border-radius:8px;padding:8px;min-height:40px}
+.pipeline-stage-col-title{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
+.pipeline-stage-card{background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:5px 7px;margin-bottom:4px;font-size:9px;cursor:pointer;transition:all .15s}
+.pipeline-stage-card:hover{border-color:var(--accent)}
+.pipeline-stage-card .psc-title{font-weight:600;line-height:1.3}
+.pipeline-stage-card .psc-meta{display:flex;gap:4px;align-items:center;margin-top:2px;font-size:8px;color:var(--text-dim)}
+.rubric-config{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.rubric-item{display:flex;align-items:center;gap:4px;padding:3px 8px;background:var(--bg-panel);border-radius:4px;font-size:9px}
+.rubric-item input[type="range"]{width:60px;accent-color:var(--accent)}
+.rubric-item label{font-size:8px;color:var(--text-dim);min-width:50px}
+.wf-connector{color:var(--text-dim);font-size:12px;display:flex;align-items:center}
+.pipeline-run-log{margin-top:6px;padding:6px;background:var(--bg);border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--text-dim);max-height:80px;overflow-y:auto;white-space:pre-wrap}
+.status-indicator{width:6px;height:6px;border-radius:50%;display:inline-block}
+.status-indicator.idle{background:var(--text-dim)}
+.status-indicator.running{background:var(--amber);animation:pulse .8s infinite}
+.status-indicator.complete{background:var(--success);box-shadow:0 0 4px var(--success)}
+.status-indicator.failed{background:var(--error)}
+
+/* ═══ SETTINGS / MODAL / TOAST ═══ */
+#settings-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:center;justify-content:center}
+#settings-overlay.open{display:flex}
+#settings-popup{background:var(--bg-panel);border:1px solid var(--border);border-radius:12px;width:680px;max-width:95vw;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.sh{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.sh h2{font-size:14px;font-weight:600}
+.sclose{background:none;border:none;color:var(--text-muted);font-size:18px;cursor:pointer;padding:4px 8px;border-radius:6px;line-height:1}
+.sclose:hover{background:var(--bg-hover);color:var(--text)}
+.sb{display:flex;flex:1;overflow:hidden;min-height:0}
+.stabs{width:140px;border-right:1px solid var(--border);padding:6px 0;flex-shrink:0;overflow-y:auto}
+.stab{padding:7px 12px;font-size:11px;color:var(--text-dim);cursor:pointer;transition:all .1s;display:flex;align-items:center;gap:6px}
+.stab:hover{background:var(--bg-hover);color:var(--text)}
+.stab.active{background:var(--accent-dim);color:var(--accent);font-weight:600}
+.sc{flex:1;overflow-y:auto;padding:14px 18px}
+.sg{margin-bottom:16px}
+.sgt{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+.sr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:10px}
+.sl{font-size:11px;color:var(--text-dim);flex-shrink:0;min-width:120px}
+.si{flex:1;background:var(--bg-card);border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:4px;font-size:11px;font-family:inherit;outline:none;transition:border-color .15s;min-width:0}
+.si:focus{border-color:var(--accent)}
+select.si{cursor:pointer}
+.tgl{position:relative;width:32px;height:18px;flex-shrink:0}
+.tgl input{opacity:0;width:0;height:0}
+.tgl .tslider{position:absolute;inset:0;background:var(--bg-card);border:1px solid var(--border);border-radius:9px;cursor:pointer;transition:all .2s}
+.tgl .tslider::before{content:'';position:absolute;width:12px;height:12px;left:2px;top:2px;background:var(--text-muted);border-radius:50%;transition:all .2s}
+.tgl input:checked+.tslider{background:var(--accent);border-color:var(--accent)}
+.tgl input:checked+.tslider::before{transform:translateX(14px);background:#fff}
+.sf{padding:10px 18px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.sf .lb,.sf .rb{display:flex;gap:6px}
+
+#packager-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:center;justify-content:center}
+#packager-overlay.open{display:flex}
+
+#toast{position:fixed;bottom:16px;right:16px;z-index:2000;display:flex;flex-direction:column;gap:4px}
+.toast{background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:8px 14px;font-size:11px;color:var(--text);box-shadow:0 4px 20px rgba(0,0,0,.3);animation:ti .2s ease;display:flex;align-items:center;gap:6px;max-width:300px}
+.toast.ok{border-left:3px solid var(--success)}
+.toast.err{border-left:3px solid var(--error)}
+.toast.info{border-left:3px solid var(--accent)}
+@keyframes ti{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+#ctx{display:none;position:fixed;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:3px 0;z-index:1500;min-width:140px;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+#ctx.open{display:block}
+.ci{padding:6px 12px;font-size:11px;color:var(--text-dim);cursor:pointer;display:flex;align-items:center;gap:6px}
+.ci:hover{background:var(--bg-hover);color:var(--text)}
+.cs{height:1px;background:var(--border);margin:3px 0}
+
+#modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:900;align-items:center;justify-content:center}
+#modal-overlay.open{display:flex}
+#modal-box{background:var(--bg-panel);border:1px solid var(--border);border-radius:8px;padding:16px;width:380px;max-width:90vw;box-shadow:0 16px 48px rgba(0,0,0,.4)}
+#modal-box h3{font-size:13px;margin-bottom:10px}
+#modal-box .mi{width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:4px;font-size:12px;outline:none;margin-bottom:10px}
+#modal-box .mi:focus{border-color:var(--accent)}
+#modal-box .mb{display:flex;gap:6px;justify-content:flex-end}
+
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+.os-tree{padding:0 0 4px 0}
+.os-tree-group-title{padding:4px 14px 2px;font-size:8px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px}
+.os-tree-item{display:flex;align-items:center;gap:6px;padding:4px 14px 4px 20px;color:var(--text-dim);font-size:10px;cursor:pointer;transition:all .1s}
+.os-tree-item:hover{background:var(--bg-hover);color:var(--text)}
+.os-tree-item.active{background:var(--accent-dim);color:var(--accent)}
+.os-tree-icon{font-size:8px;width:12px;text-align:center}
+.os-tree-label{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.os-tree-agent{font-size:8px;padding:1px 4px;border-radius:3px;font-weight:600}
+.os-tree-role{font-size:8px;color:var(--text-dim);margin-left:auto}
+
+.proj-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.4)}
+</style>
+</head>
+<body>
+
+
+<div id="topbar">
+  <div class="logo" onclick="showWorkspace()">HERMES<span>DASH</span></div>
+  <div class="os-topbar-title" id="osTopbarTitle" style="display:none;font-size:13px;font-weight:600;color:var(--text);margin-left:8px"></div>
+  <button class="topbar-btn" id="btn-tl" title="Toggle Explorer" onclick="showWorkspace()">
+    <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+    Explorer
+  </button>
+  <button class="topbar-btn" id="btn-tr" title="Toggle Panel">
+    <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+    Panel
+  </button>
+  <div class="topbar-spacer"></div>
+  <button class="topbar-btn" id="btn-new" title="New Project">
+    <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+    New
+  </button>
+  <button class="topbar-btn" id="btn-gear" title="Settings">
+    <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22 0-.47.12-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+  </button>
+  <div class="topbar-spacer"></div>
+  <button class="topbar-btn" id="btn-packager" title="App Packager" onclick="showPackager()">
+    <svg viewBox="0 0 24 24"><path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/></svg>
+    Packager
+  </button>
+</div>
+
+<div id="main">
+  <!-- LEFT BAR -->
+  <div id="leftbar">
+    <div class="os-sidebar-header">
+      <div class="os-sidebar-logo"><span class="os-dot"></span> Agent OS</div>
+      <div class="os-sidebar-tag">Mission Control v3</div>
+    </div>
+    <nav class="os-sidebar-nav" id="osNav">
+      <div class="os-nav-section">
+        <div class="os-nav-section-title">Core</div>
+        <a class="os-nav-item active" onclick="showOSPage('dashboard',this)"><span class="os-nav-icon">&#x25A0;</span><span>Dashboard</span></a>
+        <a class="os-nav-item" onclick="showOSPage('goals',this)"><span class="os-nav-icon">&#x25CE;</span><span>Goals</span><span class="os-nav-badge" id="projCount">7</span></a>
+        <a class="os-nav-item" onclick="showOSPage('agents',this)"><span class="os-nav-icon">&#x25A3;</span><span>Agents</span><span class="os-nav-badge" id="agentCount">20</span></a>
+        <a class="os-nav-item" onclick="showOSPage('workflows',this)"><span class="os-nav-icon">&#x26A1;</span><span>Workflows</span></a>
+      </div>
+      <div class="os-nav-section">
+        <div class="os-nav-section-title">Orchestration</div>
+        <a class="os-nav-item" onclick="showOSPage('planner',this)"><span class="os-nav-icon">&#x25A1;</span><span>Task Planner</span></a>
+        <a class="os-nav-item" onclick="showOSPage('routing',this)"><span class="os-nav-icon">&#x21BB;</span><span>Agent Routing</span></a>
+        <a class="os-nav-item" onclick="showOSPage('exceptions',this)"><span class="os-nav-icon">&#x26A0;</span><span>Exceptions</span></a>
+      </div>
+      <div class="os-nav-section">
+        <div class="os-nav-section-title">Memory</div>
+        <a class="os-nav-item" onclick="showOSPage('short-term',this)"><span class="os-nav-icon">&#x25C6;</span><span>Short-Term</span></a>
+        <a class="os-nav-item" onclick="showOSPage('long-term',this)"><span class="os-nav-icon">&#x25C7;</span><span>Long-Term</span></a>
+        <a class="os-nav-item" onclick="showOSPage('knowledge',this)"><span class="os-nav-icon">&#x25A4;</span><span>Knowledge</span></a>
+      </div>
+      <div class="os-nav-section">
+        <div class="os-nav-section-title">Tools</div>
+        <a class="os-nav-item" onclick="showOSPage('mcp',this)"><span class="os-nav-icon">&#x25B6;</span><span>MCP Servers</span></a>
+        <a class="os-nav-item" onclick="showOSPage('connections',this)"><span class="os-nav-icon">&#x221E;</span><span>Connections</span></a>
+        <a class="os-nav-item" onclick="showOSPage('tools',this)"><span class="os-nav-icon">&#x2699;</span><span>Tool Registry</span></a>
+      </div>
+      <div class="os-nav-section">
+        <div class="os-nav-section-title">Governance</div>
+        <a class="os-nav-item" onclick="showOSPage('audit',this)"><span class="os-nav-icon">&#x270E;</span><span>Audit Logs</span></a>
+        <a class="os-nav-item" onclick="showOSPage('permissions',this)"><span class="os-nav-icon">&#x25CF;</span><span>Permissions</span></a>
+        <a class="os-nav-item" onclick="showOSPage('checkpoints',this)"><span class="os-nav-icon">&#x25CB;</span><span>Checkpoints</span></a>
+      </div>
+      <div class="os-nav-section">
+        <div class="os-nav-section-title">Config</div>
+        <a class="os-nav-item" onclick="showOSPage('models',this)"><span class="os-nav-icon">&#x25B2;</span><span>Models</span></a>
+        <a class="os-nav-item" onclick="showOSPage('cost',this)"><span class="os-nav-icon">&#x25A0;</span><span>Cost</span></a>
+        <a class="os-nav-item" onclick="showOSPage('prompts',this)"><span class="os-nav-icon">&#x270E;</span><span>Prompts</span></a>
+        <a class="os-nav-item" onclick="showOSPage('analytics',this)"><span class="os-nav-icon">&#x25A0;</span><span>Analytics</span></a>
+        <a class="os-nav-item" onclick="showOSPage('help',this)"><span class="os-nav-icon">&#x25B3;</span><span>Help</span></a>
+      </div>
+    </nav>
+    <div class="os-sidebar-footer">
+      <div style="font-size:9px;color:var(--text-dim);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">Projects</div>
+      <div id="projExplorer" style="max-height:200px;overflow-y:auto"></div>
+      <div style="font-size:9px;color:var(--text-muted);margin-top:4px">v3.0 — Hermes Dashboard</div>
+    </div>
+  </div>
+
+  <!-- CENTER -->
+  <div id="center">
+    <div id="proj-switcher"><span class="switcher-label">Projects:</span></div>
+    <div id="proj-view">
+      <div id="preview-area">
+        <div id="preview-content">
+          <div id="empty-state" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text-muted);gap:8px">
+            <div class="et" style="font-size:13px">Hermes Dashboard</div>
+            <div class="eh" style="font-size:11px;color:var(--text-muted)">Open a project from the Explorer or click Goals to see kanban boards.</div>
+          </div>
+        </div>
+      </div>
+      <div id="chat-area">
+        <div class="chat-resize-handle" id="chat-resize-handle"></div>
+        <div class="chat-container">
+          <div class="chat-header" onclick="toggleChat()">
+            <div class="chat-header-left">
+              <div class="chat-avatar" id="chat-avatar" style="background:linear-gradient(135deg,#6c5ce7,#a78bfa)">A</div>
+              <div>
+                <div class="chat-title" id="chat-title">Agent Chat</div>
+                <div class="chat-subtitle" id="chat-subtitle"><span class="agent-status active">Active</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="chat-messages" id="chat-messages">
+            <div class="msg agent"><div class="msg-sender">Agent</div>Select a project to begin. Click Goals for kanban boards or Agents to manage your team.</div>
+          </div>
+          <div class="chat-input-area">
+            <input type="text" class="chat-input" id="chat-input" placeholder="Type a message or task..." onkeydown="if(event.key==='Enter')sendChat()">
+            <button class="chat-send" onclick="sendChat()">&#10148;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT BAR -->
+  <div id="rightbar">
+    <div class="rtabs">
+      <div class="rtab active" data-t="team">Team</div>
+      <div class="rtab" data-t="plans">Plans</div>
+      <div class="rtab" data-t="timetable">Timetable</div>
+    </div>
+    <div class="rc" id="rc"></div>
+  </div>
+</div>
+
+<!-- OS PAGES -->
+<div id="osPages" style="display:none">
+  <div class="os-page active" id="os-page-dashboard">
+    <div class="os-page-header"><h1>Dashboard</h1><p>Overview</p></div>
+    <div class="os-grid-3" style="margin-bottom:12px">
+      <div class="os-card os-metric"><div class="os-metric-num" id="dash-projcount">7</div><div class="os-metric-label">Projects</div></div>
+      <div class="os-card os-metric"><div class="os-metric-num" id="dash-agentcount">20</div><div class="os-metric-label">Agents</div></div>
+      <div class="os-card os-metric"><div class="os-metric-num" id="dash-taskcount">0</div><div class="os-metric-label">Active Tasks</div></div>
+    </div>
+    <div class="os-card"><div class="os-card-title">Recent Activity</div><div id="dash-activity" style="font-size:11px;color:var(--text-muted)">Loading...</div></div>
+  </div>
+  <div class="os-page" id="os-page-goals"></div>
+  <div class="os-page" id="os-page-agents"></div>
+  <div class="os-page" id="os-page-workflows">
+    <div class="os-page-header"><h1>Workflow Engine</h1><p>Pipeline execution &amp; orchestration</p></div>
+    <div class="os-grid-2" style="margin-bottom:12px">
+      <div class="os-card os-metric"><div class="os-metric-num" id="wf-pipelines-active">0</div><div class="os-metric-label">Active Pipelines</div></div>
+      <div class="os-card os-metric"><div class="os-metric-num" id="wf-cards-total">0</div><div class="os-metric-label">Pipeline Cards</div></div>
+    </div>
+    <div id="wf-pipeline-defs"></div>
+    <div class="os-card" style="margin-top:12px">
+      <div class="os-card-title" style="display:flex;justify-content:space-between;align-items:center">
+        <span>Approval Queue</span>
+        <span class="os-tag os-tag-amber" id="wf-approval-count">0 pending</span>
+      </div>
+      <div class="approval-queue" id="wf-approval-queue"></div>
+    </div>
+    <div class="os-card" style="margin-top:12px">
+      <div class="os-card-title">Scoring Rubric</div>
+      <div class="rubric-config" id="wf-rubric-config"></div>
+    </div>
+  </div>
+  <div class="os-page" id="os-page-planner"><div class="os-page-header"><h1>Task Planner</h1></div><div class="os-card"><p style="color:var(--text-muted);font-size:11px;text-align:center;padding:20px">Select a goal to view its decomposition.</p></div></div>
+  <div class="os-page" id="os-page-routing"><div class="os-page-header"><h1>Agent Routing</h1></div><div class="os-card"><table class="os-table"><tr><th>Condition</th><th>Agent</th><th>Model</th></tr><tr><td>Complex reasoning</td><td>Hermes Main</td><td>OWL Alpha</td></tr><tr><td>Bulk text/files</td><td>Flash Agent</td><td>Gemini Flash</td></tr><tr><td>Vision/media</td><td>Video Agent</td><td>Gemini Flash</td></tr></table></div></div>
+  <div class="os-page" id="os-page-exceptions"><div class="os-page-header"><h1>Exceptions</h1></div><div class="os-card" style="border-left:3px solid var(--warn)"><div style="font-weight:700;font-size:12px;margin-bottom:3px">No Active Exceptions</div><div style="font-size:10px;color:var(--text-muted)">All systems running normally.</div></div></div>
+  <div class="os-page" id="os-page-short-term"><div class="os-page-header"><h1>Short-Term Context</h1></div><div class="os-card"><table class="os-table"><tr><th>Key</th><th>Value</th></tr><tr><td>current_task</td><td>-</td></tr><tr><td>active_agent</td><td>-</td></tr><tr><td>error_count</td><td>0</td></tr></table></div></div>
+  <div class="os-page" id="os-page-long-term"><div class="os-page-header"><h1>Long-Term Memory</h1></div><div class="os-card"><table class="os-table"><tr><th>Fact</th><th>Date</th></tr><tr><td>FX chain: parallel sends NOT serial</td><td>Jun 4</td></tr><tr><td>Quiz rules: full sentences no period in def</td><td>Jun 3</td></tr><tr><td>GitHub: no push without explicit request</td><td>Jun 3</td></tr></table></div></div>
+  <div class="os-page" id="os-page-knowledge"><div class="os-page-header"><h1>Knowledge Graph</h1></div><div class="os-card"><p style="color:var(--text-muted);font-size:11px;text-align:center;padding:30px 0">Knowledge graph visualization coming soon.</p></div></div>
+  <div class="os-page" id="os-page-mcp"><div class="os-page-header"><h1>MCP Servers</h1></div><div class="os-card" style="text-align:center;padding:30px"><p style="color:var(--text-muted);font-size:11px">No MCP servers configured yet.</p></div></div>
+  <div class="os-page" id="os-page-connections"><div class="os-page-header"><h1>Connections</h1></div><div class="os-card"><table class="os-table"><tr><th>Service</th><th>Status</th></tr><tr><td>GitHub</td><td><span class="os-tag os-tag-green">Connected</span></td></tr><tr><td>OpenRouter</td><td><span class="os-tag os-tag-green">Connected</span></td></tr></table></div></div>
+  <div class="os-page" id="os-page-tools"><div class="os-page-header"><h1>Tool Registry</h1></div><div class="os-card"><table class="os-table"><tr><th>Toolset</th><th>Enabled</th></tr><tr><td>terminal</td><td><span class="os-tag os-tag-green">Yes</span></td></tr><tr><td>file</td><td><span class="os-tag os-tag-green">Yes</span></td></tr><tr><td>web</td><td><span class="os-tag os-tag-green">Yes</span></td></tr><tr><td>memory</td><td><span class="os-tag os-tag-green">Yes</span></td></tr><tr><td>cronjob</td><td><span class="os-tag os-tag-green">Yes</span></td></tr></table></div></div>
+  <div class="os-page" id="os-page-audit"><div class="os-page-header"><h1>Audit Logs</h1></div><div class="os-card"><div class="os-timeline"><div class="os-tl-item done"><div class="os-tl-time">Now</div><div class="os-tl-text">Dashboard initialized</div></div></div></div></div>
+  <div class="os-page" id="os-page-permissions"><div class="os-page-header"><h1>Permissions</h1></div><div class="os-card"><table class="os-table"><tr><th>Agent</th><th>File Write</th><th>Git Push</th></tr><tr><td>Hermes Main</td><td><span class="os-tag os-tag-green">Allow</span></td><td><span class="os-tag os-tag-rose">Deny</span></td></tr><tr><td>Codex Worker</td><td><span class="os-tag os-tag-green">Allow</span></td><td><span class="os-tag os-tag-rose">Deny</span></td></tr></table></div></div>
+  <div class="os-page" id="os-page-checkpoints"><div class="os-page-header"><h1>HITL Checkpoints</h1></div><div class="os-card" style="text-align:center;padding:20px"><p style="color:var(--text-muted);font-size:11px">No pending checkpoints.</p></div></div>
+  <div class="os-page" id="os-page-models"><div class="os-page-header"><h1>Models & Routing</h1></div><div class="os-grid-3" style="margin-bottom:12px"><div class="os-card" style="text-align:center"><div style="font-size:18px">&#x25B2;</div><div style="font-weight:600;font-size:11px">OWL Alpha</div><div class="os-tag os-tag-rose" style="margin-top:3px">Paid</div></div><div class="os-card" style="text-align:center"><div style="font-size:18px">&#x26A1;</div><div style="font-weight:600;font-size:11px">Gemini Flash</div><div class="os-tag os-tag-green" style="margin-top:3px">FREE</div></div><div class="os-card" style="text-align:center"><div style="font-size:18px">&#x1F52E;</div><div style="font-weight:600;font-size:11px">Claude Sonnet</div><div class="os-tag os-tag-rose" style="margin-top:3px">Paid</div></div></div></div>
+  <div class="os-page" id="os-page-cost"><div class="os-page-header"><h1>Cost Optimization</h1></div><div class="os-grid-3"><div class="os-card os-metric"><div class="os-metric-num">$0.00</div><div class="os-metric-label">Today</div></div><div class="os-card os-metric"><div class="os-metric-num">$0.00</div><div class="os-metric-label">This Week</div></div><div class="os-card os-metric"><div class="os-metric-num" style="color:var(--success)">~$6.80</div><div class="os-metric-label">Saved vs all-paid</div></div></div></div>
+  <div class="os-page" id="os-page-prompts"><div class="os-page-header"><h1>Prompt Library</h1></div><div style="color:var(--text-muted);font-size:11px;text-align:center;padding:20px">12 templates available. Click to insert into chat.</div></div>
+  <div class="os-page" id="os-page-analytics"><div class="os-page-header"><h1>Analytics</h1></div><div style="color:var(--text-muted);font-size:11px;text-align:center;padding:20px">No data yet. Start chatting to see analytics.</div></div>
+  <div class="os-page" id="os-page-help"><div class="os-page-header"><h1>Help & Commands</h1></div><div class="os-card"><ul style="padding-left:16px;font-size:11px;color:var(--text-muted);line-height:2"><li><strong>Goals</strong> — View project kanban boards</li><li><strong>Agents</strong> — Manage per-project agent teams</li><li><strong>Workflows</strong> — Automation pipelines</li><li><strong>Shift+Scroll</strong> — Switch projects</li><li><strong>Alt+1-5</strong> — Quick project switch</li></ul></div></div>
+</div>
+
+<div id="ctx"></div>
+<div id="modal-overlay">
+  <div id="modal-box"><h3 id="mh"></h3><input type="text" class="mi" id="mi"><div class="mb"><button class="cbtn" id="mc">Cancel</button><button class="cbtn primary" id="mo">OK</button></div></div>
+</div>
+<div id="toast"></div>
+
+
+<script>
+
+(function(){
+var $=function(i){return document.getElementById(i)};
+var $$=function(s){return document.querySelectorAll(s)};
+
+var S={
+  curProj:null,curAgentProj:null,osPage:'dashboard',lOp:true,rOp:true,sTab:'agents',
+  projects:loadProjects(),agentConfigs:loadAgentConfigs(),workflows:loadWorkflows(),
+  tasks:[],prompts:[],analytics:{},auditLog:[],chatHistories:{},settings:{},
+  openProjs:[],activeTaskId:null
+};
+function loadJSON(key,fb){try{var v=JSON.parse(localStorage.getItem(key));return v&&v.length!==undefined?v:fb;}catch(e){return fb;}}
+
+function loadProjects(){
+  try{var p=JSON.parse(localStorage.getItem('hd_projects2'));if(p&&p.length>0)return p;}catch(e){}
+  return[
+    {id:"p1",name:"WTE Platform",color:"var(--accent)",status:"active",
+      img:"https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=400&h=250&fit=crop",
+      desc:"English tutoring platform with video calls, payments, and speaking lessons.",
+      url:"https://williamthomason.github.io",
+      kanban:{todo:[{id:"t1",title:"Design speaking assessment UI",priority:"high"},{id:"t2",title:"Add payment integration",priority:"medium"}],
+        doing:[{id:"t3",title:"Fix lesson scroll bug",priority:"high",assignee:"a2"}],
+        review:[{id:"t4",title:"Review business debate vocab",priority:"low",assignee:"a1"}],
+        done:[{id:"t5",title:"Brand identity complete",priority:"medium",assignee:"a1"}]},
+      agents:["a1","a2","a3","a4","a5","a6","a7"]},
+    {id:"p2",name:"OobzoO DAW",color:"var(--success)",status:"active",
+      img:"https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=400&h=250&fit=crop",
+      desc:"Browser-based digital audio workstation with sampling and loop playback.",
+      url:"https://williamthomason.github.io",
+      kanban:{todo:[{id:"t6",title:"Sampler & audio import",priority:"high"},{id:"t7",title:"Sample slicing tool",priority:"medium"}],
+        doing:[{id:"t8",title:"Loop player prototype",priority:"high",assignee:"a1"}],
+        review:[],done:[{id:"t9",title:"Project scaffold",priority:"low",assignee:"a3"}]},
+      agents:["a1","a3","a5","a7","a8","a9","a10"]},
+    {id:"p3",name:"Agentic OS",color:"var(--amber)",status:"active",
+      img:"https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=250&fit=crop",
+      desc:"Multi-agent orchestration platform with kanban, workflows, and live dashboard.",
+      url:"http://127.0.0.1:8642",
+      kanban:{todo:[{id:"t10",title:"Kanban drag & drop",priority:"high"}],
+        doing:[{id:"t11",title:"Agent config panel",priority:"high",assignee:"a2"}],
+        review:[{id:"t12",title:"Memory galaxy 3D view",priority:"medium",assignee:"a4"}],
+        done:[{id:"t13",title:"Dashboard layout",priority:"medium",assignee:"a2"}]},
+      agents:["a2","a4","a6","a8","a10","a11","a12"]},
+    {id:"p4",name:"RESONANCE Game",color:"var(--rose)",status:"active",
+      img:"https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=400&h=250&fit=crop",
+      desc:"Music-driven adventure game with Circle of Fifths harmonic engine.",
+      url:"https://williamthomason.github.io",
+      kanban:{todo:[{id:"t14",title:"Story bible draft",priority:"high"},{id:"t15",title:"Visual style guide",priority:"medium"}],
+        doing:[{id:"t16",title:"DAW integration spec",priority:"high",assignee:"a1"}],
+        review:[],done:[{id:"t17",title:"Game design doc",priority:"low",assignee:"a5"}]},
+      agents:["a1","a5","a7","a9","a11","a13","a14"]},
+    {id:"p5",name:"ROOT Token",color:"var(--cyan)",status:"pending",
+      img:"https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&h=250&fit=crop",
+      desc:"Blockchain token concept with treasury, staking, and governance.",
+      url:"https://williamthomason.github.io",
+      kanban:{todo:[{id:"t18",title:"Token economics model",priority:"high"}],
+        doing:[],review:[],done:[{id:"t19",title:"Concept deck",priority:"low",assignee:"a6"}]},
+      agents:["a6","a8","a10","a12","a14","a15","a16"]},
+    {id:"p6",name:"MUNUMELOO",color:"var(--violet)",status:"pending",
+      img:"https://images.unsplash.com/photo-1535295972055-1c762f4483e5?w=400&h=250&fit=crop",
+      desc:"FPS adventure game with time travel, portals, and arcade minigames.",
+      url:"https://williamthomason.github.io",
+      kanban:{todo:[{id:"t20",title:"Character design",priority:"high"}],
+        doing:[],review:[],done:[]},
+      agents:["a3","a7","a11","a13","a15","a17","a18"]},
+    {id:"p7",name:"Video Call",color:"var(--emerald)",status:"active",
+      img:"https://images.unsplash.com/photo-1588196749597-9ff075ee6b5b?w=400&h=250&fit=crop",
+      desc:"PeerJS p2p video calling with screen share, chat, and language tools.",
+      url:"https://williamthomason.github.io/video-call/",
+      kanban:{todo:[],doing:[{id:"t21",title:"Screen share fix",priority:"medium",assignee:"a4"}],
+        review:[],done:[{id:"t22",title:"PeerJS integration",priority:"high",assignee:"a4"}]},
+      agents:["a4","a8","a12","a16","a18","a19","a20"]}
+  ];
+}
+function saveProjects(){localStorage.setItem('hd_projects2',JSON.stringify(S.projects))}
+
+function loadAgentConfigs(){
+  try{var c=JSON.parse(localStorage.getItem('hd_agents'));if(c&&c.length>0)return c;}catch(e){}
+  return[
+    {id:"a1",name:"Hermes Main",model:"openrouter/owl-alpha",role:"reasoning",temperature:0.7,color:"var(--accent)",limits:{maxTokens:8000,maxCalls:100,budget:5},systemPrompt:"You are Hermes."},
+    {id:"a2",name:"Codex Worker",model:"google/gemini-2.0-flash-001",role:"coding",temperature:0.3,color:"var(--success)",limits:{maxTokens:16000,maxCalls:200,budget:2},systemPrompt:"You are Codex."},
+    {id:"a3",name:"Flash Agent",model:"google/gemini-2.0-flash-001",role:"research",temperature:0.5,color:"var(--amber)",limits:{maxTokens:4000,maxCalls:50,budget:1},systemPrompt:"Research assistant."},
+    {id:"a4",name:"Video Agent",model:"google/gemini-2.0-flash-001",role:"vision",temperature:0.5,color:"var(--rose)",limits:{maxTokens:4000,maxCalls:50,budget:1},systemPrompt:"Vision agent."},
+    {id:"a5",name:"Planner",model:"openrouter/owl-alpha",role:"planning",temperature:0.6,color:"var(--violet)",limits:{maxTokens:8000,maxCalls:100,budget:5},systemPrompt:"Planning specialist."},
+    {id:"a6",name:"Writer",model:"google/gemini-2.0-flash-001",role:"writing",temperature:0.7,color:"var(--cyan)",limits:{maxTokens:8000,maxCalls:100,budget:2},systemPrompt:"Writing specialist."},
+    {id:"a7",name:"Analyst",model:"openrouter/owl-alpha",role:"analysis",temperature:0.4,color:"var(--emerald)",limits:{maxTokens:8000,maxCalls:100,budget:5},systemPrompt:"Analysis specialist."},
+    {id:"a8",name:"SEO Agent",model:"google/gemini-2.0-flash-001",role:"research",temperature:0.5,color:"var(--warn)",limits:{maxTokens:4000,maxCalls:50,budget:1},systemPrompt:"SEO specialist."},
+    {id:"a9",name:"Designer",model:"openrouter/owl-alpha",role:"design",temperature:0.7,color:"var(--rose)",limits:{maxTokens:8000,maxCalls:100,budget:5},systemPrompt:"Design specialist."},
+    {id:"a10",name:"Data Agent",model:"google/gemini-2.0-flash-001",role:"research",temperature:0.3,color:"var(--amber)",limits:{maxTokens:16000,maxCalls:200,budget:2},systemPrompt:"Data specialist."},
+    {id:"a11",name:"DevOps",model:"openrouter/owl-alpha",role:"coding",temperature:0.3,color:"var(--green)",limits:{maxTokens:8000,maxCalls:100,budget:5},systemPrompt:"DevOps specialist."},
+    {id:"a12",name:"QA Tester",model:"google/gemini-2.0-flash-001",role:"coding",temperature:0.3,color:"var(--cyan)",limits:{maxTokens:8000,maxCalls:100,budget:2},systemPrompt:"QA specialist."},
+    {id:"a13",name:"CopyWriter",model:"google/gemini-2.0-flash-001",role:"writing",temperature:0.7,color:"var(--violet)",limits:{maxTokens:4000,maxCalls:50,budget:1},systemPrompt:"Copywriter."},
+    {id:"a14",name:"Security",model:"openrouter/owl-alpha",role:"reasoning",temperature:0.3,color:"var(--rose)",limits:{maxTokens:8000,maxCalls:100,budget:5},systemPrompt:"Security specialist."},
+    {id:"a15",name:"Translator",model:"google/gemini-2.0-flash-001",role:"writing",temperature:0.5,color:"var(--emerald)",limits:{maxTokens:4000,maxCalls:50,budget:1},systemPrompt:"Translation specialist."},
+    {id:"a16",name:"Reviewer",model:"openrouter/owl-alpha",role:"reasoning",temperature:0.4,color:"var(--accent)",limits:{maxTokens:8000,maxCalls:100,budget:5},systemPrompt:"Reviewer."},
+    {id:"a17",name:"Composer",model:"google/gemini-2.0-flash-001",role:"creative",temperature:0.8,color:"var(--amber)",limits:{maxTokens:4000,maxCalls:50,budget:1},systemPrompt:"Music specialist."},
+    {id:"a18",name:"Architect",model:"openrouter/owl-alpha",role:"reasoning",temperature:0.4,color:"var(--cyan)",limits:{maxTokens:16000,maxCalls:200,budget:10},systemPrompt:"System architect."},
+    {id:"a19",name:"Tester",model:"google/gemini-2.0-flash-001",role:"coding",temperature:0.3,color:"var(--warn)",limits:{maxTokens:4000,maxCalls:50,budget:1},systemPrompt:"Testing specialist."},
+    {id:"a20",name:"Optimizer",model:"openrouter/owl-alpha",role:"reasoning",temperature:0.4,color:"var(--green)",limits:{maxTokens:8000,maxCalls:100,budget:5},systemPrompt:"Optimization specialist."}
+  ];
+}
+function saveAgentConfigs(){localStorage.setItem('hd_agents',JSON.stringify(S.agentConfigs))}
+
+function loadWorkflows(){
+  try{var w=JSON.parse(localStorage.getItem('hd_workflows'));if(w&&w.length>0)return w;}catch(e){}
+  return[
+    {id:"w1",name:"Content Pipeline",projectId:"p1",status:"active",trigger:"manual",
+      stages:[{name:"Ideation",agentRole:"research",agentId:"a3",kanbanCol:"todo"},{name:"Drafting",agentRole:"writing",agentId:"a6",kanbanCol:"doing"},{name:"Review",agentRole:"reasoning",agentId:"a16",kanbanCol:"review"},{name:"Published",agentRole:null,agentId:null,kanbanCol:"done"}]},
+    {id:"w2",name:"Bug Fix Pipeline",projectId:"p3",status:"active",trigger:"event",
+      stages:[{name:"Detect",agentRole:"reasoning",agentId:"a1",kanbanCol:"todo"},{name:"Plan",agentRole:"planning",agentId:"a5",kanbanCol:"todo"},{name:"Fix",agentRole:"coding",agentId:"a2",kanbanCol:"doing"},{name:"Test",agentRole:"coding",agentId:"a12",kanbanCol:"review"},{name:"Deploy",agentRole:"coding",agentId:"a11",kanbanCol:"done"}]},
+    {id:"w3",name:"Research Pipeline",projectId:"p2",status:"paused",trigger:"manual",
+      stages:[{name:"Gather",agentRole:"research",agentId:"a3",kanbanCol:"todo"},{name:"Analyze",agentRole:"analysis",agentId:"a7",kanbanCol:"doing"},{name:"Document",agentRole:"writing",agentId:"a6",kanbanCol:"review"},{name:"Validate",agentRole:"reasoning",agentId:"a16",kanbanCol:"done"}]}
+  ];
+}
+function saveWorkflows(){localStorage.setItem('hd_workflows',JSON.stringify(S.workflows))}
+
+function toast(msg,t){var c=$('toast');var d=document.createElement('div');d.className='toast '+(t||'info');d.textContent=msg;c.appendChild(d);setTimeout(function(){d.style.opacity='0';setTimeout(function(){d.remove()},300)},2500);}
+var modalCb=null;
+function showModal(title,ph,cb){modalCb=cb;$('mh').textContent=title;$('mi').value='';$('mi').placeholder=ph||'';$('modal-overlay').classList.add('open');$('mi').focus();}
+$('modal-overlay').addEventListener('click',function(e){if(e.target===this)$('modal-overlay').classList.remove('open');});
+$('mc').addEventListener('click',function(){$('modal-overlay').classList.remove('open');modalCb=null;});
+$('mo').addEventListener('click',function(){var v=$('mi').value.trim();$('modal-overlay').classList.remove('open');if(modalCb)modalCb(v);});
+$('mi').addEventListener('keydown',function(e){if(e.key==='Enter')$('mo').click();if(e.key==='Escape')$('mc').click();});
+
+function showOSPage(id,el){
+  document.querySelectorAll('.os-page').forEach(function(p){p.classList.remove('active')});
+  document.querySelectorAll('.os-nav-item').forEach(function(n){n.classList.remove('active')});
+  var page=document.getElementById('os-page-'+id);if(page)page.classList.add('active');
+  if(el)el.classList.add('active');
+  S.osPage=id;
+  var osPages=document.getElementById('osPages');if(osPages)osPages.style.display='block';
+  var projView=$('proj-view');if(projView)projView.style.display='none';
+  var tb=document.getElementById('osTopbarTitle');
+  if(tb){tb.style.display='block';tb.textContent={dashboard:'Dashboard',goals:'Goals',agents:'Agents',workflows:'Workflows',planner:'Task Planner',routing:'Agent Routing',exceptions:'Exceptions','short-term':'Short-Term Context','long-term':'Long-Term Memory',knowledge:'Knowledge Graph',mcp:'MCP Servers',connections:'Connections',tools:'Tool Registry',audit:'Audit Logs',permissions:'Permissions',checkpoints:'HITL Checkpoints',models:'Models & Routing',cost:'Cost Optimization',prompts:'Prompt Library',analytics:'Analytics',help:'Help & Commands'}[id]||id;}
+  if(id==='goals')renderGoalsPage();
+  if(id==='agents')renderAgentsPage();
+  if(id==='workflows')renderWorkflowsPage();
+}
+function showWorkspace(){
+  var osPages=document.getElementById('osPages');if(osPages)osPages.style.display='none';
+  document.querySelectorAll('.os-nav-item').forEach(function(n){n.classList.remove('active')});
+  var projView=$('proj-view');if(projView)projView.style.display='flex';
+  var tb=document.getElementById('osTopbarTitle');if(tb)tb.style.display='none';
+  S.osPage='dashboard';
+}
+
+function renderGoalsPage(){
+  var page=document.getElementById('os-page-goals');
+  if(!page)return;
+  var projects=S.projects;
+  var store=(typeof KanbanStore!=='undefined')?KanbanStore:null;
+  var h=`<div class="os-page-header"><h1>Goals</h1><p>Project kanban boards</p></div>
+    <div style="display:flex;gap:6px;margin-bottom:12px">
+    <button class="cbtn primary" id="rbn-new-proj">+ New Project</button>
+    <button class="cbtn" id="rbn-migrate" title="Migrate from S.projects kanban">&#8635; Migrate</button>
+    <button class="cbtn" id="rbn-dispatcher" onclick="if(window.Dispatcher){if(Dispatcher.isRunning()){Dispatcher.stop();toast('Dispatcher stopped','info');}else{Dispatcher.start();toast('Dispatcher started','ok');}}}">&#9654; Dispatcher</button></div>`;
+  projects.forEach(function(proj){
+    var cards=store?store.getCardsByProject(proj.id):[];
+    var byStage={todo:[],doing:[],review:[],done:[],blocked:[],shelved:[]};
+    cards.forEach(function(c){if(byStage[c.stage])byStage[c.stage].push(c);else byStage.todo.push(c);});
+    var all=cards.length;var doneC=byStage.done.length;
+    var pct=all>0?Math.round(doneC/all*100):0;
+    h+=`<div class="kanban-section">
+      <div class="kanban-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'grid':'none';this.querySelector('.kanban-arrow').classList.toggle('open')">
+      <span class="kanban-arrow">&#9656;</span>
+      <span class="kanban-title" style="color:${proj.color}">${proj.name}</span>
+      <span class="kanban-count">${doneC}/${all} (${pct}%)</span></div>
+      <div class="kanban-cols">`;
+    [{key:'todo',label:'Todo',border:'var(--border)'},{key:'doing',label:'In Progress',border:'var(--amber)'},{key:'review',label:'Review',border:'var(--accent)'},{key:'done',label:'Done',border:'var(--success)'}].forEach(function(st){
+      var tasks=byStage[st.key]||[];
+      h+=`<div class="kanban-col" style="border-color:${st.border}">
+        <div class="kanban-col-title">${st.label} <span class="count">${tasks.length}</span></div>`;
+      tasks.forEach(function(t){
+        var ag=S.agentConfigs.find(function(a){return a.id===t.assignee;});
+        var ac=ag?ag.color:'var(--text-dim)';var ai=ag?ag.name.charAt(0):'';
+        h+=`<div class="kanban-card">
+          <div class="kanban-card-title">${t.title}</div>
+          <div class="kanban-card-meta">
+          <span class="kanban-priority ${t.priority||'medium'}"></span>
+          ${ag?`<span class="kanban-assignee" style="background:${ac}22;color:${ac}">${ai}</span>`:''}
+          </div></div>`;
+      });
+      h+=`</div>`;
+    });
+    h+=`</div></div>`;
+  });
+  page.innerHTML=h;
+  var rbn=$('rbn-new-proj');
+  if(rbn){rbn.onclick=function(){showModal('New Project','Project name',function(v){if(v){S.projects.push({id:'p'+Date.now(),name:v,color:'var(--accent)',status:'active',kanban:{todo:[],doing:[],review:[],done:[]},agents:[]});saveProjects();renderGoalsPage();updateCounts();toast('Project created','ok');}});};}
+  var rbm=$('rbn-migrate');
+  if(rbm){rbm.onclick=function(){if(store){var n=store.migrateFromLocalStorage();toast('Migrated '+n+' cards','ok');renderGoalsPage();updateCounts();}else{toast('KanbanStore not loaded','err');}};}
+  updateCounts();
+}
+
+function updateCounts(){
+  var pc=$('projCount');if(pc)pc.textContent=S.projects.length;
+  var ac=$('agentCount');if(ac)ac.textContent=S.agentConfigs.length;
+  var tc=$('dash-taskcount');if(tc){var total=0;S.projects.forEach(function(p){['todo','doing','review','done'].forEach(function(s){total+=(p.kanban[s]||[]).length;});});tc.textContent=total;}
+  var dac=$('dash-activity');if(dac){var html='';S.projects.slice(0,5).forEach(function(p){var all=0;['todo','doing','review','done'].forEach(function(s){all+=(p.kanban[s]||[]).length;});html+='<div style="padding:3px 0;font-size:10px;color:var(--text-dim)">'+p.name+': '+all+' tasks</div>';});dac.innerHTML=html;}
+}
+
+function renderAgentsPage(){
+  var page=document.getElementById('os-page-agents');
+  if(!page)return;
+  var projects=S.projects;var agents=S.agentConfigs;
+  var currentProjId=S.curAgentProj||(projects[0]&&projects[0].id)||'';
+  var h=`<div class="os-page-header"><h1>Agents</h1><p>Project team management</p></div>
+    <div style="display:flex;gap:6px;margin-bottom:12px">
+    <button class="cbtn primary" onclick="addAgent()">+ New Agent</button>
+    <button class="cbtn" onclick="testAgentConnection()">Test All</button></div>
+    <div class="agent-project-selector">
+    <label style="font-size:10px;color:var(--text-dim)">Project:</label>
+    <select id="agentProjSelect" onchange="switchAgentProject(this.value)">`;
+  projects.forEach(function(p){h+=`<option value="${p.id}"${p.id===currentProjId?' selected':''}>${p.name}</option>`;});
+  h+=`</select></div>`;
+  var currentProj=projects.find(function(p){return p.id===currentProjId;});
+  if(currentProj){
+    (currentProj.agents||[]).forEach(function(aid){
+      var ag=agents.find(function(a){return a.id===aid;});if(!ag)return;
+      var lim=ag.limits||{};
+      var mid=ag.id;
+      h+=`<div class="agent-card" style="border-left:3px solid ${ag.color}">
+        <div class="agent-card-header">
+        <div class="agent-card-avatar" style="background:${ag.color}22;color:${ag.color}">${ag.name.charAt(0)}</div>
+        <div class="agent-card-info"><div class="agent-card-name">${ag.name}</div><div class="agent-card-model">${ag.model}</div>
+        <span class="agent-card-role" style="background:${ag.color}15;color:${ag.color}">${ag.role}</span></div>
+        <button class="btn btn-sm" onclick="this.nextElementSibling.classList.toggle('open')">Config</button></div>
+        <div class="agent-card-config">
+        <div class="agent-config-row"><label>Model</label><select onchange="updateAgentModel('${mid}',this.value)"><option${ag.model==='openrouter/owl-alpha'?" selected":""}>owl-alpha</option><option${ag.model==='google/gemini-2.0-flash-001'?" selected":""}>gemini-flash</option><option${ag.model==='anthropic/claude-sonnet-4'?" selected":""}>claude-sonnet</option></select></div>
+        <div class="agent-config-row"><label>Role</label><select onchange="updateAgentRole('${mid}',this.value)"><option${ag.role==='reasoning'?" selected":""}>reasoning</option><option${ag.role==='coding'?" selected":""}>coding</option><option${ag.role==='research'?" selected":""}>research</option><option${ag.role==='writing'?" selected":""}>writing</option><option${ag.role==='design'?" selected":""}>design</option><option${ag.role==='planning'?" selected":""}>planning</option><option${ag.role==='analysis'?" selected":""}>analysis</option><option${ag.role==='vision'?" selected":""}>vision</option></select></div>
+        <div class="agent-config-row"><label>Max Tokens</label><input type="number" value="${lim.maxTokens||8000}" step="1000" min="1000" max="100000" onchange="updateAgentLimit('${mid}','maxTokens',this.value)"></div>
+        <div class="agent-config-row"><label>Max Calls</label><input type="number" value="${lim.maxCalls||100}" step="10" min="10" max="1000" onchange="updateAgentLimit('${mid}','maxCalls',this.value)"></div>
+        <div class="agent-config-row"><label>Budget ($)</label><input type="number" value="${lim.budget||5}" step="0.5" min="0" max="100" onchange="updateAgentLimit('${mid}','budget',this.value)"></div>
+        </div></div>`;
+    });
+    if(!currentProj.agents||currentProj.agents.length===0)h+='<div style="text-align:center;padding:40px;color:var(--text-muted);font-size:12px">No agents assigned to this project.</div>';
+  }
+  page.innerHTML=h;
+  S.curAgentProj=currentProjId;
+}
+function switchAgentProject(projId){S.curAgentProj=projId;renderAgentsPage();}
+function updateAgentModel(id,model){var a=S.agentConfigs.find(function(x){return x.id===id;});if(a){a.model=model;saveAgentConfigs();toast('Model updated','ok');}}
+function updateAgentRole(id,role){var a=S.agentConfigs.find(function(x){return x.id===id;});if(a){a.role=role;saveAgentConfigs();toast('Role updated','ok');}}
+function updateAgentLimit(id,key,val){var a=S.agentConfigs.find(function(x){return x.id===id;});if(a){a.limits=a.limits||{};a.limits[key]=parseFloat(val)||0;saveAgentConfigs();}}
+
+function renderWorkflowsPage(){
+  var defsContainer=document.getElementById('wf-pipeline-defs');
+  if(!defsContainer)return;
+  var activeCount=0,totalCards=0;
+  // Collect pipeline cards from all projects' kanban boards
+  var pipelineCards=[];
+  S.projects.forEach(function(proj){
+    ['todo','doing','review','done'].forEach(function(stage){
+      (proj.kanban[stage]||[]).forEach(function(t){
+        if(t.pipeline_type){
+          pipelineCards.push({card:t,stage:stage,projectId:proj.id,projectName:proj.name,projectColor:proj.color});
+          totalCards++;
+        }
+      });
+    });
+  });
+  // Count active pipelines (cards with pipeline_id)
+  var activePipelineIds={};
+  pipelineCards.forEach(function(pc){
+    if(pc.card.pipeline_id)activePipelineIds[pc.card.pipeline_id]=true;
+  });
+  activeCount=Object.keys(activePipelineIds).length;
+  $('wf-pipelines-active').textContent=activeCount;
+  $('wf-cards-total').textContent=totalCards;
+  // Render workflow definitions with live data
+  var h='';
+  if(S.workflows.length===0){
+    h='<div style="text-align:center;padding:30px;color:var(--text-muted);font-size:11px">No workflow templates defined. Create one below.</div>';
+  }
+  S.workflows.forEach(function(wf){
+    var proj=S.projects.find(function(p){return p.id===wf.projectId;});
+    var projColor=proj?proj.color:'var(--accent)';
+    // Find cards belonging to this workflow's pipeline
+    var wfCards=pipelineCards.filter(function(pc){return pc.card.pipeline_id===wf.id;});
+    var completedCards=wfCards.filter(function(pc){return pc.stage==='done';}).length;
+    var progressPct=wfCards.length>0?Math.round(completedCards/wfCards.length*100):0;
+    var isRunning=wfCards.some(function(pc){return pc.stage==='doing';});
+    h+=`<div class="pipeline-tile" style="border-left:4px solid ${projColor}">
+      <div class="pipeline-tile-header">
+        <span class="status-indicator ${isRunning?'running':(progressPct===100&&wfCards.length>0?'complete':'idle')}"></span>
+        <span class="pipeline-tile-title">${wf.name}</span>
+        <span class="workflow-status ${wf.status}">${wf.status}</span>
+      </div>
+      <div style="font-size:9px;color:var(--text-dim);margin-bottom:6px">
+        ${proj?proj.name:'No project'} &middot; ${wf.trigger} trigger &middot; ${wfCards.length} cards
+      </div>`;
+    // Progress bar
+    if(wfCards.length>0){
+      var barColor=progressPct===100?'var(--success)':(isRunning?'var(--accent)':'var(--text-dim)');
+      h+=`<div class="pipeline-progress"><div class="pipeline-progress-bar" style="width:${progressPct}%;background:${barColor}"></div></div>`;
+    }
+    // Pipeline stage badges from definition
+    h+=`<div class="workflow-pipeline">`;
+    var stageColors={scout:'scout',score:'score',research:'research',route:'route',approve:'approve',build:'build',test:'test',deliver:'deliver'};
+    wf.stages.forEach(function(st,si){
+      var stageKey=stageColors[st.name.toLowerCase()]||st.name.toLowerCase();
+      var stCards=wfCards.filter(function(pc){return pc.card.pipeline_stage===st.name.toLowerCase()});
+      var stStatus='idle';
+      if(stCards.some(function(c){return c.stage==='done';}))stStatus='done';
+      else if(stCards.some(function(c){return c.stage==='doing';}))stStatus='running';
+      else if(stCards.some(function(c){return c.stage==='review';}))stStatus='waiting';
+      h+=`<div class="wf-stage ${stStatus}" style="min-width:70px">
+        <div style="font-weight:600">${st.name}</div>
+        <span class="stage-badge stage-badge-${stageKey}">${stCards.length}</span>
+      </div>`;
+      if(si<wf.stages.length-1)h+=`<div class="wf-connector">&#8594;</div>`;
+    });
+    h+=`</div>`;
+    // Live pipeline stage cards grid
+    if(wfCards.length>0){
+      h+=`<div class="pipeline-stages-grid">`;
+      [{key:'scout',label:'Scout'},{key:'score',label:'Score'},{key:'research',label:'Research'},{key:'route',label:'Route'}].filter(function(s){return wf.stages.some(function(ws){return ws.name.toLowerCase()===s.key;})}).forEach(function(s){
+        var colCards=wfCards.filter(function(pc){return pc.card.pipeline_stage===s.key});
+        h+=`<div class="pipeline-stage-col">
+          <div class="pipeline-stage-col-title"><span>${s.label}</span><span class="count">${colCards.length}</span></div>`;
+        colCards.forEach(function(pc){
+          var ag=pc.card.assignee?S.agentConfigs.find(function(a){return a.id===pc.card.assignee;}):null;
+          var ac=ag?ag.color:'var(--text-dim)';
+          h+=`<div class="pipeline-stage-card" title="${pc.card.title}">
+            <div class="psc-title">${pc.card.title.length>40?pc.card.title.substring(0,40)+'...':pc.card.title}</div>
+            <div class="psc-meta">
+              <span class="kanban-priority ${pc.card.priority||'low'}"></span>
+              ${ag?`<span class="kanban-assignee" style="width:14px;height:14px;font-size:7px;background:${ac}22;color:${ac}">${ag.name.charAt(0)}</span>`:''}
+              <span class="os-tag os-tag-${pc.stage==='done'?'green':(pc.stage==='doing'?'amber':'cyan')}" style="font-size:7px">${pc.stage}</span>
+            </div></div>`;
+        });
+        if(colCards.length===0)h+=`<div style="font-size:8px;color:var(--text-muted);text-align:center;padding:4px">Empty</div>`;
+        h+=`</div>`;
+      });
+      h+=`</div>`;
+    }
+    // Actions
+    h+=`<div style="margin-top:10px;display:flex;gap:4px;flex-wrap:wrap">
+      <button class="cbtn primary" onclick="runWorkflow('${wf.id}')">&#9654; ${wfCards.length>0?'Re-run':'Run'} Pipeline</button>
+      <button class="cbtn" onclick="toggleWorkflowStatus('${wf.id}')">${wf.status==='active'?'&#10074;&#10074; Pause':'&#9654; Resume'}</button>
+      <button class="cbtn" onclick="showScoreModal('${wf.id}')">&#9733; Score</button>
+      <button class="cbtn" onclick="deleteWorkflow('${wf.id}')">&#10005; Delete</button>
+    </div></div>`;
+  });
+  // New workflow button
+  h+=`<div style="margin-top:12px;display:flex;gap:6px">
+    <button class="cbtn primary" id="rbn-new-wf">+ New Workflow Template</button>
+    <button class="cbtn" onclick="createQuickPipeline()">&#9881; Quick Pipeline</button>
+  </div>`;
+  defsContainer.innerHTML=h;
+  var rbn=$('rbn-new-wf');
+  if(rbn){rbn.onclick=function(){showModal('New Workflow','Workflow name',function(v){if(v){S.workflows.push({id:'w'+Date.now(),name:v,projectId:S.projects[0]&&S.projects[0].id||'',status:'draft',trigger:'manual',stages:[]});saveWorkflows();renderWorkflowsPage();toast('Workflow created','ok');}});};}
+  renderApprovalQueue();
+  renderRubricConfig();
+}
+
+function runWorkflow(wfId){
+  var wf=S.workflows.find(function(w){return w.id===wfId;});if(!wf)return;
+  var proj=S.projects.find(function(p){return p.id===wf.projectId;});
+  if(!proj){toast('No project assigned to this workflow','err');return;}
+  // Generate a pipeline run id
+  var pipelineRunId='pipe-'+wfId+'-'+Date.now();
+  toast('Running pipeline: '+wf.name,'info');
+  // Create a kanban card for each stage
+  wf.stages.forEach(function(st,idx){
+    var tid='t-'+pipelineRunId+'-'+idx;
+    var card={
+      id:tid,
+      title:wf.name+' — '+st.name,
+      priority:idx===0?'high':'medium',
+      assignee:st.agentId||null,
+      pipeline_type:st.name.toLowerCase(),
+      pipeline_stage:st.name.toLowerCase(),
+      pipeline_id:wfId,
+      pipeline_run_id:pipelineRunId,
+      pipeline_order:idx,
+      score:null,
+      pipeline_status:'pending',
+      created_at:new Date().toISOString()
+    };
+    // Add to the project's kanban in the appropriate column
+    var kanbanCol=st.kanbanCol||'todo';
+    if(!proj.kanban[kanbanCol])proj.kanban[kanbanCol]=[];
+    proj.kanban[kanbanCol].push(card);
+  });
+  // Link parent-child: first card is parent of rest
+  var firstCardId='t-'+pipelineRunId+'-0';
+  wf.stages.forEach(function(st,idx){
+    if(idx===0)return;
+    var tid='t-'+pipelineRunId+'-'+idx;
+    var card=proj.kanban[st.kanbanCol||'todo'].find(function(c){return c.id===tid;});
+    if(card)card.parent_id=firstCardId;
+  });
+  if(wf.status==='draft')wf.status='active';
+  saveProjects();
+  saveWorkflows();
+  renderWorkflowsPage();
+  if(typeof renderGoalsPage==='function')renderGoalsPage();
+  toast('Pipeline '+wf.name+' started — '+wf.stages.length+' stages created','ok');
+}
+
+function toggleWorkflowStatus(wfId){
+  var wf=S.workflows.find(function(w){return w.id===wfId;});
+  if(wf){wf.status=wf.status==='active'?'paused':'active';saveWorkflows();renderWorkflowsPage();toast('Workflow '+wf.status,'ok');}
+}
+
+function deleteWorkflow(wfId){
+  S.workflows=S.workflows.filter(function(w){return w.id!==wfId;});
+  saveWorkflows();renderWorkflowsPage();toast('Workflow deleted','info');
+}
+
+function showScoreModal(wfId){
+  var wf=S.workflows.find(function(w){return w.id===wfId;});if(!wf)return;
+  var proj=S.projects.find(function(p){return p.id===wf.projectId;});
+  var wfCards=[];
+  if(proj){['todo','doing','review','done'].forEach(function(s){(proj.kanban[s]||[]).forEach(function(t){if(t.pipeline_id===wfId)wfCards.push(t);});});
+  }
+  showModal('Score Pipeline: '+wf.name,'Enter score 0-100',function(val){
+    var score=parseInt(val,10);
+    if(isNaN(score)||score<0||score>100){toast('Score must be 0-100','err');return;}
+    wfCards.forEach(function(c){c.score=score;});
+    saveProjects();renderWorkflowsPage();toast('Scored '+wfCards.length+' cards: '+score,'ok');
+  });
+}
+
+function createQuickPipeline(){
+  if(!S.projects||S.projects.length===0){toast('Create a project first','err');return;}
+  var wfId='w'+Date.now();
+  S.workflows.push({
+    id:wfId,name:'Quick Pipeline '+(S.workflows.length+1),
+    projectId:S.projects[0].id,status:'active',trigger:'manual',
+    stages:[
+      {name:'Scout',agentRole:'research',agentId:'a3',kanbanCol:'todo'},
+      {name:'Score',agentRole:'analysis',agentId:'a7',kanbanCol:'todo'},
+      {name:'Research',agentRole:'research',agentId:'a3',kanbanCol:'doing'},
+      {name:'Route',agentRole:'reasoning',agentId:'a1',kanbanCol:'review'},
+      {name:'Approve',agentRole:'reasoning',agentId:'a16',kanbanCol:'review'},
+      {name:'Build',agentRole:'coding',agentId:'a2',kanbanCol:'doing'},
+      {name:'Test',agentRole:'coding',agentId:'a12',kanbanCol:'review'},
+      {name:'Deliver',agentRole:'coding',agentId:'a11',kanbanCol:'done'}
+    ]
+  });
+  saveWorkflows();renderWorkflowsPage();toast('Quick pipeline template created','ok');
+}
+
+function renderApprovalQueue(){
+  var container=document.getElementById('wf-approval-queue');
+  if(!container)return;
+  // Find all kanban cards in 'review' stage with pipeline_type 'route'
+  var approvalCards=[];
+  S.projects.forEach(function(proj){
+    (proj.kanban.review||[]).forEach(function(t){
+      if(t.pipeline_type==='route'||t.pipeline_stage==='approve'){
+        approvalCards.push({card:t,projectName:proj.name,projectColor:proj.color});
+      }
+    });
+  });
+  $('wf-approval-count').textContent=approvalCards.length+' pending';
+  if(approvalCards.length===0){
+    container.innerHTML='<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:10px">No items pending approval.</div>';
+    return;
+  }
+  var h='';
+  approvalCards.forEach(function(ac){
+    var c=ac.card;
+    var ag=c.assignee?S.agentConfigs.find(function(a){return a.id===c.assignee;}):null;
+    var ac2=ag?ag.color:'var(--text-dim)';
+    var ai=ag?ag.name.charAt(0):'?';
+    h+=`<div class="approval-item">
+      <div class="approval-avatar" style="background:${ac2}22;color:${ac2}">${ai}</div>
+      <div class="approval-info">
+        <div class="approval-title">${c.title}</div>
+        <div class="approval-meta">${ac.projectName} &middot; ${c.pipeline_id||'No pipeline'}${c.score!==undefined&&c.score!==null?' &middot; Score: '+c.score:''}</div>
+      </div>
+      <button class="cbtn" style="font-size:9px;padding:2px 6px" onclick="approveCard('${c.id}','${ac.projectName}')">&#10003;</button>
+      <button class="cbtn" style="font-size:9px;padding:2px 6px" onclick="rejectCard('${c.id}','${ac.projectName}')">&#10005;</button>
+    </div>`;
+  });
+  container.innerHTML=h;
+}
+
+function approveCard(cardId,projectName){
+  S.projects.forEach(function(proj){
+    if(proj.name!==projectName)return;
+    var card=proj.kanban.review.find(function(c){return c.id===cardId;});
+    if(card){
+      proj.kanban.review=proj.kanban.review.filter(function(c){return c.id!==cardId;});
+      if(!proj.kanban.doing)proj.kanban.doing=[];
+      card.pipeline_status='approved';
+      proj.kanban.doing.push(card);
+    }
+  });
+  saveProjects();renderWorkflowsPage();if(typeof renderGoalsPage==='function')renderGoalsPage();toast('Card approved','ok');
+}
+
+function rejectCard(cardId,projectName){
+  S.projects.forEach(function(proj){
+    if(proj.name!==projectName)return;
+    var card=proj.kanban.review.find(function(c){return c.id===cardId;});
+    if(card){
+      proj.kanban.review=proj.kanban.review.filter(function(c){return c.id!==cardId;});
+      if(!proj.kanban.todo)proj.kanban.todo=[];
+      card.pipeline_status='rejected';
+      card.score=0;
+      proj.kanban.todo.push(card);
+    }
+  });
+  saveProjects();renderWorkflowsPage();if(typeof renderGoalsPage==='function')renderGoalsPage();toast('Card rejected — returned to todo','err');
+}
+
+function renderRubricConfig(){
+  var container=document.getElementById('wf-rubric-config');
+  if(!container)return;
+  var criteria=[
+    {key:'accuracy',label:'Accuracy',weight:30},
+    {key:'completeness',label:'Completeness',weight:25},
+    {key:'clarity',label:'Clarity',weight:20},
+    {key:'performance',label:'Performance',weight:15},
+    {key:'style',label:'Code Style',weight:10}
+  ];
+  var h='';
+  criteria.forEach(function(c){
+    h+=`<div class="rubric-item">
+      <label>${c.label}</label>
+      <input type="range" min="0" max="5" value="${Math.round(c.weight/20)}" id="rubric-${c.key}" onchange="updateRubric('${c.key}',this.value)">
+      <span id="rubric-val-${c.key}" style="font-weight:600;min-width:16px;text-align:center">${Math.round(c.weight/20)}</span>
+      <span style="font-size:8px;color:var(--text-muted)">/5</span>
+    </div>`;
+  });
+  h+=`<div style="width:100%;margin-top:4px;display:flex;gap:4px;justify-content:flex-end">
+    <button class="cbtn" style="font-size:9px" onclick="applyRubricToAll()">&rarr; Apply to Pipeline Cards</button>
+  </div>`;
+  container.innerHTML=h;
+}
+
+function updateRubric(key,val){
+  var el=document.getElementById('rubric-val-'+key);if(el)el.textContent=val;
+}
+
+function applyRubricToAll(){
+  var criteriaKeys=['accuracy','completeness','clarity','performance','style'];
+  var scores={};
+  criteriaKeys.forEach(function(k){var el=document.getElementById('rubric-'+k);scores[k]=el?parseInt(el.value,10):3;});
+  var totalScore=0,count=0;
+  S.projects.forEach(function(proj){
+    ['todo','doing','review','done'].forEach(function(s){
+      (proj.kanban[s]||[]).forEach(function(c){
+        if(c.pipeline_id){
+          totalScore+=Object.values(scores).reduce(function(a,b){return a+b;},0);
+          count++;
+        }
+      });
+    });
+  });
+  toast('Rubric weights updated ('+count+' pipeline cards)','ok');
+}
+
+function sendChat(){
+  var input=$('chat-input');var text=input.value.trim();if(!text)return;input.value='';
+  var msgs=$('chat-messages');var um=document.createElement('div');um.className='msg user';um.innerHTML='<div>'+text+'</div><div class="msg-time">'+new Date().toLocaleTimeString()+'</div>';msgs.appendChild(um);
+  var typing=document.createElement('div');typing.className='msg agent';typing.id='typing-ind';typing.innerHTML='<div class="msg-sender">Agent</div><div><span class="typing-dots">...</span></div>';msgs.appendChild(typing);msgs.scrollTop=msgs.scrollHeight;
+  setTimeout(function(){typing.remove();var am=document.createElement('div');am.className='msg agent';am.innerHTML='<div class="msg-sender">Agent</div><div>I received: "'+text+'</div><div class="msg-time">'+new Date().toLocaleTimeString()+'</div>';msgs.appendChild(am);msgs.scrollTop=msgs.scrollHeight;},800+Math.random()*800);
+}
+function toggleChat(){var area=$('chat-area');area.style.height=area.style.height==='40px'?'25%':'40px';}
+
+function getAgentById(id){return S.agentConfigs.find(function(a){return a.id===id;});}
+
+function renderTree(){
+  var nav=$('projExplorer');if(!nav)return;
+  var h='';
+  S.projects.forEach(function(proj){
+    var pid='tp_'+proj.id;
+    var isOpen=S.openProjs&&S.openProjs.indexOf(proj.id)>=0;
+    h+='<div class="os-nav-section">';
+    h+='<div class="os-nav-section-title" style="cursor:pointer" onclick="toggleProjTree(\''+proj.id+'\')">';
+    h+='<span id="'+pid+'" style="font-size:8px;margin-right:4px">'+(isOpen?'&#9660;':'&#9656;')+'</span>';
+    h+='<span style="color:'+proj.color+'">&#x25CF;</span> '+proj.name;
+    h+='</div>';
+    if(isOpen){
+      h+='<div class="os-tree" id="tree_'+proj.id+'">';
+      // Kanban tasks
+      ['todo','doing','review','done'].forEach(function(stage){
+        var tasks=(proj.kanban&&proj.kanban[stage])||[];
+        if(tasks.length>0){
+          h+='<div class="os-tree-group-title" style="font-size:8px;color:var(--text-dim);padding:2px 14px;text-transform:uppercase;letter-spacing:1px">'+stage+' ('+tasks.length+')</div>';
+          tasks.forEach(function(t){
+            var tid='tt_'+t.id;
+            var isSel=S.activeTaskId===t.id;
+            h+='<div class="os-tree-item'+(isSel?' active':'')+'" id="'+tid+'" onclick="selectTask(\''+proj.id+'\',\''+t.id+'\')">';
+            h+='<span class="os-tree-icon">&#x25A0;</span>';
+            h+='<span class="os-tree-label">'+t.title+'</span>';
+            if(t.assignee){var ag=getAgentById(t.assignee);if(ag)h+='<span class="os-tree-agent" style="background:'+ag.color+'22;color:'+ag.color+'">'+ag.name.charAt(0)+'</span>';}
+            h+='</div>';
+          });
+        }
+      });
+      // Agents
+      if(proj.agents&&proj.agents.length>0){
+        h+='<div class="os-tree-group-title" style="font-size:8px;color:var(--text-dim);padding:2px 14px;text-transform:uppercase;letter-spacing:1px">agents ('+proj.agents.length+')</div>';
+        proj.agents.forEach(function(aid){
+          var ag=getAgentById(aid);if(!ag)return;
+          h+='<div class="os-tree-item" onclick="showOSPage(\"agents\",null)">';
+          h+='<span class="os-tree-icon" style="color:'+ag.color+'">&#x25CF;</span>';
+          h+='<span class="os-tree-label">'+ag.name+'</span>';
+          h+='<span class="os-tree-role">'+ag.role+'</span>';
+          h+='</div>';
+        });
+      }
+      h+='</div>';
+    }
+    h+='</div>';
+  });
+  nav.innerHTML=h;
+}
+
+function toggleProjTree(pid){
+  if(!S.openProjs)S.openProjs=[];
+  var idx=S.openProjs.indexOf(pid);
+  if(idx>=0)S.openProjs.splice(idx,1);else S.openProjs.push(pid);
+  renderTree();
+}
+
+function selectTask(projId,taskId){
+  S.activeTaskId=taskId;
+  S.curProj=projId;
+  renderTree();
+  // Show task detail in right panel
+  var proj=S.projects.find(function(p){return p.id===projId;});
+  if(!proj)return;
+  var task=null;
+  ['todo','doing','review','done'].forEach(function(s){var t=(proj.kanban[s]||[]).find(function(x){return x.id===taskId;});if(t)task=t;});
+  if(!task)return;
+  var rc=$('rc');if(!rc)return;
+  var ag=task.assignee?getAgentById(task.assignee):null;
+  var h='<div class="card"><div class="ct">'+task.title+'</div>';
+  h+='<div class="cd">Priority: '+task.priority+'</div>';
+  if(ag)h+='<div class="cd">Assigned to: <span style="color:'+ag.color+'">'+ag.name+'</span></div>';
+  h+='<div class="ca"><button class="cbtn" onclick="moveTask(\''+projId+'\',\''+taskId+'\',\'doing\')">Start</button>';
+  h+='<button class="cbtn" onclick="moveTask(\''+projId+'\',\''+taskId+'\',\'review\')">Review</button>';
+  h+='<button class="cbtn primary" onclick="moveTask(\''+projId+'\',\''+taskId+'\',\'done\')">Done</button></div></div>';
+  rc.innerHTML=h;
+}
+
+function moveTask(projId,taskId,newStage){
+  var proj=S.projects.find(function(p){return p.id===projId;});if(!proj)return;
+  var task=null,oldStage=null;
+  ['todo','doing','review','done'].forEach(function(s){var idx=(proj.kanban[s]||[]).findIndex(function(x){return x.id===taskId;});if(idx>=0){task=proj.kanban[s][idx];oldStage=s;proj.kanban[s].splice(idx,1);}});
+  if(!task)return;
+  task._moved=true;
+  if(!proj.kanban[newStage])proj.kanban[newStage]=[];
+  proj.kanban[newStage].push(task);
+  saveProjects();
+  renderTree();
+  renderGoalsPage();
+  updateCounts();
+  toast('Moved to '+newStage,'ok');
+}
+
+function renderRC(){
+  var rc=$('rc');if(!rc)return;
+  var tab=S.sTab||'team';
+  if(tab==='team')renderTeamTab(rc);
+  else if(tab==='plans')renderPlansTab(rc);
+  else renderTimetableTab(rc);
+}
+
+function renderTeamTab(rc){
+  var h='<div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:12px">Projects</div>';
+  S.projects.forEach(function(proj){
+    var total=0,done=0;
+    ['todo','doing','review','done'].forEach(function(s){var t=proj.kanban[s]||[];total+=t.length;if(s==='done')done+=t.length;});
+    var pct=total>0?Math.round(done/total*100):0;
+    h+='<div class="proj-card" onclick="openProject(\''+proj.id+'\')" style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden;cursor:pointer;transition:all .2s;position:relative">';
+    // Image
+    if(proj.img){
+      h+='<div style="height:120px;background:linear-gradient(135deg,'+proj.color+'33,'+proj.color+'11);position:relative;overflow:hidden">';
+      h+='<img src="'+proj.img+'" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.style.display=\'none\'">';
+      h+='<div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,transparent 40%,var(--bg-card) 100%)"></div>';
+      h+='</div>';
+    }
+    // Content
+    h+='<div style="padding:12px">';
+    h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">';
+    h+='<div style="width:10px;height:10px;border-radius:50%;background:'+proj.color+';flex-shrink:0;box-shadow:0 0 8px '+proj.color+'66"></div>';
+    h+='<div style="font-size:16px;font-weight:700;color:var(--text);flex:1">'+proj.name+'</div>';
+    h+='<span style="font-size:11px;padding:2px 8px;border-radius:10px;background:'+proj.color+'22;color:'+proj.color+';font-weight:600">'+proj.status+'</span>';
+    h+='</div>';
+    if(proj.desc)h+='<div style="font-size:13px;color:var(--text-dim);margin-bottom:8px;line-height:1.4">'+proj.desc+'</div>';
+    // Progress
+    h+='<div style="display:flex;align-items:center;gap:8px">';
+    h+='<div style="flex:1;height:6px;background:var(--bg);border-radius:3px;overflow:hidden">';
+    h+='<div style="width:'+pct+'%;height:100%;background:'+proj.color+';border-radius:3px;transition:width .3s"></div>';
+    h+='</div>';
+    h+='<span style="font-size:12px;color:var(--text-dim);font-weight:600;white-space:nowrap">'+done+'/'+total+' tasks</span>';
+    h+='</div>';
+    // Agent dots
+    if(proj.agents&&proj.agents.length>0){
+      h+='<div style="display:flex;gap:4px;margin-top:8px;flex-wrap:wrap">';
+      proj.agents.slice(0,7).forEach(function(aid){
+        var ag=getAgentById(aid);
+        if(ag)h+='<div style="width:24px;height:24px;border-radius:6px;background:'+ag.color+'33;color:'+ag.color+';display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;border:1px solid '+ag.color+'44" title="'+ag.name+'">'+ag.name.charAt(0)+'</div>';
+      });
+      h+='</div>';
+    }
+    h+='></div></div>';
+  });
+  rc.innerHTML=h;
+}
+
+function renderPlansTab(rc){
+  var h='<div style="font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Pipeline Plans</div>';
+  S.workflows.forEach(function(wf){
+    var proj=S.projects.find(function(p){return p.id===wf.projectId;});
+    h+='<div class="card"><div class="ct">'+wf.name+'</div>';
+    h+='<div class="cd">'+(proj?proj.name:'No project')+' &middot; '+wf.status+'</div>';
+    h+='<div class="cd">'+wf.stages.length+' stages &middot; '+wf.trigger+' trigger</div></div>';
+  });
+  if(S.workflows.length===0)h+='<div style="color:var(--text-dim);font-size:11px;text-align:center;padding:20px">No workflows defined</div>';
+  rc.innerHTML=h;
+}
+
+function renderTimetableTab(rc){
+  var h='<div style="font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Recent Activity</div>';
+  var now=new Date();
+  S.projects.forEach(function(proj){
+    ['todo','doing','review','done'].forEach(function(s){
+      (proj.kanban[s]||[]).forEach(function(t){
+        h+='<div style="padding:4px 0;font-size:10px;border-bottom:1px solid var(--border)">';
+        h+='<span style="color:'+proj.color+'">&#x25CF;</span> ';
+        h+='<span style="color:var(--text-dim)">'+s+':</span> '+t.title;
+        h+='<span style="color:var(--text-dim);float:right">'+proj.name+'</span></div>';
+      });
+    });
+  });
+  rc.innerHTML=h;
+}
+
+function openProject(id){
+  S.curProj=id;
+  if(!S.openProjs)S.openProjs=[];
+  if(S.openProjs.indexOf(id)<0)S.openProjs.push(id);
+  renderTree();
+  var proj=S.projects.find(function(p){return p.id===id;});
+  if(!proj)return;
+  // Show project in center
+  var pc=$('preview-content');
+  if(pc){
+    var h='';
+    if(proj.img){
+      h+='<div style="height:200px;border-radius:12px;overflow:hidden;margin-bottom:16px;background:var(--bg-card)">';
+      h+='<img src="'+proj.img+'" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\'">';
+      h+='</div>';
+    }
+    h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">';
+    h+='<div style="width:14px;height:14px;border-radius:50%;background:'+proj.color+';box-shadow:0 0 10px '+proj.color+'66"></div>';
+    h+='<div style="font-size:24px;font-weight:800;color:var(--text)">'+proj.name+'</div>';
+    h+='<span style="font-size:13px;padding:3px 10px;border-radius:12px;background:'+proj.color+'22;color:'+proj.color+';font-weight:600;margin-left:auto">'+proj.status+'</span>';
+    h+='</div>';
+    if(proj.desc)h+='<div style="font-size:16px;color:var(--text-dim);margin-bottom:16px;line-height:1.5">'+proj.desc+'</div>';
+    if(proj.url)h+='<div style="margin-bottom:16px"><a href="'+proj.url+'" target="_blank" style="font-size:14px;color:var(--accent);text-decoration:none;font-weight:600">&#x2192; Open '+proj.name+'</a></div>';
+    // Kanban summary
+    h+='<div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px">Tasks</div>';
+    ['todo','doing','review','done'].forEach(function(stage){
+      var tasks=proj.kanban[stage]||[];
+      if(tasks.length>0){
+        h+='<div style="margin-bottom:12px">';
+        h+='<div style="font-size:12px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">'+stage+' ('+tasks.length+')</div>';
+        tasks.forEach(function(t){
+          h+='<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:4px;font-size:14px;color:var(--text)">';
+          h+=t.title;
+          if(t.priority=='high')h+=' <span style="color:var(--error);font-size:11px;font-weight:700">HIGH</span>';
+          h+='</div>';
+        });
+        h+='</div>';
+      }
+    });
+    pc.innerHTML=h;
+    // Hide empty state
+    var es=$('empty-state');if(es)es.style.display='none';
+  }
+  // Update chat
+  var ct=$('chat-title');if(ct)ct.textContent=proj.name+' Chat';
+  var msgs=$('chat-messages');
+  if(msgs){
+    msgs.innerHTML='<div class="msg agent"><div class="msg-sender">Agent</div>Opened '+proj.name+'. How can I help you with this project?</div>';
+  }
+  // Switch to dashboard page to show content
+  showOSPage('dashboard',null);
+  // Highlight in switcher
+  $$('.proj-sw-tab').forEach(function(t){t.classList.remove('active');});
+  var tab=$('swtab_'+id);if(tab)tab.classList.add('active');
+}
+
+function switchToProject(id){
+  S.curProj=id;
+  renderTree();
+}
+
+
+updateCounts();
+renderTree();
+renderRC();
+renderGoalsPage();
+renderAgentsPage();
+renderWorkflowsPage();
+
+$('btn-tl').onclick=function(){S.lOp=!S.lOp;$('leftbar').classList.toggle('hidden',!S.lOp);$('btn-tl').classList.toggle('active',S.lOp);};
+$('btn-tr').onclick=function(){S.rOp=!S.rOp;$('rightbar').classList.toggle('hidden',!S.rOp);$('btn-tr').classList.toggle('active',S.rOp);};
+$('btn-new').onclick=function(){showModal('New Project','My Project',function(v){if(v){S.projects.push({id:'p'+Date.now(),name:v,color:'var(--accent)',status:'active',kanban:{todo:[],doing:[],review:[],done:[]},agents:[]});saveProjects();updateCounts();toast('Created '+v,'ok');}});};
+
+var style=document.createElement('style');
+style.textContent='.typing-dots{animation:blink 1s infinite}@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}';
+document.head.appendChild(style);
+
+// Right bar tab switching
+$$('.rtab').forEach(function(tab){
+  tab.onclick=function(){
+    var t=this.getAttribute('data-t');
+    if(!t)return;
+    $$('.rtab').forEach(function(x){x.classList.remove('active');});
+    this.classList.add('active');
+    S.sTab=t;
+    renderRC();
+  };
+});
+})();
+</script>
+<script src="kanban.js"></script>
+<script src="dispatcher.js"></script>
+</body>
+</html>

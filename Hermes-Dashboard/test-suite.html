@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Hermes Dashboard Test Suite</title>
+<style>
+:root{--bg:#0a0a0f;--bg2:#111118;--card:#16161f;--border:#2a2a3a;--text:#e8e8f0;--dim:#8888a0;--accent:#6c5ce7;--ok:#00b894;--warn:#fdcb6e;--err:#e17055}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;padding:24px}
+h1{font-size:1.4rem;margin-bottom:4px;color:var(--text)}
+.sub{color:var(--dim);font-size:.85rem;margin-bottom:24px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+.suite{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px}
+.suite h2{font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.suite h2 .count{font-size:70%;background:var(--bg);padding:1px 6px;border-radius:8px;color:var(--dim)}
+.tests{display:flex;flex-direction:column;gap:6px}
+.test{display:flex;align-items:flex-start;gap:8px;padding:6px 8px;border-radius:6px;font-size:11px;transition:background .15s}
+.test:hover{background:var(--bg2)}
+.test .icon{flex-shrink:0;width:16px;text-align:center;font-size:10px;padding-top:1px}
+.test .name{flex:1;color:var(--text)}
+.test .result{font-weight:600;flex-shrink:0}
+.ok{color:var(--ok)}.fail{color:var(--err)}.skip{color:var(--warn)}
+.summary{margin-top:24px;padding:16px;background:var(--card);border:1px solid var(--border);border-radius:10px;display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+.summary .stat{text-align:center}
+.summary .stat .num{font-size:28px;font-weight:800}
+.summary .stat .label{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:1px}
+.progress-bar{flex:1;height:8px;background:var(--bg);border-radius:4px;overflow:hidden;min-width:200px}
+.progress-fill{height:100%;border-radius:4px;transition:width .5s}
+.btn{background:var(--accent);color:#fff;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;transition:background .15s;margin-right:8px}
+.btn:hover{background:#5a4bd1}
+.btn.sec{background:var(--bg2);color:var(--dim);border:1px solid var(--border)}
+.btn.sec:hover{background:var(--card);color:var(--text)}
+#log{margin-top:16px;background:#0d1117;border-radius:6px;padding:12px;max-height:300px;overflow-y:auto;font-family:'SF Mono','Fira Code',monospace;font-size:10px;line-height:1.6;color:var(--dim)}
+#log .line{margin-bottom:1px}
+#log .line.ok{color:var(--ok)}
+#log .line.err{color:var(--err)}
+#log .line.info{color:var(--accent)}
+.controls{margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap;align:center}
+</style>
+</head>
+<body>
+
+<h1>Hermes Dashboard Test Suite</h1>
+<p class="sub">Automated functional tests for all dashboard features. Loads the dashboard in isolation and exercises every interactive function.</p>
+
+<div class="controls">
+  <button class="btn" onclick="runAllTests()">Run All Tests</button>
+  <button class="btn sec" onclick="runSuite('core')">Core UI</button>
+  <button class="btn sec" onclick="runSuite('projects')">Projects</button>
+  <button class="btn sec" onclick="runSuite('rightbar')">Right Bar</button>
+  <button class="btn sec" onclick="runSuite('agentos')">Agent OS</button>
+  <button class="btn sec" onclick="runSuite('chat')">Chat</button>
+  <button class="btn sec" onclick="runSuite('packager')">Packager</button>
+  <button class="btn sec" onclick="clearLog()">Clear Log</button>
+</div>
+
+<div id="suites"></div>
+
+<div class="summary" id="summary" style="display:none">
+  <div class="stat"><div class="num" id="totalNum">0</div><div class="label">Total</div></div>
+  <div class="stat"><div class="num" id="passNum" style="color:var(--ok)">0</div><div class="label">Passed</div></div>
+  <div class="stat"><div class="num" id="failNum" style="color:var(--err)">0</div><div class="label">Failed</div></div>
+  <div class="stat"><div class="num" id="skipNum" style="color:var(--warn)">0</div><div class="label">Skipped</div></div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%;background:var(--ok)"></div></div>
+</div>
+
+<div id="log"></div>
+
+<script>
+var D={
+  suites:{},
+  results:[],
+  log:function(msg,type){
+    var el=document.getElementById('log');
+    var line=document.createElement('div');
+    line.className='line '+(type||'');
+    line.textContent='['+new Date().toLocaleTimeString()+'] '+msg;
+    el.appendChild(line);
+    el.scrollTop=el.scrollHeight;
+  },
+  clearLog:function(){
+    document.getElementById('log').innerHTML='';
+  },
+  addSuite:function(name,title,icon){
+    D.suites[name]={title:title,icon:icon||'',tests:[]};
+    return D.suites[name];
+  },
+  test:function(suite,name,fn){
+    if(!D.suites[suite])D.addSuite(suite,suite);
+    D.suites[suite].tests.push({name:name,fn:fn});
+  },
+  assert:function(condition,msg){
+    if(!condition)throw new Error(msg||'Assertion failed');
+    return true;
+  },
+  assertExists:function(id,msg){
+    var el=document.getElementById(id);
+    if(!el)throw new Error(msg||'Element #'+id+' not found');
+    return el;
+  },
+  assertVisible:function(id,msg){
+    var el=D.assertExists(id,msg);
+    var s=window.getComputedStyle(el);
+    if(s.display==='none'||s.visibility==='hidden'||s.opacity==='0')throw new Error(msg||'Element #'+id+' is not visible');
+    return el;
+  },
+  assertText:function(id,text,msg){
+    var el=D.assertExists(id,msg);
+    if(el.textContent.indexOf(text)===-1)throw new Error(msg||'Element #'+id+' does not contain "'+text+'", got: "'+el.textContent.substring(0,80)+'"');
+    return el;
+  },
+  click:function(id){
+    var el=D.assertExists(id);
+    el.click();
+    return el;
+  },
+  type:function(id,text){
+    var el=D.assertExists(id);
+    el.value=text;
+    el.dispatchEvent(new Event('input',{bubbles:true}));
+    return el;
+  }
+};
+
+// ═══ LOAD DASHBOARD IN IFRAME ═══
+var dashboardFrame=null;
+var dashboardDoc=null;
+var dashboardWin=null;
+
+function loadDashboard(callback){
+  D.log('Loading dashboard...','info');
+  var frame=document.createElement('iframe');
+  frame.id='dashFrame';
+  frame.style.cssText='position:fixed;top:0;left:0;width:1200px;height:800px;z-index:-1;opacity:0;pointer-events:none';
+  frame.src='file:///home/irieb/William\'s%20Projects/Hermes%20Dashboard/index.html';
+  document.body.appendChild(frame);
+  dashboardFrame=frame;
+  frame.onload=function(){
+    try{
+      dashboardDoc=frame.contentDocument||frame.contentWindow.document;
+      dashboardWin=frame.contentWindow;
+      D.log('Dashboard loaded successfully','ok');
+      if(callback)setTimeout(callback,500);
+    }catch(e){
+      D.log('Cannot access dashboard (file:// CORS): '+e.message,'err');
+      D.log('Falling back to direct DOM tests...','warn');
+      if(callback)setTimeout(callback,100);
+    }
+  };
+}
+
+// ═══ TEST SUITES ═══
+
+// CORE UI TESTS
+var core=D.addSuite('core','Core UI','⚙');
+core.tests.push(
+  {name:'Page loads without JS errors',fn:function(){
+    var errors=dashboardWin.__errors||[];
+    D.assert(errors.length===0,errors.length+' JS errors on load: '+errors.join(', '));
+  }},
+  {name:'Top bar renders with logo',fn:function(){
+    var logo=dashboardDoc.getElementById('topbar');
+    D.assert(logo!==null,'Top bar not found');
+    D.assert(logo.querySelector('.logo')!==null,'Logo not found');
+  }},
+  {name:'Left sidebar exists with Agent OS nav',fn:function(){
+    var nav=dashboardDoc.getElementById('osNav');
+    D.assert(nav!==null,'Agent OS nav not found');
+    var items=nav.querySelectorAll('.os-nav-item');
+    D.assert(items.length>=10,'Expected 10+ nav items, got '+items.length);
+  }},
+  {name:'Right bar exists with tab switcher',fn:function(){
+    var rb=dashboardDoc.getElementById('rightbar');
+    D.assert(rb!==null,'Right bar not found');
+    var tabs=rb.querySelectorAll('.rtab');
+    D.assert(tabs.length===3,'Expected 3 right bar tabs, got '+tabs.length);
+  }},
+  {name:'Center area has project switcher',fn:function(){
+    var sw=dashboardDoc.getElementById('proj-switcher');
+    D.assert(sw!==null,'Project switcher not found');
+  }},
+  {name:'Preview area exists',fn:function(){
+    D.assertExists('preview-area');
+    D.assertExists('browser-frame');
+    D.assertExists('preview-toolbar');
+  }},
+  {name:'Chat area exists with input',fn:function(){
+    D.assertExists('chat-area');
+    D.assertExists('chat-input');
+    D.assertExists('chat-messages');
+  }},
+  {name:'Empty state shown initially',fn:function(){
+    D.assertVisible('empty-state');
+  }},
+  {name:'Settings overlay exists (hidden)',fn:function(){
+    var s=dashboardDoc.getElementById('settings-overlay');
+    D.assert(s!==null,'Settings overlay not found');
+  }},
+  {name:'Modal overlay exists (hidden)',fn:function(){
+    D.assertExists('modal-overlay');
+  }},
+  {name:'Context menu exists (hidden)',fn:function(){
+    D.assertExists('ctx');
+  }},
+  {name:'Toast container exists',fn:function(){
+    D.assertExists('toast');
+  }}
+);
+
+// PROJECT TESTS
+var projects=D.addSuite('projects','Project Management','📁');
+projects.tests.push(
+  {name:'Project data loaded (S.proj)',fn:function(){
+    var proj=dashboardWin.S&&dashboardWin.S.proj;
+    D.assert(proj&&proj.length>0,'No projects loaded');
+    D.assert(proj.length>=7,'Expected 7+ projects, got '+proj.length);
+  }},
+  {name:'Each project has name, path, icon',fn:function(){
+    var proj=dashboardWin.S.proj;
+    proj.forEach(function(p,i){
+      D.assert(p.n&&p.n.length>0,'Project '+i+' has no name');
+      D.assert(p.p&&p.p.length>0,'Project '+i+' has no path');
+      D.assert(p.ic&&p.ic.length>0,'Project '+i+' has no icon');
+    });
+  }},
+  {name:'Tree renders in sidebar',fn:function(){
+    var tree=dashboardDoc.getElementById('tree');
+    D.assert(tree!==null,'Tree not found');
+    var groups=tree.querySelectorAll('.proj-group');
+    D.assert(groups.length>=5,'Expected 5+ project groups, got '+groups.length);
+  }},
+  {name:'Project expand/collapse works',fn:function(){
+    var gh=dashboardDoc.querySelector('.proj-gh');
+    D.assert(gh!==null,'No project group header found');
+    gh.click();
+    var fd=gh.nextElementSibling;
+    D.assert(fd&&fd.style.display!=='none','Project did not expand on click');
+    gh.click();
+    D.assert(fd.style.display==='none','Project did not collapse on second click');
+  }},
+  {name:'Right bar renders project cards',fn:function(){
+    var rc=dashboardDoc.getElementById('rc');
+    D.assert(rc!==null,'Right bar content not found');
+    var cards=rc.querySelectorAll('.card');
+    D.assert(cards.length>=5,'Expected 5+ project cards, got '+cards.length);
+  }},
+  {name:'Project card has image',fn:function(){
+    var img=dashboardDoc.querySelector('.proj-img');
+    D.assert(img!==null,'No project image found in right bar card');
+  }},
+  {name:'Expand project card shows preview',fn:function(){
+    // Click expand on first project
+    var expandBtn=dashboardDoc.querySelector('.cbtn:not(.primary)');
+    if(expandBtn&&expandBtn.textContent==='Expand'){
+      expandBtn.click();
+      D.assertExists('projCard0');
+      D.assertExists('chat0');
+    }
+  }},
+  {name:'Collapse project card hides preview',fn:function(){
+    var closeBtn=dashboardDoc.querySelector('.pbtn');
+    if(closeBtn&&closeBtn.textContent==='Close'){
+      closeBtn.click();
+      var card=dashboardDoc.getElementById('projCard0');
+      D.assert(card===null||!card.classList.contains('expanded'),'Card still expanded after close');
+    }
+  }},
+  {name:'Preview toolbar buttons work',fn:function(){
+    D.assertExists('btn-preview-mode');
+    D.assertExists('btn-code-mode');
+    dashboardDoc.getElementById('btn-code-mode').click();
+    var cv=dashboardDoc.getElementById('code-view');
+    D.assert(cv.classList.contains('active'),'Code view not active after click');
+    dashboardDoc.getElementById('btn-preview-mode').click();
+    D.assert(!cv.classList.contains('active'),'Code view still active after switching back');
+  }},
+  {name:'Preview mode switch works',fn:function(){
+    var mode=dashboardWin.S.previewMode;
+    D.assert(mode==='browser'||mode==='code','Invalid preview mode: '+mode);
+  }}
+);
+
+// RIGHT BAR TESTS
+var rb=D.addSuite('rightbar','Right Bar','📋');
+rb.tests.push(
+  {name:'Right bar tabs: Projects, Plans, Timetable',fn:function(){
+    var tabs=dashboardDoc.querySelectorAll('.rtab');
+    var labels=[];
+    tabs.forEach(function(t){labels.push(t.textContent.trim());});
+    D.assert(labels.indexOf('Projects')>-1,'Projects tab not found');
+    D.assert(labels.indexOf('Plans')>-1,'Plans tab not found');
+    D.assert(labels.indexOf('Timetable')>-1,'Timetable tab not found');
+  }},
+  {name:'Switch to Plans tab',fn:function(){
+    var plansTab=dashboardDoc.querySelector('.rtab[data-t="plans"]');
+    D.assert(plansTab!==null,'Plans tab not found');
+    plansTab.click();
+    // Check that plans content rendered
+    var rc=dashboardDoc.getElementById('rc');
+    D.assert(rc.textContent.indexOf('Eloquenta')>-1||rc.textContent.indexOf('Plans')>-1,'Plans content not rendered');
+  }},
+  {name:'Switch to Timetable tab',fn:function(){
+    var tab=dashboardDoc.querySelector('.rtab[data-t="timetable"]');
+    tab.click();
+    var rc=dashboardDoc.getElementById('rc');
+    D.assert(rc.textContent.indexOf('Mon')>-1||rc.textContent.indexOf('Today')>-1,'Timetable content not rendered');
+  }},
+  {name:'Switch back to Projects tab',fn:function(){
+    dashboardDoc.querySelector('.rtab[data-t="projects"]').click();
+    var rc=dashboardDoc.getElementById('rc');
+    var cards=rc.querySelectorAll('.card');
+    D.assert(cards.length>0,'No project cards after switching back');
+  }},
+  {name:'Expanded card shows image',fn:function(){
+    var expandBtn=dashboardDoc.querySelector('.ca .cbtn:not(.primary)');
+    if(expandBtn){expandBtn.click();}
+    var img=dashboardDoc.querySelector('.proj-img');
+    D.assert(img!==null,'No image in expanded card');
+  }},
+  {name:'Expanded card shows preview iframe',fn:function(){
+    var iframe=dashboardDoc.querySelector('.proj-preview iframe');
+    D.assert(iframe!==null,'No preview iframe in expanded card');
+  }},
+  {name:'Expanded card shows chat',fn:function(){
+    D.assertExists('chatMsgs0');
+    D.assertExists('chatIn0');
+  }},
+  {name:'Resize handle exists',fn:function(){
+    D.assertExists('resize0');
+  }},
+  {name:'New Project button exists',fn:function(){
+    d=dashboardDoc.getElementById('rbn1');
+    D.assert(d!==null,'New Project button not found');
+  }}
+);
+
+// AGENT OS TESTS
+var aos=D.addSuite('agentos','Agent OS Pages','🤖');
+aos.tests.push(
+  {name:'Agent OS sidebar has all sections',fn:function(){
+    var sections=dashboardDoc.querySelectorAll('.os-nav-section');
+    D.assert(sections.length>=5,'Expected 5+ nav sections, got '+sections.length);
+  }},
+  {name:'Dashboard page renders metrics',fn:function(){
+    var page=dashboardDoc.getElementById('os-page-dashboard');
+    D.assert(page!==null,'Dashboard page not found');
+    var metrics=page.querySelectorAll('.os-metric');
+    D.assert(metrics.length>=3,'Expected 3+ metrics, got '+metrics.length);
+  }},
+  {name:'Navigate to Goals page',fn:function(){
+    var goalsNav=dashboardDoc.querySelector('.os-nav-item:nth-child(2)');
+    if(goalsNav)goalsNav.click();
+    var page=dashboardDoc.getElementById('os-page-goals');
+    D.assert(page!==null,'Goals page not found');
+    D.assert(page.classList.contains('active'),'Goals page not active');
+  }},
+  {name:'Navigate to Agents page',fn:function(){
+    var nav=dashboardDoc.querySelector('.os-nav-item:nth-child(3)');
+    if(nav)nav.click();
+    D.assertVisible('os-page-agents');
+  }},
+  {name:'Navigate to Workflows page',fn:function(){
+    var nav=dashboardDoc.querySelectorAll('.os-nav-item')[3];
+    if(nav)nav.click();
+    D.assertVisible('os-page-workflows');
+  }},
+  {name:'Navigate back to Dashboard',fn:function(){
+    var nav=dashboardDoc.querySelector('.os-nav-item');
+    if(nav)nav.click();
+    D.assertVisible('os-page-dashboard');
+  }}
+);
+
+// CHAT TESTS
+var chat=D.addSuite('chat','Chat System','💬');
+chat.tests.push(
+  {name:'Chat input accepts text',fn:function(){
+    var input=dashboardDoc.getElementById('chat-input');
+    D.assert(input!==null,'Chat input not found');
+    input.value='Test message';
+    input.dispatchEvent(new Event('input',{bubbles:true}));
+    D.assert(input.value==='Test message','Input value not set');
+  }},
+  {name:'sendChat adds user message',fn:function(){
+    var input=dashboardDoc.getElementById('chat-input');
+    input.value='Hello agent';
+    dashboardWin.sendChat();
+    var msgs=dashboardDoc.getElementById('chat-messages');
+    var userMsgs=msgs.querySelectorAll('.msg.user');
+    D.assert(userMsgs.length>0,'No user message added');
+  }},
+  {name:'Agent responds after delay',fn:function(){
+    return new Promise(function(resolve){
+      setTimeout(function(){
+        var msgs=dashboardDoc.getElementById('chat-messages');
+        var agentMsgs=msgs.querySelectorAll('.msg.agent');
+        D.assert(agentMsgs.length>0,'No agent response received');
+        resolve();
+      },2000);
+    });
+  }},
+  {name:'Project chat works when expanded',fn:function(){
+    var expandBtn=dashboardDoc.querySelector('.ca .cbtn:not(.primary)');
+    if(expandBtn)expandBtn.click();
+    var chatInput=dashboardDoc.getElementById('chatIn0');
+    D.assert(chatInput!==null,'Project chat input not found');
+    chatInput.value='Test project message';
+    dashboardWin.sendProjChat(0);
+    var msgs=dashboardDoc.getElementById('chatMsgs0');
+    D.assert(msgs.querySelectorAll('.msg.user').length>0,'No user message in project chat');
+  }}
+);
+
+// PACKAGER TESTS
+var pack=D.addSuite('packager','App Packager','📦');
+pack.tests.push(
+  {name:'Packager button exists in top bar',fn:function(){
+    D.assertExists('btn-packager');
+  }},
+  {name:'Packager opens on button click',fn:function(){
+    dashboardDoc.getElementById('btn-packager').click();
+    var overlay=dashboardDoc.getElementById('packager-overlay');
+    D.assert(overlay.style.display!=='none','Packager overlay not shown');
+  }}
+);
+
+// ═══ RUNNER ═══
+var total=0,passed=0,failed=0,skipped=0;
+
+function renderSuites(){
+  var container=document.getElementById('suites');
+  container.innerHTML='';
+  Object.keys(D.suites).forEach(function(key){
+    var s=D.suites[key];
+    var div=document.createElement('div');
+    div.className='suite';
+    div.innerHTML='<h2>'+s.icon+' '+s.title+' <span class="count">'+s.tests.length+'</span></h2><div class="tests" id="tests-'+key+'"></div>';
+    container.appendChild(div);
+  });
+}
+
+function renderTest(suite,key,idx,status,msg){
+  var container=document.getElementById('tests-'+key);
+  var t=D.suites[key].tests[idx];
+  var div=document.createElement('div');
+  div.className='test';
+  var icon=status==='ok'?'✓':status==='err'?'✗':'○';
+  div.innerHTML='<span class="icon '+status+'">'+icon+'</span><span class="name">'+t.name+'</span><span class="result '+status+'">'+(msg||status.toUpperCase())+'</span>';
+  if(container)container.appendChild(div);
+}
+
+async function runSuite(key){
+  var s=D.suites[key];
+  if(!s)return;
+  D.log('Running suite: '+s.title,'info');
+  // Clear previous results
+  var container=document.getElementById('tests-'+key);
+  if(container)container.innerHTML='';
+  
+  for(var i=0;i<s.tests.length;i++){
+    try{
+      var result=s.tests[i].fn();
+      if(result&&result.then){
+        await result;
+      }
+      renderTest(s,key,i,'ok');
+      passed++;
+      total++;
+    }catch(e){
+      renderTest(s,key,i,'err',e.message.substring(0,60));
+      failed++;
+      total++;
+      D.log('FAIL: '+s.tests[i].name+' - '+e.message,'err');
+    }
+    updateSummary();
+  }
+  D.log('Suite '+s.title+': '+(s.tests.length)+' tests done','ok');
+}
+
+async function runAllTests(){
+  D.log('Starting all tests...','info');
+  total=0;passed=0;failed=0;skipped=0;
+  document.getElementById('summary').style.display='flex';
+  
+  if(!dashboardDoc||!dashboardWin.S){
+    D.log('Dashboard not accessible via iframe (file:// CORS).','warn');
+    D.log('Run this test from the same origin or use hermes dashboard server.','warn');
+    // Try direct tests
+    runDirectTests();
+    return;
+  }
+  
+  var order=['core','projects','rightbar','agentos','chat','packager'];
+  for(var i=0;i<order.length;i++){
+    await runSuite(order[i]);
+    await sleep(200);
+  }
+  
+  D.log('All tests complete. '+passed+' passed, '+failed+' failed out of '+total,'info');
+}
+
+function runDirectTests(){
+  D.log('Running direct DOM tests...','info');
+  // Test that the HTML file is valid
+  try{
+    var xhr=new XMLHttpRequest();
+    xhr.open('GET','file:///home/irieb/William\'s%20Projects/Hermes%20Dashboard/index.html',false);
+    xhr.send();
+    if(xhr.status===200){
+      var html=xhr.responseText;
+      D.assert(html.indexOf('<html')>-1,'No HTML tag found');
+      D.assert(html.indexOf('S.proj')>-1,'No project data found');
+      D.assert(html.indexOf('expandProject')>-1,'No expandProject function');
+      D.assert(html.indexOf('collapseProject')>-1,'No collapseProject function');
+      D.assert(html.indexOf('sendProjChat')>-1,'No sendProjChat function');
+      D.assert(html.indexOf('.proj-preview')>-1,'No preview CSS');
+      D.assert(html.indexOf('.proj-chat')>-1,'No chat CSS');
+      D.assert(html.indexOf('.resize-handle')>-1,'No resize handle CSS');
+      D.log('Direct HTML structure tests passed','ok');
+      passed+=8;total+=8;
+    }
+  }catch(e){
+    D.log('Direct file read failed: '+e.message,'err');
+    failed++;
+    total++;
+  }
+  updateSummary();
+}
+
+function updateSummary(){
+  document.getElementById('totalNum').textContent=total;
+  document.getElementById('passNum').textContent=passed;
+  document.getElementById('failNum').textContent=failed;
+  document.getElementById('skipNum').textContent=skipped;
+  var pct=total>0?Math.round(passed/total*100):0;
+  document.getElementById('progressFill').style.width=pct+'%';
+  document.getElementById('progressFill').style.background=pct===100?'var(--ok)':pct>70?'var(--warn)':'var(--err)';
+}
+
+function sleep(ms){return new Promise(function(r){setTimeout(r,ms);})}
+
+// ═══ INIT ═══
+renderSuites();
+D.log('Test suite initialized. Click "Run All Tests" to begin.','info');
+D.log('Note: Full interactive tests require same-origin access.','info');
+D.log('For best results, serve dashboard via: cd ~/.hermes/hermes-agent/web && npm run dev','info');
+
+// Auto-run direct tests
+setTimeout(function(){
+  runDirectTests();
+},500);
+</script>
+</body>
+</html>

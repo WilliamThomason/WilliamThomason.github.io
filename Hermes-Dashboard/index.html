@@ -1,0 +1,2042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hermes Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+
+:root{--bg:#0a0a0f;--bg-panel:#111118;--bg-card:#16161f;--bg-hover:#1e1e2a;--bg-active:#252535;--accent:#6c5ce7;--accent-dim:rgba(108,92,231,.12);--accent-glow:rgba(108,92,231,.3);--accent2:#22d3ee;--cyan:#22d3ee;--cyan-dim:rgba(34,211,238,.1);--text:#e8e8f0;--text-dim:#8888a0;--text-muted:#55556a;--border:#2a2a3a;--border-light:#333348;--success:#00b894;--warn:#fdcb6e;--error:#e17055;--emerald:#34d399;--amber:#fbbf24;--violet:#a78bfa;--rose:#fb7185;--sbw:260px;--rbw:300px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;display:flex;flex-direction:column;font-size:16px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+
+/* ═══ TOP BAR ═══ */
+#topbar{height:44px;background:var(--bg-panel);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 12px;gap:6px;flex-shrink:0;z-index:100}
+#topbar .logo{font-weight:700;font-size:18px;color:var(--accent);letter-spacing:.5px;margin-right:8px;white-space:nowrap;cursor:pointer}
+#topbar .logo span{color:var(--accent2)}
+.topbar-spacer{flex:1}
+.topbar-btn{background:none;border:1px solid var(--border);color:var(--text-dim);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:14px;display:flex;align-items:center;gap:4px;transition:all .15s}
+.topbar-btn:hover{background:var(--bg-hover);color:var(--text);border-color:var(--border-light)}
+.topbar-btn.active{background:var(--accent-dim);color:var(--accent);border-color:var(--accent)}
+.topbar-btn svg{width:13px;height:13px;fill:currentColor}
+
+/* ═══ MAIN LAYOUT ═══ */
+#main{display:flex;flex:1;overflow:hidden}
+
+/* ═══ LEFT BAR ═══ */
+#leftbar{width:var(--sbw);background:var(--bg-panel);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;transition:width .2s}
+#leftbar.hidden{width:0!important;overflow:hidden;border:none}
+.os-sidebar-header{padding:12px 14px;border-bottom:1px solid var(--border)}
+.os-sidebar-logo{font-size:12px;font-weight:800;display:flex;align-items:center;gap:8px;color:var(--text)}
+.os-dot{width:6px;height:6px;border-radius:50%;background:var(--success);box-shadow:0 0 6px var(--success);animation:pulse 2s infinite}
+.os-sidebar-tag{font-size:9px;color:var(--text-dim);margin-top:2px;text-transform:uppercase;letter-spacing:1px}
+.os-sidebar-nav{flex:1;padding:8px 0;overflow-y:auto}
+.os-nav-section{margin-bottom:4px}
+.os-nav-section-title{padding:6px 14px 2px;font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:1.5px}
+.os-nav-item{display:flex;align-items:center;gap:8px;padding:7px 14px;color:var(--text-dim);font-size:14px;cursor:pointer;transition:all .15s;border-left:2px solid transparent}
+.os-nav-item:hover{background:var(--bg-hover);color:var(--text)}
+.os-nav-item.active{background:var(--accent-dim);color:var(--accent);border-left-color:var(--accent)}
+.os-nav-icon{width:16px;text-align:center;font-size:10px}
+.os-nav-badge{margin-left:auto;font-size:11px;padding:1px 5px;border-radius:6px;background:rgba(255,255,255,.05);color:var(--text-dim)}
+.os-nav-item.active .os-nav-badge{background:rgba(34,211,238,.1);color:var(--accent)}
+.os-sidebar-footer{padding:10px 14px;border-top:1px solid var(--border);font-size:9px;color:var(--text-dim)}
+
+/* ═══ CENTER AREA ═══ */
+#center{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+#proj-switcher{display:flex;align-items:center;background:var(--bg-panel);border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto;gap:2px;padding:0 4px}
+#proj-switcher::-webkit-scrollbar{height:0}
+.proj-sw-tab{display:flex;align-items:center;gap:5px;padding:6px 12px;font-size:14px;font-weight:600;color:var(--text-dim);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;flex-shrink:0;border-radius:4px 4px 0 0}
+.proj-sw-tab:hover{color:var(--text);background:var(--bg-hover)}
+.proj-sw-tab.active{color:var(--accent);border-bottom-color:var(--accent);background:var(--bg-active)}
+.proj-sw-tab .close{width:14px;height:14px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;margin-left:2px;opacity:0;transition:opacity .15s}
+.proj-sw-tab:hover .close{opacity:1}
+.proj-sw-tab .close:hover{background:var(--error);color:#fff}
+
+#proj-view{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#preview-area{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative;min-height:0}
+#preview-toolbar{display:flex;align-items:center;gap:4px;padding:4px 8px;background:var(--bg-panel);border-bottom:1px solid var(--border);flex-shrink:0}
+.pt-btn{background:none;border:1px solid var(--border);color:var(--text-dim);padding:3px 8px;border-radius:4px;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:3px;transition:all .15s}
+.pt-btn:hover{background:var(--bg-hover);color:var(--text)}
+.pt-btn.active{background:var(--accent-dim);color:var(--accent);border-color:var(--accent)}
+.pt-sep{width:1px;height:16px;background:var(--border);margin:0 2px}
+#preview-url{flex:1;background:var(--bg-card);border:1px solid var(--border);color:var(--text);padding:3px 8px;border-radius:4px;font-size:14px;font-family:inherit;outline:none;transition:border-color .15s}
+#preview-url:focus{border-color:var(--accent)}
+#preview-content{flex:1;display:flex;overflow:hidden}
+#browser-frame{flex:1;border:none;background:#fff;display:none}
+#browser-frame.active{display:block}
+#code-view{flex:1;display:none;overflow:auto;background:#0d1117}
+#code-view.active{display:block}
+#code-view pre{margin:0;padding:16px;font-family:'SF Mono','Fira Code',monospace;font-size:12px;line-height:1.6;color:#c9d1d9;white-space:pre-wrap;word-break:break-all}
+
+#chat-area{height:25%;min-height:120px;max-height:60%;display:flex;flex-direction:column;background:var(--bg);border-top:1px solid var(--border);flex-shrink:0;resize:vertical;overflow:auto}
+#chat-area .chat-resize-handle{height:4px;background:transparent;cursor:ns-resize;flex-shrink:0;margin-top:-2px;position:relative;z-index:5}
+#chat-area .chat-resize-handle:hover{background:var(--accent-dim)}
+.chat-container{display:flex;flex-direction:column;height:100%}
+.chat-header{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:var(--bg-panel);border-bottom:1px solid var(--border);flex-shrink:0;cursor:pointer}
+.chat-header:hover{background:var(--bg-hover)}
+.chat-header-left{display:flex;align-items:center;gap:6px}
+.chat-avatar{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px}
+.chat-title{font-size:14px;font-weight:600}
+.chat-subtitle{font-size:9px;color:var(--text-muted)}
+.chat-messages{flex:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:6px;background:var(--bg)}
+.chat-messages::-webkit-scrollbar{width:4px}
+.chat-messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.msg{display:flex;flex-direction:column;max-width:85%;padding:6px 10px;border-radius:10px;font-size:14px;line-height:1.4}
+.msg.agent{align-self:flex-start;background:var(--bg-card);border:1px solid var(--border);border-bottom-left-radius:3px}
+.msg.user{align-self:flex-end;background:var(--accent);color:#fff;border-bottom-right-radius:3px}
+.msg .msg-time{font-size:8px;opacity:.5;margin-top:3px}
+.msg .msg-sender{font-size:9px;font-weight:700;margin-bottom:2px}
+.chat-input-area{display:flex;align-items:center;gap:6px;padding:6px 8px;background:var(--bg-panel);border-top:1px solid var(--border);flex-shrink:0}
+.chat-input{flex:1;background:var(--bg-card);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:16px;font-size:14px;font-family:inherit;outline:none;transition:border-color .15s}
+.chat-input:focus{border-color:var(--accent)}
+.chat-send{width:28px;height:28px;border-radius:50%;border:none;background:var(--accent);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .15s;flex-shrink:0}
+.chat-send:hover{background:#5a4bd1;transform:scale(1.05)}
+
+/* ═══ PROJECT CHAT (Orchestrator) ═══ */
+.proj-chat-bar{height:auto;min-height:140px;max-height:55%;display:flex;flex-direction:column;background:var(--bg);border-top:1px solid var(--border);flex-shrink:0;resize:vertical;overflow:auto}
+.proj-chat-bar.hidden{display:none}
+.proj-chat-header{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--bg-panel);border-bottom:1px solid var(--border);flex-shrink:0;cursor:pointer}
+.proj-chat-header:hover{background:var(--bg-hover)}
+.proj-chat-avatar{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.proj-chat-title{font-size:14px;font-weight:600;flex:1}
+.proj-chat-subtitle{font-size:9px;color:var(--text-muted)}
+.proj-chat-status{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.proj-chat-status.online{background:var(--success);box-shadow:0 0 4px var(--success)}
+.proj-chat-status.offline{background:var(--text-dim)}
+.proj-chat-status.thinking{background:var(--warn);animation:pulse 1s infinite}
+.proj-chat-messages{flex:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:6px;background:var(--bg);min-height:0}
+.proj-chat-messages::-webkit-scrollbar{width:4px}
+.proj-chat-messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.proj-chat-msg{display:flex;flex-direction:column;max-width:85%;padding:6px 10px;border-radius:10px;font-size:14px;line-height:1.4}
+.proj-chat-msg.agent{align-self:flex-start;background:var(--bg-card);border:1px solid var(--border);border-bottom-left-radius:3px}
+.proj-chat-msg.user{align-self:flex-end;background:var(--accent);color:#fff;border-bottom-right-radius:3px}
+.proj-chat-msg .msg-time{font-size:8px;opacity:.5;margin-top:3px}
+.proj-chat-msg .msg-sender{font-size:9px;font-weight:700;margin-bottom:2px}
+.proj-chat-input-area{display:flex;align-items:center;gap:6px;padding:6px 8px;background:var(--bg-panel);border-top:1px solid var(--border);flex-shrink:0}
+.proj-chat-input{flex:1;background:var(--bg-card);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:16px;font-size:14px;font-family:inherit;outline:none;transition:border-color .15s}
+.proj-chat-input:focus{border-color:var(--accent)}
+.proj-chat-send{width:28px;height:28px;border-radius:50%;border:none;background:var(--accent);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .15s;flex-shrink:0}
+.proj-chat-send:hover{background:#5a4bd1;transform:scale(1.05)}
+.proj-chat-typing{display:flex;align-items:center;gap:4px;padding:4px 10px;color:var(--text-dim);font-size:9px;font-style:italic}
+.proj-chat-typing .dots{display:inline-flex;gap:2px}
+.proj-chat-typing .dot{width:3px;height:3px;border-radius:50%;background:var(--text-dim);animation:dotPulse 1.2s infinite}
+.proj-chat-typing .dot:nth-child(2){animation-delay:.2s}
+.proj-chat-typing .dot:nth-child(3){animation-delay:.4s}
+@keyframes dotPulse{0%,80%,100%{opacity:.2}40%{opacity:1}}
+
+/* ═══ TERMINAL / CLI ═══ */
+.terminal-wrap{display:flex;flex-direction:column;height:100%;background:#0a0a0f;border:1px solid var(--border);border-radius:10px;overflow:hidden;font-family:'JetBrains Mono','SF Mono','Fira Code',monospace}
+.terminal-header{display:flex;align-items:center;gap:6px;padding:8px 12px;background:var(--bg-panel);border-bottom:1px solid var(--border);flex-shrink:0}
+.terminal-dot{width:8px;height:8px;border-radius:50%}
+.terminal-dot.red{background:#ff5f56}
+.terminal-dot.yellow:#ffbd2e}
+.terminal-dot.green{background:#27c93f}
+.terminal-title{font-size:14px;color:var(--text-dim);margin-left:6px;flex:1;text-align:center}
+.terminal-body{flex:1;overflow-y:auto;padding:10px 12px;font-size:12px;line-height:1.6;color:#c9d1d9;min-height:0}
+.terminal-body::-webkit-scrollbar{width:4px}
+.terminal-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.term-line{display:flex;gap:6px;margin-bottom:2px;white-space:pre-wrap;word-break:break-all}
+.term-prompt{color:var(--accent);flex-shrink:0}
+.term-input{flex:1;background:none;border:none;color:#c9d1d9;font-family:inherit;font-size:12px;outline:none;padding:0;margin:0;caret-color:var(--accent)}
+.term-output{color:#7c8594;margin-left:22px;opacity:.7}
+.term-success{color:#27c93f}
+.term-error{color:#ff5f56}
+.term-warn{color:#ffbd2e}
+.term-info{color:#22d3ce}
+.terminal-input-area{display:flex;align-items:center;border-top:1px solid var(--border);background:var(--bg-panel);padding:8px 12px;flex-shrink:0;gap:6px}
+.terminal-input{flex:1;background:transparent;border:none;color:#c9d1d9;font-family:inherit;font-size:12px;outline:none;caret-color:var(--accent)}
+.terminal-status-bar{display:flex;align-items:center;justify-content:space-between;padding:4px 12px;background:var(--bg-panel);border-top:1px solid var(--border);font-size:8px;color:var(--text-dim);flex-shrink:0}
+.term-hint{font-size:8px;color:var(--text-dim);padding:4px 12px;border-top:1px solid var(--border);background:var(--bg)}
+.term-history{max-height:300px;overflow-y:auto;border:1px solid var(--border);border-radius:6px;margin:8px 0;padding:6px;background:var(--bg)}
+.term-history-title{font-size:8px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.term-history-item{font-size:11px;padding:3px 0;border-bottom:1px solid var(--border);cursor:pointer;color:var(--text-muted)}
+.term-history-item:hover{color:var(--text)}
+.term-history-item:last-child{border-bottom:none}
+
+/* ═══ RIGHT BAR ═══ */
+#rightbar{width:var(--rbw);background:var(--bg-panel);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;transition:width .2s}
+#rightbar.hidden{width:0!important;overflow:hidden;border:none}
+.rtabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0}
+.rtab{flex:1;padding:8px 4px;text-align:center;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
+.rtab:hover{color:var(--text-dim);background:var(--bg-hover)}
+.rtab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.rc{flex:1;overflow-y:auto;padding:8px}
+.rc::-webkit-scrollbar{width:4px}
+.rc::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:6px;transition:border-color .15s}
+.card:hover{border-color:var(--border-light)}
+.card .ct{font-size:16px;font-weight:600;margin-bottom:3px}
+.card .cd{font-size:13px;color:var(--text-muted);line-height:1.4}
+.card .ca{margin-top:6;display:flex;gap:4px}
+.cbtn{background:var(--bg-hover);border:1px solid var(--border);color:var(--text-dim);padding:3px 8px;border-radius:4px;cursor:pointer;font-size:13px;transition:all .15s}
+.cbtn:hover{background:var(--accent-dim);color:var(--accent);border-color:var(--accent)}
+.cbtn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.cbtn.primary:hover{background:#5a4bd1}
+
+/* ═══ OS PAGES ═══ */
+.os-page{display:none}.os-page.active{display:block}
+.os-page-header{margin-bottom:16px}
+.os-page-header h1{font-size:24px;font-weight:800;margin-bottom:2px}
+.os-page-header p{font-size:14px;color:var(--text-muted)}
+.os-card{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px}
+.os-card:hover{border-color:var(--border-light)}
+.os-card-title{font-size:15px;font-weight:600;margin-bottom:6px}
+.os-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.os-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.os-metric{text-align:center;padding:10px}
+.os-metric-num{font-size:28px;font-weight:800;color:var(--accent)}
+.os-metric-label{font-size:12px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+.os-table{width:100%;border-collapse:collapse;font-size:11px}
+.os-table th{text-align:left;padding:6px 8px;font-size:9px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border)}
+.os-table td{padding:6px 8px;border-bottom:1px solid rgba(255,255,255,.03);color:var(--text-muted)}
+.os-tag{display:inline-block;padding:1px 5px;border-radius:4px;font-size:8px;font-weight:600}
+.os-tag-green{background:rgba(52,211,153,.1);color:var(--success)}
+.os-tag-amber{background:rgba(251,191,36,.1);color:var(--warn)}
+.os-tag-cyan{background:rgba(34,211,238,.1);color:var(--accent)}
+.os-tag-rose{background:rgba(251,113,133,.1);color:var(--error)}
+.os-progress{height:3px;background:var(--bg);border-radius:2px;overflow:hidden;margin-top:3px}
+.os-progress-fill{height:100%;border-radius:2px;transition:width .3s}
+.os-status-dot{width:5px;height:5px;border-radius:50%;display:inline-block}
+.os-status-dot.active{background:var(--success);box-shadow:0 0 4px var(--success)}
+.os-status-dot.working{background:var(--warn);animation:pulse 1s infinite}
+.os-status-dot.idle{background:var(--text-dim)}
+
+/* ═══ KANBAN ═══ */
+.kanban-section{margin-bottom:16px;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.kanban-header{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--bg-panel);cursor:pointer;user-select:none}
+.kanban-header:hover{background:var(--bg-hover)}
+.kanban-arrow{font-size:10px;transition:transform .15s;color:var(--text-dim)}
+.kanban-arrow.open{transform:rotate(90deg)}
+.kanban-title{font-size:16px;font-weight:700;flex:1}
+.kanban-count{font-size:9px;color:var(--text-dim);background:var(--bg-card);padding:2px 8px;border-radius:10px}
+.kanban-cols{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px 14px 14px;background:var(--bg)}
+.kanban-col{border:1px solid var(--border);border-radius:10px;padding:10px;min-height:60px}
+.kanban-col-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-dim);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.kanban-col-title .count{font-size:8px;background:var(--bg-card);padding:1px 6px;border-radius:8px;color:var(--text-muted)}
+.kanban-card{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:8px;margin-bottom:6px;cursor:pointer;transition:all .15s;font-size:11px}
+.kanban-card:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.3)}
+.kanban-card-title{font-weight:600;color:var(--text);margin-bottom:4px;line-height:1.3}
+.kanban-card-meta{display:flex;gap:6px;align-items:center;font-size:9px;color:var(--text-dim)}
+.kanban-priority{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.kanban-priority.high{background:var(--rose)}
+.kanban-priority.medium{background:var(--amber)}
+.kanban-priority.low{background:var(--success)}
+.kanban-assignee{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0}
+
+/* ═══ AGENT CONFIG ═══ */
+.agent-project-selector{display:flex;gap:6px;align-items:center;margin-bottom:16px}
+.agent-project-selector select{background:var(--bg-card);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:11px;outline:none;cursor:pointer;min-width:160px}
+.agent-project-selector select:focus{border-color:var(--accent)}
+.agent-card{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:8px;transition:border-color .15s}
+.agent-card:hover{border-color:var(--border-light)}
+.agent-card-header{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.agent-card-avatar{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.agent-card-info{flex:1;min-width:0}
+.agent-card-name{font-size:12px;font-weight:600;color:var(--text)}
+.agent-card-model{font-size:9px;color:var(--text-dim)}
+.agent-card-role{font-size:8px;padding:2px 6px;border-radius:4px;font-weight:600;display:inline-block;margin-top:2px}
+.agent-card-config{background:var(--bg-panel);border-radius:6px;padding:10px;margin-top:8px;display:none}
+.agent-card-config.open{display:block}
+.agent-config-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:10px}
+.agent-config-row label{color:var(--text-dim);min-width:80px;flex-shrink:0;text-align:right}
+.agent-config-row select,.agent-config-row input[type="number"]{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:4px;font-size:10px;outline:none;flex:1;min-width:0}
+.agent-config-row select:focus,.agent-config-row input:focus{border-color:var(--accent)}
+.agent-config-row input[type="number"]{width:70px;flex:none}
+
+/* ═══ WORKFLOWS ═══ */
+.workflow-card{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px}
+.workflow-card:hover{border-color:var(--border-light)}
+.workflow-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.workflow-name{font-size:12px;font-weight:700}
+.workflow-status{font-size:8px;padding:2px 8px;border-radius:4px;font-weight:600}
+.workflow-status.active{background:rgba(52,211,153,.15);color:var(--success)}
+.workflow-status.paused{background:rgba(251,191,36,.15);color:var(--warn)}
+.workflow-status.draft{background:var(--bg-hover);color:var(--text-dim)}
+.workflow-pipeline{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px}
+.wf-stage{background:var(--bg-panel);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:9px;text-align:center;min-width:80px}
+.wf-stage.active{border-color:var(--accent);background:rgba(108,92,231,.08)}
+.wf-stage.done{border-color:var(--success);background:rgba(52,211,153,.08)}
+.wf-stage.error{border-color:var(--error);background:rgba(225,112,85,.08)}
+.wf-stage.waiting{border-color:var(--warn);background:rgba(251,191,36,.08)}
+.wf-arrow{color:var(--text-dim);font-size:10px}
+.wf-agent{font-size:8px;color:var(--text-dim);margin-top:2px}
+
+/* ═══ PIPELINE ENGINE ═══ */
+.pipeline-tile{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;transition:all .15s}
+.pipeline-tile:hover{border-color:var(--border-light)}
+.pipeline-tile-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.pipeline-tile-title{font-size:11px;font-weight:600;flex:1}
+.pipeline-progress{height:4px;background:var(--bg);border-radius:3px;overflow:hidden;margin-bottom:6px}
+.pipeline-progress-bar{height:100%;border-radius:3px;transition:width .4s}
+.stage-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:5px;font-size:8px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.stage-badge-scout{background:rgba(108,92,231,.15);color:var(--accent)}
+.stage-badge-score{background:rgba(251,191,36,.15);color:var(--amber)}
+.stage-badge-research{background:rgba(34,211,238,.15);color:var(--cyan)}
+.stage-badge-route{background:rgba(251,113,133,.15);color:var(--rose)}
+.stage-badge-approve{background:rgba(52,211,153,.15);color:var(--success)}
+.stage-badge-build{background:rgba(167,139,250,.15);color:var(--violet)}
+.stage-badge-test{background:rgba(251,191,36,.15);color:var(--warn)}
+.stage-badge-deliver{background:rgba(52,211,153,.15);color:var(--emerald)}
+.score-display{display:flex;align-items:center;gap:6px;padding:6px 10px;background:var(--bg-panel);border-radius:6px;margin-top:6px;font-size:10px}
+.score-bar{flex:1;height:4px;background:var(--bg);border-radius:2px;overflow:hidden}
+.score-bar-fill{height:100%;border-radius:2px;transition:width .3s}
+.score-value{font-weight:700;min-width:30px;text-align:right}
+.approval-queue{max-height:200px;overflow-y:auto}
+.approval-item{display:flex;align-items:center;gap:8px;padding:8px;background:var(--bg-panel);border-radius:6px;margin-bottom:4px;font-size:10px}
+.approval-item:hover{background:var(--bg-hover)}
+.approval-avatar{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0}
+.approval-info{flex:1;min-width:0}
+.approval-title{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.approval-meta{font-size:8px;color:var(--text-dim)}
+.pipeline-stages-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
+.pipeline-stage-col{background:var(--bg-panel);border:1px solid var(--border);border-radius:8px;padding:8px;min-height:40px}
+.pipeline-stage-col-title{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
+.pipeline-stage-card{background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:5px 7px;margin-bottom:4px;font-size:9px;cursor:pointer;transition:all .15s}
+.pipeline-stage-card:hover{border-color:var(--accent)}
+.pipeline-stage-card .psc-title{font-weight:600;line-height:1.3}
+.pipeline-stage-card .psc-meta{display:flex;gap:4px;align-items:center;margin-top:2px;font-size:8px;color:var(--text-dim)}
+.rubric-config{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.rubric-item{display:flex;align-items:center;gap:4px;padding:3px 8px;background:var(--bg-panel);border-radius:4px;font-size:9px}
+.rubric-item input[type="range"]{width:60px;accent-color:var(--accent)}
+.rubric-item label{font-size:8px;color:var(--text-dim);min-width:50px}
+.wf-connector{color:var(--text-dim);font-size:12px;display:flex;align-items:center}
+.pipeline-run-log{margin-top:6px;padding:6px;background:var(--bg);border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--text-dim);max-height:80px;overflow-y:auto;white-space:pre-wrap}
+.status-indicator{width:6px;height:6px;border-radius:50%;display:inline-block}
+.status-indicator.idle{background:var(--text-dim)}
+.status-indicator.running{background:var(--amber);animation:pulse .8s infinite}
+.status-indicator.complete{background:var(--success);box-shadow:0 0 4px var(--success)}
+.status-indicator.failed{background:var(--error)}
+
+/* ═══ IDEAS PAGE ═══ */
+.idea-card{margin-bottom:10px;transition:all .15s}
+.idea-card:hover{border-color:var(--border-light);box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.idea-title-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px}
+.idea-title{font-size:13px;font-weight:700;flex:1;line-height:1.3}
+.idea-desc{font-size:10px;color:var(--text-muted);margin-bottom:8px;line-height:1.6}
+.idea-meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
+.idea-revenue{font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;background:rgba(52,211,153,.1);color:var(--success)}
+.idea-priority{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-right:2px}
+.idea-priority.high{background:var(--rose);box-shadow:0 0 4px var(--rose)}
+.idea-priority.medium{background:var(--amber)}
+.idea-priority.low{background:var(--success)}
+.cat-badge{font-size:7px;font-weight:700;padding:2px 6px;border-radius:3px;text-transform:uppercase;letter-spacing:.5px}
+.cat-saas{background:rgba(108,92,231,.15);color:var(--accent)}
+.cat-service{background:rgba(34,211,238,.15);color:var(--cyan)}
+.cat-content{background:rgba(251,191,36,.15);color:var(--amber)}
+.cat-product{background:rgba(52,211,153,.15);color:var(--success)}
+.cat-tool{background:rgba(167,139,250,.15);color:var(--violet)}
+.cat-other{background:rgba(148,163,184,.15);color:var(--text-muted)}
+.idea-actions{display:flex;flex-direction:column;gap:3px;flex-shrink:0}
+.idea-vote{display:flex;align-items:center;gap:4px;font-size:9px;color:var(--text-dim)}
+.idea-vote-btn{height:22px;padding:0 6px;font-size:8px}
+.idea-status-btns{display:flex;gap:3px}
+.idea-status-btn{height:22px;padding:0 6px;font-size:7px}
+.idea-stats-bar{display:flex;gap:12px;padding:10px 0;margin-bottom:12px;border-bottom:1px solid var(--border)}
+.idea-stat{text-align:center}
+.idea-stat-val{font-size:18px;font-weight:800;color:var(--accent)}
+.idea-stat-label{font-size:8px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px}
+.idea-research-btn{display:flex;align-items:center;gap:6px}
+.idea-research-btn .spinner{display:none;width:12px;height:12px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite}
+.idea-research-btn.loading .spinner{display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ═══ SETTINGS / MODAL / TOAST ═══ */
+#settings-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:center;justify-content:center}
+#settings-overlay.open{display:flex}
+#settings-popup{background:var(--bg-panel);border:1px solid var(--border);border-radius:12px;width:680px;max-width:95vw;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.sh{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.sh h2{font-size:14px;font-weight:600}
+.sclose{background:none;border:none;color:var(--text-muted);font-size:18px;cursor:pointer;padding:4px 8px;border-radius:6px;line-height:1}
+.sclose:hover{background:var(--bg-hover);color:var(--text)}
+.sb{display:flex;flex:1;overflow:hidden;min-height:0}
+.stabs{width:140px;border-right:1px solid var(--border);padding:6px 0;flex-shrink:0;overflow-y:auto}
+.stab{padding:7px 12px;font-size:11px;color:var(--text-dim);cursor:pointer;transition:all .1s;display:flex;align-items:center;gap:6px}
+.stab:hover{background:var(--bg-hover);color:var(--text)}
+.stab.active{background:var(--accent-dim);color:var(--accent);font-weight:600}
+.sc{flex:1;overflow-y:auto;padding:14px 18px}
+.sg{margin-bottom:16px}
+.sgt{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+.sr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:10px}
+.sl{font-size:11px;color:var(--text-dim);flex-shrink:0;min-width:120px}
+.si{flex:1;background:var(--bg-card);border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:4px;font-size:11px;font-family:inherit;outline:none;transition:border-color .15s;min-width:0}
+.si:focus{border-color:var(--accent)}
+select.si{cursor:pointer}
+.tgl{position:relative;width:32px;height:18px;flex-shrink:0}
+.tgl input{opacity:0;width:0;height:0}
+.tgl .tslider{position:absolute;inset:0;background:var(--bg-card);border:1px solid var(--border);border-radius:9px;cursor:pointer;transition:all .2s}
+.tgl .tslider::before{content:'';position:absolute;width:12px;height:12px;left:2px;top:2px;background:var(--text-muted);border-radius:50%;transition:all .2s}
+.tgl input:checked+.tslider{background:var(--accent);border-color:var(--accent)}
+.tgl input:checked+.tslider::before{transform:translateX(14px);background:#fff}
+.sf{padding:10px 18px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.sf .lb,.sf .rb{display:flex;gap:6px}
+
+#packager-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:center;justify-content:center}
+#packager-overlay.open{display:flex}
+
+#toast{position:fixed;bottom:16px;right:16px;z-index:2000;display:flex;flex-direction:column;gap:4px}
+.toast{background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:8px 14px;font-size:11px;color:var(--text);box-shadow:0 4px 20px rgba(0,0,0,.3);animation:ti .2s ease;display:flex;align-items:center;gap:6px;max-width:300px}
+.toast.ok{border-left:3px solid var(--success)}
+.toast.err{border-left:3px solid var(--error)}
+.toast.info{border-left:3px solid var(--accent)}
+@keyframes ti{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+#ctx{display:none;position:fixed;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:3px 0;z-index:1500;min-width:140px;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+#ctx.open{display:block}
+.ci{padding:6px 12px;font-size:11px;color:var(--text-dim);cursor:pointer;display:flex;align-items:center;gap:6px}
+.ci:hover{background:var(--bg-hover);color:var(--text)}
+.cs{height:1px;background:var(--border);margin:3px 0}
+
+#modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:900;align-items:center;justify-content:center}
+#modal-overlay.open{display:flex}
+#modal-box{background:var(--bg-panel);border:1px solid var(--border);border-radius:8px;padding:16px;width:380px;max-width:90vw;box-shadow:0 16px 48px rgba(0,0,0,.4)}
+#modal-box h3{font-size:13px;margin-bottom:10px}
+#modal-box .mi{width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:4px;font-size:12px;outline:none;margin-bottom:10px}
+#modal-box .mi:focus{border-color:var(--accent)}
+#modal-box .mb{display:flex;gap:6px;justify-content:flex-end}
+
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+.os-tree{padding:0 0 4px 0}
+.os-tree-group-title{padding:4px 14px 2px;font-size:8px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px}
+.os-tree-item{display:flex;align-items:center;gap:6px;padding:4px 14px 4px 20px;color:var(--text-dim);font-size:10px;cursor:pointer;transition:all .1s}
+.os-tree-item:hover{background:var(--bg-hover);color:var(--text)}
+.os-tree-item.active{background:var(--accent-dim);color:var(--accent)}
+.os-tree-icon{font-size:8px;width:12px;text-align:center}
+.os-tree-label{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.os-tree-agent{font-size:8px;padding:1px 4px;border-radius:3px;font-weight:600}
+.os-tree-role{font-size:8px;color:var(--text-dim);margin-left:auto}
+
+.proj-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.4)}
+
+
+/* === WORKSPACE ADDITIONS === */
+
+/* ═══ PROJECT WORKSPACE ═══ */
+#workspace{display:none;flex:1;flex-direction:column;overflow:hidden;min-height:0}
+#workspace.active{display:flex}
+#ws-header{display:flex;align-items:center;gap:10px;padding:8px 16px;background:var(--bg-panel);border-bottom:1px solid var(--border);flex-shrink:0;min-height:40px}
+#ws-back{cursor:pointer;font-size:12px;color:var(--text-dim);padding:3px 8px;border-radius:4px;transition:all .15s;white-space:nowrap;border:1px solid transparent}
+#ws-back:hover{color:var(--text);background:var(--bg-hover);border-color:var(--border)}
+#ws-proj-name{font-size:15px;font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#ws-proj-url{font-size:10px;color:var(--text-muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#ws-tabs{display:flex;background:var(--bg-panel);border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto;gap:0;padding:0 8px}
+#ws-tabs::-webkit-scrollbar{height:0}
+.ws-tab{display:flex;align-items:center;gap:5px;padding:7px 12px;font-size:11px;font-weight:600;color:var(--text-dim);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;flex-shrink:0}
+.ws-tab:hover{color:var(--text);background:var(--bg-hover)}
+.ws-tab.active{color:var(--accent);border-bottom-color:var(--accent);background:var(--bg-active)}
+.ws-tab .tab-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.ws-tab-close{width:14px;height:14px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8px;margin-left:3px;opacity:0;transition:opacity .15s}
+.ws-tab:hover .ws-tab-close{opacity:1}
+.ws-tab-close:hover{background:var(--error);color:#fff}
+#ws-content{flex:1;display:flex;overflow:hidden;min-height:0;position:relative}
+
+/* ═══ AGENT CHAT PANELS ═══ */
+.agent-chat-panel{position:absolute;inset:0;display:none;flex-direction:column;overflow:hidden;background:var(--bg)}
+.agent-chat-panel.active{display:flex}
+.agent-chat-header{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--bg-panel);border-bottom:1px solid var(--border);flex-shrink:0}
+.agent-chat-avatar{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0}
+.agent-chat-name{font-size:11px;font-weight:600}
+.agent-chat-model{font-size:9px;color:var(--text-dim);margin-left:auto;background:var(--bg-card);padding:1px 6px;border-radius:4px}
+.agent-chat-messages{flex:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:5px;background:var(--bg)}
+.agent-chat-messages::-webkit-scrollbar{width:3px}
+.agent-chat-messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.agent-chat-messages .msg{display:flex;flex-direction:column;max-width:85%;padding:5px 9px;border-radius:8px;font-size:13px;line-height:1.4;animation:wsSlideIn .15s ease}
+@keyframes wsSlideIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.agent-chat-messages .msg.agent{align-self:flex-start;background:var(--bg-card);border:1px solid var(--border);border-bottom-left-radius:3px}
+.agent-chat-messages .msg.user{align-self:flex-end;background:var(--accent);color:#fff;border-bottom-right-radius:3px}
+.agent-chat-messages .msg .msg-time{font-size:7px;opacity:.5;margin-top:2px}
+.agent-chat-messages .msg .msg-sender{font-size:8px;font-weight:700;margin-bottom:2px}
+.agent-chat-input-area{display:flex;align-items:center;gap:6px;padding:6px 8px;background:var(--bg-panel);border-top:1px solid var(--border);flex-shrink:0}
+.agent-chat-input{flex:1;background:var(--bg-card);border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:14px;font-size:12px;font-family:inherit;outline:none;transition:border-color .15s}
+.agent-chat-input:focus{border-color:var(--accent)}
+.agent-chat-send{width:26px;height:26px;border-radius:50%;border:none;background:var(--accent);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .15s;flex-shrink:0}
+.agent-chat-send:hover{background:#5a4bd1}
+
+/* ═══ HTML VIEWER ═══ */
+#html-viewer-panel{position:absolute;inset:0;display:none;flex-direction:column;overflow:hidden}
+#html-viewer-panel.active{display:flex}
+#html-viewer-toolbar{display:flex;align-items:center;gap:5px;padding:4px 8px;background:var(--bg-panel);border-bottom:1px solid var(--border);flex-shrink:0}
+#html-viewer-url{flex:1;background:var(--bg-card);border:1px solid var(--border);color:var(--text);padding:3px 8px;border-radius:4px;font-size:11px;font-family:inherit;outline:none}
+#html-viewer-url:focus{border-color:var(--accent)}
+#html-viewer-frame{flex:1;border:none;background:#fff}
+
+/* ═══ SETTINGS OVERLAY ═══ */
+#settings-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:center;justify-content:center}
+#settings-overlay.open{display:flex}
+#settings-popup{background:var(--bg-panel);border:1px solid var(--border);border-radius:12px;width:680px;max-width:95vw;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.sh{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.sh h2{font-size:14px;font-weight:600}
+.sclose{background:none;border:none;color:var(--text-muted);font-size:18px;cursor:pointer;padding:4px 8px;border-radius:6px;line-height:1}
+.sclose:hover{background:var(--bg-hover);color:var(--text)}
+.sb{display:flex;flex:1;overflow:hidden;min-height:0}
+.stabs{width:140px;border-right:1px solid var(--border);padding:6px 0;flex-shrink:0;overflow-y:auto}
+.stab{padding:7px 12px;font-size:11px;color:var(--text-dim);cursor:pointer;transition:all .1s;display:flex;align-items:center;gap:6px}
+.stab:hover{background:var(--bg-hover);color:var(--text)}
+.stab.active{background:var(--accent-dim);color:var(--accent);font-weight:600}
+.sc{flex:1;overflow-y:auto;padding:14px 18px}
+
+/* ═══ OS PAGES CONTAINER ═══ */
+#osPages{display:none;flex:1;flex-direction:column;overflow:hidden}
+#osPages.active{display:flex}
+#osPages .os-pane{flex:1;overflow-y:auto;padding:16px}
+
+</style>
+</head>
+<body>
+<div id="topbar">
+  <div class="logo" onclick="closeWorkspace();showOSPage('dashboard',null)">HERMES<span>DASH</span></div>
+  <div class="topbar-spacer"></div>
+  <button class="topbar-btn" id="btn-new" title="New Project" onclick="showNewProjectModal()">
+    <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> New
+  </button>
+  <button class="topbar-btn" id="btn-gear" title="Settings" onclick="toggleSettings()">
+    <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22 0-.47.12-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+  </button>
+</div>
+
+<div id="main">
+  <div id="leftbar">
+    <div class="os-sidebar-header">
+      <div class="os-sidebar-logo"><span class="os-dot"></span> Agent OS</div>
+      <div class="os-sidebar-tag">Mission Control v3</div>
+    </div>
+    <nav class="os-sidebar-nav" id="osNav">
+      <div class="os-nav-section">
+        <div class="os-nav-section-title">Core</div>
+        <a class="os-nav-item active" data-os-page="dashboard"><span class="os-nav-icon">&#x25A0;</span><span>Dashboard</span></a>
+        <a class="os-nav-item" data-os-page="goals"><span class="os-nav-icon">&#x25CE;</span><span>Goals</span><span class="os-nav-badge" id="projCount">7</span></a>
+        <a class="os-nav-item" data-os-page="board"><span class="os-nav-icon">&#x25A3;</span><span>Board</span></a>
+        <a class="os-nav-item" data-os-page="agents"><span class="os-nav-icon">&#x25A3;</span><span>Agents</span><span class="os-nav-badge" id="agentCount">20</span></a>
+        <a class="os-nav-item" data-os-page="workflows"><span class="os-nav-icon">&#x26A1;</span><span>Workflows</span></a>
+        <a class="os-nav-item" data-os-page="terminal"><span class="os-nav-icon">&#x2328;</span><span>Terminal</span><span class="os-nav-badge">CLI</span></a>
+        <a class="os-nav-item" data-os-page="ideas"><span class="os-nav-icon">&#x1F4A1;</span><span>Ideas</span><span class="os-nav-badge" id="ideaCount">0</span></a>
+      </div>
+      <div class="os-nav-section">
+        <div class="os-nav-section-title">Orchestration</div>
+        <a class="os-nav-item" data-os-page="planner"><span class="os-nav-icon">&#x25A1;</span><span>Task Planner</span></a>
+        <a class="os-nav-item" data-os-page="routing"><span class="os-nav-icon">&#x21BB;</span><span>Agent Routing</span></a>
+        <a class="os-nav-item" data-os-page="exceptions"><span class="os-nav-icon">&#x26A0;</span><span>Exceptions</span></a>
+      </div>
+      <div class="os-nav-section">
+        <div class="os-nav-section-title">Memory</div>
+        <a class="os-nav-item" data-os-page="short-term"><span class="os-nav-icon">&#x25C6;</span><span>Short-Term</span></a>
+        <a class="os-nav-item" data-os-page="long-term"><span class="os-nav-icon">&#x25C7;</span><span>Long-Term</span></a>
+        <a class="os-nav-item" data-os-page="knowledge"><span class="os-nav-icon">&#x25A4;</span><span>Knowledge</span></a>
+      </div>
+      <div class="os-nav-section">
+        <div class="os-nav-section-title">Config</div>
+        <a class="os-nav-item" data-os-page="models"><span class="os-nav-icon">&#x25B2;</span><span>Models</span></a>
+        <a class="os-nav-item" data-os-page="cost"><span class="os-nav-icon">&#x25A0;</span><span>Cost</span></a>
+        <a class="os-nav-item" data-os-page="help"><span class="os-nav-icon">&#x25B3;</span><span>Help</span></a>
+      </div>
+    </nav>
+    <div class="os-sidebar-footer">
+      <div style="font-size:9px;color:var(--text-dim);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">Projects</div>
+      <div id="projExplorer" style="max-height:200px;overflow-y:auto"></div>
+      <div style="font-size:9px;color:var(--text-muted);margin-top:4px">v3.1 — Hermes Dashboard</div>
+    </div>
+  </div>
+
+  <div id="center">
+    <div id="osPages" class="active"><div class="os-pane" id="osPane"></div></div>
+    <div id="workspace">
+      <div id="ws-header">
+        <span id="ws-back" onclick="closeWorkspace()">&#8592; Back</span>
+        <span id="ws-proj-name"></span>
+        <span id="ws-proj-url"></span>
+      </div>
+      <div id="ws-tabs">
+        <div class="ws-tab active" data-tab="viewer" onclick="switchWsTab('viewer')">&#x1F310; Viewer</div>
+      </div>
+      <div id="ws-content">
+        <div id="html-viewer-panel" class="active">
+          <div id="html-viewer-toolbar">
+            <input type="text" id="html-viewer-url" placeholder="Project URL..." onkeydown="if(event.key==='Enter')reloadViewer()">
+            <button class="cbtn" onclick="reloadViewer()" style="font-size:9px;padding:2px 6px">&#8635; Reload</button>
+            <button class="cbtn" onclick="window.open(document.getElementById('html-viewer-url').value,'_blank')" style="font-size:9px;padding:2px 6px">&#x2197; Open</button>
+          </div>
+          <iframe id="html-viewer-frame" sandbox="allow-same-origin allow-scripts allow-forms allow-popups"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="rightbar">
+    <div class="rtabs">
+      <div class="rtab active" data-t="team">Team</div>
+      <div class="rtab" data-t="plans">Plans</div>
+      <div class="rtab" data-t="timetable">Activity</div>
+    </div>
+    <div class="rc" id="rc"></div>
+  </div>
+</div>
+
+<div id="ctx"></div>
+<div id="modal-overlay">
+  <div id="modal-box"><h3 id="mh"></h3><input type="text" class="mi" id="mi"><div class="mb"><button class="cbtn" id="mc">Cancel</button><button class="cbtn primary" id="mo">OK</button></div></div>
+</div>
+<div id="toast"></div>
+<div id="settings-overlay">
+  <div id="settings-popup">
+    <div class="sh"><h2>Settings</h2><button class="sclose" onclick="toggleSettings()">&#10005;</button></div>
+    <div class="sb"><div class="stabs" id="settingsTabs"></div><div class="sc" id="settingsContent"></div></div>
+    <div class="sf"><div class="lb"><button class="cbtn" onclick="resetSettings()">Reset</button></div><div class="rb"><button class="cbtn" onclick="toggleSettings()">Cancel</button><button class="cbtn primary" onclick="saveSettings()">Save</button></div></div>
+  </div>
+</div>
+
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)};
+var $$=function(s){return document.querySelectorAll(s)};
+
+// ═══ STATE ═══
+var S={
+  curProj:null,osPage:'dashboard',sTab:'team',
+  projects:loadProjects(),agentConfigs:loadAgentConfigs(),workflows:loadWorkflows(),ideas:loadIdeas(),
+  chatHistories:{},settings:loadSettings(),
+  openProjs:[],activeTaskId:null,
+  wsTab:'viewer',wsChatHistories:{}
+};
+
+function loadJSON(key,fb){try{var v=JSON.parse(localStorage.getItem(key));return v&&v.length!==undefined?v:fb;}catch(e){return fb;}}
+
+function loadProjects(){
+  try{var p=JSON.parse(localStorage.getItem('hd_projects2'));if(p&&p.length>0)return p;}catch(e){}
+  return[
+    {id:"p1",name:"WTE Platform",color:"var(--accent)",status:"active",
+      img:"https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=400&h=250&fit=crop",
+      desc:"English tutoring platform with video calls, payments, and speaking lessons.",
+      url:"https://williamthomason.github.io",
+      kanban:{todo:[{id:"t1",title:"Design speaking assessment UI",priority:"high"},{id:"t2",title:"Add payment integration",priority:"medium"}],
+        doing:[{id:"t3",title:"Fix lesson scroll bug",priority:"high",assignee:"a2"}],
+        review:[{id:"t4",title:"Review business debate vocab",priority:"low",assignee:"a1"}],
+        done:[{id:"t5",title:"Brand identity complete",priority:"medium",assignee:"a1"}]},
+      agents:["a1","a2","a3","a4","a5","a6","a7"]},
+    {id:"p2",name:"OobzoO DAW",color:"var(--success)",status:"active",
+      img:"https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=400&h=250&fit=crop",
+      desc:"Browser-based digital audio workstation.",url:"",
+      kanban:{todo:[{id:"t6",title:"Sampler & audio import",priority:"high"},{id:"t7",title:"Sample slicing tool",priority:"medium"}],
+        doing:[{id:"t8",title:"Loop player prototype",priority:"high",assignee:"a1"}],review:[],
+        done:[{id:"t9",title:"Project scaffold",priority:"low",assignee:"a3"}]},
+      agents:["a1","a3","a5","a7","a8","a9","a10"]},
+    {id:"p3",name:"Agentic OS",color:"var(--amber)",status:"active",
+      img:"https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=250&fit=crop",
+      desc:"Multi-agent orchestration platform.",url:"https://williamthomason.github.io/ESL-Edutech/Agentic-OS/",
+      kanban:{todo:[{id:"t10",title:"Kanban drag & drop",priority:"high"}],
+        doing:[{id:"t11",title:"Agent config panel",priority:"high",assignee:"a2"}],
+        review:[{id:"t12",title:"Memory galaxy 3D view",priority:"medium",assignee:"a4"}],
+        done:[{id:"t13",title:"Dashboard layout",priority:"medium",assignee:"a2"}]},
+      agents:["a2","a4","a6","a8","a10","a11","a12"]},
+    {id:"p4",name:"RESONANCE Game",color:"var(--rose)",status:"active",
+      img:"https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=400&h=250&fit=crop",
+      desc:"Music-driven adventure game.",url:"",
+      kanban:{todo:[{id:"t14",title:"Story bible draft",priority:"high"},{id:"t15",title:"Visual style guide",priority:"medium"}],
+        doing:[{id:"t16",title:"DAW integration spec",priority:"high",assignee:"a1"}],review:[],done:[{id:"t17",title:"Game design doc",priority:"low",assignee:"a5"}]},
+      agents:["a1","a5","a7","a9","a11","a13","a14"]},
+    {id:"p5",name:"ROOT Token",color:"var(--cyan)",status:"pending",
+      img:"https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&h=250&fit=crop",
+      desc:"Blockchain token concept.",url:"",
+      kanban:{todo:[{id:"t18",title:"Token economics model",priority:"high"}],doing:[],review:[],done:[{id:"t19",title:"Concept deck",priority:"low",assignee:"a6"}]},
+      agents:["a6","a8","a10","a12","a14","a15","a16"]},
+    {id:"p6",name:"MUNUMELOO",color:"var(--violet)",status:"pending",
+      img:"https://images.unsplash.com/photo-1535295972055-1c762f4483e5?w=400&h=250&fit=crop",
+      desc:"FPS adventure game with time travel.",url:"",
+      kanban:{todo:[{id:"t20",title:"Character design",priority:"high"}],doing:[],review:[],done:[]},
+      agents:["a3","a7","a11","a13","a15","a17","a18"]},
+    {id:"p7",name:"Video Call",color:"var(--emerald)",status:"active",
+      img:"https://images.unsplash.com/photo-1588196749597-9ff075ee6b5b?w=400&h=250&fit=crop",
+      desc:"PeerJS p2p video calling.",url:"https://williamthomason.github.io/video-call/",
+      kanban:{todo:[],doing:[{id:"t21",title:"Screen share fix",priority:"medium",assignee:"a4"}],review:[],
+        done:[{id:"t22",title:"PeerJS integration",priority:"high",assignee:"a4"}]},
+      agents:["a4","a8","a12","a16","a18","a19","a20"]},
+    {id:"p8",name:"VocabForge",color:"#22d3ee",status:"active",
+      img:"https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=400&h=250&fit=crop",
+      desc:"Gamified vocabulary learning app with Cambridge words, memory games, typing challenges, and grammar drills.",
+      url:"VocabForge/index.html",
+      kanban:{todo:[{id:"t23",title:"Design system + CSS theme",priority:"high"},
+        {id:"t24",title:"Vocabulary data (500 words A1-C1)",priority:"high"},
+        {id:"t25",title:"Flashcard game",priority:"high"},
+        {id:"t26",title:"Memory match game",priority:"medium"},
+        {id:"t27",title:"Typing challenge game",priority:"medium"},
+        {id:"t28",title:"Multiple choice quiz",priority:"medium"},
+        {id:"t29",title:"Word search puzzle",priority:"medium"},
+        {id:"t30",title:"Grammar drills (200 exercises)",priority:"high"},
+        {id:"t31",title:"Progress system + XP + achievements",priority:"high"},
+        {id:"t32",title:"Stats dashboard + analytics",priority:"medium"},
+        {id:"t33",title:"Settings + theme switcher",priority:"low"},
+        {id:"t34",title:"Audio/TTS pronunciation",priority:"medium"},
+        {id:"t35",title:"Mobile optimization + animations",priority:"medium"}],
+        doing:[],review:[],done:[]},
+      agents:["a21","a22","a23","a24","a25","a26"]}
+  ];
+}
+function saveProjects(){localStorage.setItem('hd_projects2',JSON.stringify(S.projects))}
+
+function loadAgentConfigs(){
+  try{var c=JSON.parse(localStorage.getItem('hd_agents'));if(c&&c.length>0)return c;}catch(e){}
+  return[
+    {id:"a1",name:"Hermes Main",model:"openrouter/owl-alpha",role:"reasoning",temperature:0.7,color:"var(--accent)",limits:{maxTokens:8000,maxCalls:100,budget:5},systemPrompt:"You are Hermes, a helpful AI assistant."},
+    {id:"a2",name:"Codex Worker",model:"google/gemini-2.0-flash-001",role:"coding",temperature:0.3,color:"var(--success)",limits:{maxTokens:16000,maxCalls:200,budget:2},systemPrompt:"You are Codex, a coding specialist."},
+    {id:"a3",name:"Flash Agent",model:"google/gemini-2.0-flash-001",role:"research",temperature:0.5,color:"var(--amber)",limits:{maxTokens:4000,maxCalls:50,budget:1},systemPrompt:"Research assistant."},
+    {id:"a4",name:"Video Agent",model:"google/gemini-2.0-flash-001",role:"vision",temperature:0.5,color:"var(--rose)",limits:{maxTokens:4000,maxCalls:50,budget:1},systemPrompt:"Vision agent."},
+    {id:"a5",name:"Planner",model:"openrouter/owl-alpha",role:"planning",temperature:0.6,color:"var(--violet)",limits:{maxTokens:8000,maxCalls:100,budget:5},systemPrompt:"Planning specialist."},
+    {id:"a6",name:"Writer",model:"google/gemini-2.0-flash-001",role:"writing",temperature:0.7,color:"var(--cyan)",limits:{maxTokens:8000,maxCalls:100,budget:2},systemPrompt:"Writing specialist."},
+    {id:"a7",name:"Analyst",model:"openrouter/owl-alpha",role:"analysis",temperature:0.4,color:"var(--emerald)",limits:{maxTokens:8000,maxCalls:100,budget:5},systemPrompt:"Analysis specialist."},
+    {id:"a8",name:"SEO Agent",model:"google/gemini-2.0-flash-001",role:"research",temperature:0.5,color:"var(--warn)",limits:{maxTokens:4000,maxCalls:50,budget:1},systemPrompt:"SEO specialist."},
+    {id:"a9",name:"Designer",model:"openrouter/owl-alpha",role:"design",temperature:0.7,color:"var(--rose)",limits:{maxTokens:8000,maxCalls:100,budget:5},systemPrompt:"Design specialist."},
+    {id:"a10",name:"Data Agent",model:"google/gemini-2.0-flash-001",role:"research",temperature:0.3,color:"var(--amber)",limits:{maxTokens:16000,maxCalls:200,budget:2},systemPrompt:"Data specialist."},
+    {id:"a11",name:"DevOps",model:"openrouter/owl-alpha",role:"coding",temperature:0.3,color:"var(--success)",limits:{maxTokens:8000,maxCalls:100,budget:5},systemPrompt:"DevOps specialist."},
+    {id:"a12",name:"QA Tester",model:"google/gemini-2.0-flash-001",role:"coding",temperature:0.3,color:"var(--cyan)",limits:{maxTokens:8000,maxCalls:100,budget:2},systemPrompt:"QA specialist."},
+    {id:"a13",name:"CopyWriter",model:"google/gemini-2.0-flash-001",role:"writing",temperature:0.7,color:"var(--violet)",limits:{maxTokens:4000,maxCalls:50,budget:1},systemPrompt:"Copywriter."},
+    {id:"a14",name:"Security",model:"openrouter/owl-alpha",role:"reasoning",temperature:0.3,color:"var(--rose)",limits:{maxTokens:8000,maxCalls:100,budget:5},systemPrompt:"Security specialist."},
+    {id:"a15",name:"Translator",model:"google/gemini-2.0-flash-001",role:"writing",temperature:0.5,color:"var(--emerald)",limits:{maxTokens:4000,maxCalls:50,budget:1},systemPrompt:"Translation specialist."},
+    {id:"a16",name:"Reviewer",model:"openrouter/owl-alpha",role:"reasoning",temperature:0.4,color:"var(--accent)",limits:{maxTokens:8000,maxCalls:100,budget:5},systemPrompt:"Reviewer."},
+    {id:"a17",name:"Composer",model:"google/gemini-2.0-flash-001",role:"creative",temperature:0.8,color:"var(--amber)",limits:{maxTokens:4000,maxCalls:50,budget:1},systemPrompt:"Music specialist."},
+    {id:"a18",name:"Architect",model:"openrouter/owl-alpha",role:"reasoning",temperature:0.4,color:"var(--cyan)",limits:{maxTokens:16000,maxCalls:200,budget:10},systemPrompt:"System architect."},
+    {id:"a19",name:"Tester",model:"google/gemini-2.0-flash-001",role:"coding",temperature:0.3,color:"var(--warn)",limits:{maxTokens:4000,maxCalls:50,budget:1},systemPrompt:"Testing specialist."},
+    {id:"a20",name:"Optimizer",model:"openrouter/owl-alpha",role:"reasoning",temperature:0.4,color:"var(--success)",limits:{maxTokens:8000,maxCalls:100,budget:5},systemPrompt:"Optimization specialist."},
+    {id:"a21",name:"VF Architect",model:"deepseek/deepseek-chat",role:"reasoning",temperature:0.4,color:"#22d3ee",limits:{maxTokens:16000,maxCalls:200,budget:10},systemPrompt:"You are the VocabForge architect. Plan the app structure, game systems, and data models. Think step-by-step."},
+    {id:"a22",name:"VF Coder",model:"deepseek/deepseek-chat",role:"coding",temperature:0.3,color:"#22d3ee",limits:{maxTokens:16000,maxCalls:200,budget:5},systemPrompt:"You are a senior frontend developer. Build clean, well-structured vanilla HTML/CSS/JS. No frameworks. Follow the design system."},
+    {id:"a23",name:"VF Designer",model:"google/gemma-4",role:"design",temperature:0.7,color:"#22d3ee",limits:{maxTokens:8000,maxCalls:100,budget:5},systemPrompt:"You are a UI/UX designer. Create beautiful, modern interfaces with smooth animations. No emoji in buttons. SVG icons only."},
+    {id:"a24",name:"VF Content",model:"google/gemma-4",role:"writing",temperature:0.7,color:"#22d3ee",limits:{maxTokens:16000,maxCalls:200,budget:5},systemPrompt:"You are an ESL content specialist. Create Cambridge-level vocabulary lists, grammar exercises, and example sentences. Original content only."},
+    {id:"a25",name:"VF QA",model:"deepseek/deepseek-chat",role:"coding",temperature:0.3,color:"#22d3ee",limits:{maxTokens:8000,maxCalls:100,budget:2},systemPrompt:"You are a QA specialist. Test games for logic bugs, check edge cases, verify scoring. Report issues with exact line numbers."},
+    {id:"a26",name:"VF Artist",model:"google/gemma-4",role:"creative",temperature:0.8,color:"#22d3ee",limits:{maxTokens:4000,maxCalls:50,budget:2},systemPrompt:"You describe visual concepts for game assets, color palettes, and animation ideas. You also write CSS animations and SVG art descriptions."}
+  ];
+}
+function saveAgentConfigs(){localStorage.setItem('hd_agents',JSON.stringify(S.agentConfigs))}
+
+function loadWorkflows(){
+  try{var w=JSON.parse(localStorage.getItem('hd_workflows'));if(w&&w.length>0)return w;}catch(e){}
+  return[
+    {id:"w1",name:"Content Pipeline",projectId:"p1",status:"active",trigger:"manual",
+      stages:[{name:"Ideation",agentRole:"research",agentId:"a3",kanbanCol:"todo"},{name:"Drafting",agentRole:"writing",agentId:"a6",kanbanCol:"doing"},{name:"Review",agentRole:"reasoning",agentId:"a16",kanbanCol:"review"},{name:"Published",agentRole:null,agentId:null,kanbanCol:"done"}]},
+    {id:"w2",name:"Bug Fix Pipeline",projectId:"p3",status:"active",trigger:"event",
+      stages:[{name:"Detect",agentRole:"reasoning",agentId:"a1",kanbanCol:"todo"},{name:"Plan",agentRole:"planning",agentId:"a5",kanbanCol:"todo"},{name:"Fix",agentRole:"coding",agentId:"a2",kanbanCol:"doing"},{name:"Test",agentRole:"coding",agentId:"a12",kanbanCol:"review"},{name:"Deploy",agentRole:"coding",agentId:"a11",kanbanCol:"done"}]},
+    {id:"w3",name:"Research Pipeline",projectId:"p2",status:"paused",trigger:"manual",
+      stages:[{name:"Gather",agentRole:"research",agentId:"a3",kanbanCol:"todo"},{name:"Analyze",agentRole:"analysis",agentId:"a7",kanbanCol:"doing"},{name:"Document",agentRole:"writing",agentId:"a6",kanbanCol:"review"},{name:"Validate",agentRole:"reasoning",agentId:"a16",kanbanCol:"done"}]}
+  ];
+}
+function saveWorkflows(){localStorage.setItem('hd_workflows',JSON.stringify(S.workflows))}
+
+function loadIdeas(){
+  try{var d=JSON.parse(localStorage.getItem('hd_ideas'));if(d&&d.length>0)return d;}catch(e){}
+  return[
+    {id:"i1",title:"AI-Powered Content Agency",description:"Use research + writing agents to offer SEO content services. Each agent handles research, drafting, and editing. Scale to 20+ clients with minimal overhead.",source:"Flash Agent",status:"new",votes:3,category:"service",priority:"high",revenue:{type:"monthly",amount:5000,unit:"$/mo"},created:Date.now()},
+    {id:"i2",title:"Automated Code Review Service",description:"Codex Worker + Reviewer agents can offer automated code review for small dev teams. GitHub integration with PR comments. Charge per seat.",source:"Analyst",status:"new",votes:1,category:"saas",priority:"medium",revenue:{type:"monthly",amount:299,unit:"$/mo per team"},created:Date.now()-86400000},
+    {id:"i3",title:"Translation-as-a-Service",description:"Translator + Writer agents can offer document translation for businesses. 24h turnaround. Support 30+ languages via LLM.",source:"Planner",status:"reviewed",votes:2,category:"service",priority:"medium",revenue:{type:"one-time",amount:500,unit:"$0.05/word"},created:Date.now()-172800000},
+    {id:"i4",title:"Video Lesson Generator",description:"Video Agent + Composer can generate educational video content. Screen recording + AI voiceover. Sell courses on Udemy/Skillshare.",source:"Architect",status:"new",votes:1,category:"content",priority:"low",revenue:{type:"monthly",amount:2000,unit:"$/mo passive"},created:Date.now()-259200000},
+    {id:"i5",title:"SEO Audit Tool",description:"SEO Agent + Analyst can offer automated SEO audits. Crawl sites, generate reports, suggest fixes. Self-serve SaaS at $49/mo.",source:"SEO Agent",status:"accepted",votes:5,category:"saas",priority:"high",revenue:{type:"monthly",amount:49,unit:"$/mo per site"},created:Date.now()-345600000},
+    {id:"i6",title:"AI Logo Design Service",description:"Designer agent generates logo concepts for small businesses. 3 concepts per order. Charge $99-299 per logo package.",source:"Designer",status:"new",votes:0,category:"service",priority:"medium",revenue:{type:"one-time",amount:199,unit:"$99-299/order"},created:Date.now()-432000000},
+    {id:"i7",title:"Data Dashboard Builder",description:"Data Agent + DevOps can build custom analytics dashboards for e-commerce stores. Recurring revenue model.",source:"Data Agent",status:"new",votes:2,category:"saas",priority:"high",revenue:{type:"monthly",amount:199,unit:"$/mo per client"},created:Date.now()-518400000}
+  ];
+}
+function saveIdeas(){localStorage.setItem('hd_ideas',JSON.stringify(S.ideas))}
+
+function loadSettings(){
+  try{var s=JSON.parse(localStorage.getItem('hd_settings'));if(s)return s;}catch(e){}
+  return{apiUrl:'http://127.0.0.1:8645',apiKey:'',theme:'dark',autoDispatch:false,dispatchInterval:5};
+}
+
+function getAgentById(id){return S.agentConfigs.find(function(a){return a.id===id;});}
+
+// ═══ TOAST / MODAL ═══
+function toast(msg,t){var c=$('toast');var d=document.createElement('div');d.className='toast '+(t||'info');d.textContent=msg;c.appendChild(d);setTimeout(function(){d.style.opacity='0';setTimeout(function(){d.remove()},300)},2500);}
+var modalCb=null;
+function showModal(title,ph,cb){modalCb=cb;$('mh').textContent=title;$('mi').value='';$('mi').placeholder=ph||'';$('modal-overlay').classList.add('open');$('mi').focus();}
+$('modal-overlay').addEventListener('click',function(e){if(e.target===this)$('modal-overlay').classList.remove('open');});
+$('mc').addEventListener('click',function(){$('modal-overlay').classList.remove('open');modalCb=null;});
+$('mo').addEventListener('click',function(){var v=$('mi').value.trim();$('modal-overlay').classList.remove('open');if(modalCb)modalCb(v);});
+$('mi').addEventListener('keydown',function(e){if(e.key==='Enter')$('mo').click();if(e.key==='Escape')$('mc').click();});
+
+// ═══ SETTINGS ═══
+var settingsTabs=[
+  {id:'api',label:'API',icon:'#'},
+  {id:'agents',label:'Agents',icon:'$'},
+  {id:'dispatch',label:'Dispatch',icon:'!'},
+  {id:'data',label:'Data',icon:'*'}
+];
+function toggleSettings(){
+  var ov=$('settings-overlay');
+  if(ov.classList.contains('open')){ov.classList.remove('open');}
+  else{S._settingsTab='api';renderSettings();ov.classList.add('open');}
+}
+function renderSettings(){
+  var tabs=$('settingsTabs');var content=$('settingsContent');
+  var cur=S._settingsTab||'api';
+  var h='';
+  settingsTabs.forEach(function(t){h+='<div class="stab'+(t.id===cur?' active':'')+'" onclick="switchSettingsTab(\''+t.id+'\')">'+t.label+'</div>';});
+  tabs.innerHTML=h;
+  renderSettingsContent(cur);
+}
+function switchSettingsTab(id){S._settingsTab=id;S.settings=loadSettings();renderSettings();}
+
+function renderSettingsContent(tab){
+  var c=$('settingsContent');var h='';
+  if(tab==='api'){
+    h+='<div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);margin-bottom:8px">Hermes API</div>';
+    h+='<div style="display:flex;margin-bottom:8px;align-items:center"><span style="font-size:11px;color:var(--text-dim);min-width:100px">API URL</span><input id="setApiUrl" value="'+S.settings.apiUrl+'" placeholder="http://127.0.0.1:8000" style="flex:1;background:var(--bg-card);border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:4px;font-size:11px;outline:none"></div>';
+    h+='<div style="display:flex;margin-bottom:8px;align-items:center"><span style="font-size:11px;color:var(--text-dim);min-width:100px">API Key</span><input id="setApiKey" value="'+(S.settings.apiKey||'')+'" placeholder="sk-..." type="password" style="flex:1;background:var(--bg-card);border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:4px;font-size:11px;outline:none"></div>';
+    h+='<div style="display:flex;margin-bottom:8px;align-items:center"><button class="cbtn" onclick="testApiConnection()">Test Connection</button><span id="apiTestResult" style="font-size:10px;color:var(--text-dim);margin-left:8px"></span></div>';
+    h+='<div style="margin-top:8px;font-size:10px;color:var(--text-muted)" id="settingsModelsList">Click Test to verify connection and load models.</div>';
+  } else if(tab==='agents'){
+    h+='<div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);margin-bottom:8px">All Agents</div>';
+    S.agentConfigs.forEach(function(ag){
+      h+='<div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid var(--border)">';
+      h+='<div style="width:8px;height:8px;border-radius:50%;background:'+ag.color+'"></div>';
+      h+='<span style="font-size:10px;flex:1">'+ag.name+'</span>';
+      h+='<span style="font-size:9px;color:var(--text-dim)">'+ag.model+'</span>';
+      h+='<span class="os-tag" style="font-size:7px;background:'+ag.color+'22;color:'+ag.color+'">'+ag.role+'</span></div>';
+    });
+  } else if(tab==='dispatch'){
+    h+='<div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);margin-bottom:8px">Dispatcher</div>';
+    h+='<div style="display:flex;margin-bottom:8px;align-items:center"><span style="font-size:11px;color:var(--text-dim);min-width:120px">Auto-dispatch</span><label style="position:relative;width:36px;height:20px"><input type="checkbox" id="setAutoDispatch" '+(S.settings.autoDispatch?'checked':'')+' style="opacity:0;width:0;height:0"><span style="position:absolute;inset:0;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:.2s"></span></label></div>';
+    h+='<div style="display:flex;margin-bottom:8px;align-items:center"><span style="font-size:11px;color:var(--text-dim);min-width:120px">Interval (sec)</span><input type="number" id="setDispatchInterval" value="'+(S.settings.dispatchInterval||5)+'" min="1" max="60" style="width:70px;background:var(--bg-card);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:4px;font-size:11px;outline:none"></div>';
+    h+='<div style="margin-top:8px;font-size:10px;color:var(--text-muted)">Auto-dispatch assigns queued tasks to idle agents every N seconds.</div>';
+  } else if(tab==='data'){
+    h+='<div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);margin-bottom:8px">Data Management</div>';
+    h+='<div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap"><button class="cbtn" onclick="exportData()">Export All (JSON)</button><button class="cbtn" onclick="clearAllData()" style="border-color:var(--error);color:var(--error)">Reset All Data</button></div>';
+    h+='<div style="font-size:9px;color:var(--text-muted)">LocalStorage keys: hd_projects2, hd_agents, hd_workflows, hd_settings, hermes_kanban_cards</div>';
+  }
+  c.innerHTML=h;
+  // Fix toggle dot
+  if(tab==='dispatch'){
+    var lbl=$('setAutoDispatch');if(lbl){var dot=document.createElement('span');dot.style.cssText='position:absolute;width:14px;height:14px;left:2px;top:2px;background:var(--text-muted);border-radius:50%;transition:.2s;pointer-events:null';lbl.nextElementSibling.appendChild(dot);}
+  }
+}
+
+function saveSettings(){
+  var url=$('setApiUrl')?$('setApiUrl').value.trim():'';
+  S.settings.apiUrl=url||'http://127.0.0.1:8000';
+  S.settings.apiKey=$('setApiKey')?$('setApiKey').value.trim():'';
+  S.settings.autoDispatch=$('setAutoDispatch')?$('setAutoDispatch').checked:false;
+  S.settings.dispatchInterval=parseInt($('setDispatchInterval')?$('setDispatchInterval').value:5,10)||5;
+  localStorage.setItem('hd_settings',JSON.stringify(S.settings));
+  $('settings-overlay').classList.remove('open');
+  toast('Settings saved','ok');
+  if(S.settings.autoDispatch&&window.Dispatcher){Dispatcher.start(S.settings.dispatchInterval*1000);}
+  else if(!S.settings.autoDispatch&&window.Dispatcher&&Dispatcher.isRunning){Dispatcher.stop();}
+}
+
+function resetSettings(){
+  localStorage.removeItem('hd_settings');
+  S.settings=loadSettings();
+  renderSettings();
+  toast('Settings reset','info');
+}
+
+function testApiConnection(){
+  var url=S.settings.apiUrl||'http://127.0.0.1:8000';
+  var el=$('apiTestResult');
+  el.textContent='Testing...';el.style.color='var(--warn)';
+  try{
+    var xhr=new XMLHttpRequest();
+    xhr.open('GET',url+'/api/models',true);
+    xhr.timeout=8000;
+    xhr.onreadystatechange=function(){
+      if(xhr.readyState!==4)return;
+      if(xhr.status>=200&&xhr.status<300){
+        el.textContent='Connected!';el.style.color='var(--success)';
+        try{var d=JSON.parse(xhr.responseText);var list=d.models||d.data||[];var ml=$('settingsModelsList');if(ml)ml.textContent=list.length+' models available';}catch(e){}
+      } else {
+        el.textContent='Failed (HTTP '+xhr.status+')';el.style.color='var(--error)';
+      }
+    };
+    xhr.ontimeout=function(){el.textContent='Timeout - is Hermes running?';el.style.color='var(--error)';};
+    xhr.send();
+  }catch(e){el.textContent='Error: '+e.message;el.style.color='var(--error)';}
+}
+
+function exportData(){
+  var data={projects:S.projects,agents:S.agentConfigs,workflows:S.workflows};
+  var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='hermes-backup-'+Date.now()+'.json';a.click();
+  toast('Exported','ok');
+}
+
+function clearAllData(){
+  if(!confirm('Clear ALL data? This cannot be undone.'))return;
+  ['hd_projects2','hd_agents','hd_workflows','hermes_kanban_cards'].forEach(function(k){localStorage.removeItem(k);});
+  S.projects=loadProjects();S.agentConfigs=loadAgentConfigs();S.workflows=loadWorkflows();
+  renderAll();toast('Data cleared','info');
+}
+
+
+// ═══ WORKSPACE FUNCTIONS ═══
+function openProject(id,taskPrompt,agentId){
+  var proj=S.projects.find(function(p){return p.id===id;});if(!proj)return;
+  var sameProj=(S.curProj===id);
+  S.curProj=id;
+  if(!S.openProjs)S.openProjs=[];
+  if(S.openProjs.indexOf(id)<0)S.openProjs.push(id);
+  $('osPages').classList.remove('active');
+  $('workspace').classList.add('active');
+  $('ws-proj-name').textContent=proj.name;
+  $('ws-proj-url').textContent=proj.url||'';
+  if(!sameProj){
+    renderWsTabs(proj);
+    $('html-viewer-url').value=proj.url||'';
+    if(proj.url){$('html-viewer-frame').src=proj.url;}
+  }
+  if(taskPrompt){
+    switchWsTab('agent-a1');
+    var inputEl=$('chat-input-a1');if(inputEl){
+      inputEl.value=taskPrompt;
+      sendAgentChat('a1');
+    }
+  } else if(agentId){
+    switchWsTab('agent-'+agentId);
+  } else if(!sameProj){
+    switchWsTab('agent-a1');
+  }
+  renderTree();
+}
+
+function renderWsTabs(proj){
+  var tabs=$('ws-tabs');
+  var viewerTab=tabs.querySelector('[data-tab="viewer"]');
+  tabs.innerHTML='';tabs.appendChild(viewerTab);
+
+  // ── Orchestrator chat tab (always first) ──
+  var orchId='a1';
+  var orchAgent=getAgentById(orchId);
+  if(orchAgent){
+    var orchTab=document.createElement('div');
+    orchTab.className='ws-tab active';
+    orchTab.setAttribute('data-tab','agent-'+orchId);
+    orchTab.innerHTML='<span class="tab-dot" style="background:'+orchAgent.color+'"></span>'+orchAgent.name+' <span style="font-size:8px;color:var(--text-dim);margin-left:2px">ORCH</span>';
+    orchTab.onclick=function(){switchWsTab('agent-'+orchId);};
+    tabs.appendChild(orchTab);
+    if(!$('chat-panel-'+orchId)){
+      var panel=document.createElement('div');
+      panel.className='agent-chat-panel active';
+      panel.id='chat-panel-'+orchId;
+      panel.innerHTML='<div class="agent-chat-header"><div class="agent-chat-avatar" style="background:'+orchAgent.color+'22;color:'+orchAgent.color+'">'+orchAgent.name.charAt(0)+'</div><div class="agent-chat-name">'+orchAgent.name+'</div><div class="agent-chat-model">'+orchAgent.model+' · Orchestrator</div></div><div class="agent-chat-messages" id="chat-msgs-'+orchId+'"></div><div class="agent-chat-input-area"><input type="text" class="agent-chat-input" id="chat-input-'+orchId+'"><button class="agent-chat-send" onclick="sendAgentChat(\''+orchId+'\')">&#10148;</button></div>';
+      $('ws-content').appendChild(panel);
+    }
+  }
+
+  // ── Per-agent chat tabs ──
+  (proj.agents||[]).forEach(function(aid){
+    if(aid===orchId)return; // skip orchestrator, already added
+    var ag=getAgentById(aid);if(!ag)return;
+    var tab=document.createElement('div');
+    tab.className='ws-tab';
+    tab.setAttribute('data-tab','agent-'+aid);
+    tab.innerHTML='<span class="tab-dot" style="background:'+ag.color+'"></span>'+ag.name;
+    var close=document.createElement('span');
+    close.className='ws-tab-close';close.innerHTML='&#10005;';
+    close.onclick=function(e){e.stopPropagation();closeWsTab(aid);};
+    tab.appendChild(close);
+    tab.onclick=function(e){if(e.target===close)return;switchWsTab('agent-'+aid);};
+    tabs.appendChild(tab);
+    if(!$('chat-panel-'+aid)){
+      var panel=document.createElement('div');
+      panel.className='agent-chat-panel';
+      panel.id='chat-panel-'+aid;
+      panel.innerHTML='<div class="agent-chat-header"><div class="agent-chat-avatar" style="background:'+ag.color+'22;color:'+ag.color+'">'+ag.name.charAt(0)+'</div><div class="agent-chat-name">'+ag.name+'</div><div class="agent-chat-model">'+ag.model+'</div></div><div class="agent-chat-messages" id="chat-msgs-'+aid+'"></div><div class="agent-chat-input-area"><input type="text" class="agent-chat-input" id="chat-input-'+aid+'"><button class="agent-chat-send" onclick="sendAgentChat(\''+aid+'\')">&#10148;</button></div>';
+      $('ws-content').appendChild(panel);
+    }
+  });
+}
+
+function switchWsTab(tabId){
+  S.wsTab=tabId;
+  $$('.ws-tab').forEach(function(t){t.classList.remove('active');});
+  var activeTab=$('.ws-tab[data-tab="'+tabId+'"]');
+  if(activeTab)activeTab.classList.add('active');
+  if(tabId==='viewer'){
+    $('html-viewer-panel').classList.add('active');
+    $$('.agent-chat-panel').forEach(function(p){p.classList.remove('active');});
+  } else {
+    $('html-viewer-panel').classList.remove('active');
+    $$('.agent-chat-panel').forEach(function(p){p.classList.remove('active');});
+    var panel=$('chat-panel-'+tabId.replace('agent-',''));
+    if(panel)panel.classList.add('active');
+    loadAgentChatHistory(tabId.replace('agent-',''));
+  }
+}
+
+function closeWsTab(agentId){
+  var tab=$('.ws-tab[data-tab="agent-'+agentId+'"]');if(tab)tab.remove();
+  var panel=$('chat-panel-'+agentId);if(panel)panel.remove();
+  if(S.wsTab==='agent-'+agentId)switchWsTab('viewer');
+}
+
+function loadAgentChatHistory(agentId){
+  var key='wschat_'+S.curProj+'_'+agentId;
+  var msgsEl=$('chat-msgs-'+agentId);if(!msgsEl)return;
+  var history=S.wsChatHistories[key]||[];
+  var ag=getAgentById(agentId);
+  if(history.length===0){
+    msgsEl.innerHTML='<div class="msg agent"><div class="msg-sender">'+(ag?ag.name:'Agent')+'</div>Hello! I\'m ready to help with this project. What would you like me to work on?</div>';
+  } else {
+    renderChatMessages(msgsEl,history,ag);
+  }
+  msgsEl.scrollTop=msgsEl.scrollHeight;
+}
+
+function renderChatMessages(container,history,ag){
+  var h='';
+  history.forEach(function(m){
+    if(m.role==='agent'){
+      h+='<div class="msg agent"><div class="msg-sender">'+(ag?ag.name:'Agent')+'</div><div>'+escapeHtml(m.content)+'</div><div class="msg-time">'+new Date(m.time).toLocaleTimeString()+'</div></div>';
+    } else {
+      h+='<div class="msg user"><div>'+escapeHtml(m.content)+'</div><div class="msg-time">'+new Date(m.time).toLocaleTimeString()+'</div></div>';
+    }
+  });
+  container.innerHTML=h;
+  container.scrollTop=container.scrollHeight;
+}
+
+function sendAgentChat(agentId){
+  var inputEl=$('chat-input-'+agentId);if(!inputEl)return;
+  var text=inputEl.value.trim();if(!text)return;inputEl.value='';
+  var ag=getAgentById(agentId);if(!ag)return;
+  var key='wschat_'+S.curProj+'_'+agentId;
+  if(!S.wsChatHistories[key])S.wsChatHistories[key]=[];
+  var history=S.wsChatHistories[key];
+  history.push({role:'user',content:text,time:Date.now()});
+  var msgsEl=$('chat-msgs-'+agentId);
+  renderChatMessages(msgsEl,history,ag);
+  // Typing
+  var typing=document.createElement('div');typing.className='msg agent';typing.id='typing-'+agentId;
+  typing.innerHTML='<div class="msg-sender">'+ag.name+'</div><div><span style="animation:blink 1s infinite">...</span></div>';
+  msgsEl.appendChild(typing);msgsEl.scrollTop=msgsEl.scrollHeight;
+  var apiMessages=[{role:'system',content:ag.systemPrompt}];
+  history.forEach(function(m){if(m.role!=='system')apiMessages.push({role:m.role,content:m.content});});
+  callHermes(apiMessages,ag,function(ok,content,err){
+    typing.remove();
+    if(ok&&content){
+      history.push({role:'agent',content:content,time:Date.now()});
+    } else {
+      history.push({role:'agent',content:'[Error: '+(err||'No response')+']',time:Date.now()});
+    }
+    renderChatMessages(msgsEl,history,ag);
+  });
+}
+
+function escapeHtml(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+
+function reloadViewer(){
+  var url=$('html-viewer-url').value;
+  if(url)$('html-viewer-frame').src=url;
+}
+
+// ═══ HERMES API ═══
+function callHermes(messages,agent,callback){
+  var url=S.settings.apiUrl||'http://127.0.0.1:8645';
+  var endpoints=[url+'/v1/chat/completions'];
+  var models=[agent.model];
+  // Add free fallback models if the primary model fails
+  var freeModels=['stepfun/step-3.7-flash:free','nvidia/nemotron-3-ultra:free'];
+  tryOne(0,0);
+  function tryOne(i,mi){
+    if(i>=endpoints.length){if(callback)callback(false,null,'All endpoints failed');return;}
+    var model=models[mi]||models[0];
+    var xhr=new XMLHttpRequest();
+    xhr.open('POST',endpoints[i],true);
+    xhr.setRequestHeader('Content-Type','application/json');
+    if(S.settings.apiKey)xhr.setRequestHeader('Authorization','Bearer '+S.settings.apiKey);
+    xhr.timeout=120000;
+    xhr.onreadystatechange=function(){
+      if(xhr.readyState!==4)return;
+      if(xhr.status>=200&&xhr.status<300){
+        try{
+          var d=JSON.parse(xhr.responseText);
+          var content=d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content||d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.reasoning||d.content||'';
+          if(callback)callback(true,content,null);
+        }catch(e){if(callback)callback(true,xhr.responseText,null);}
+      } else if(xhr.status===404||xhr.status===422){
+        // Model not available or credits issue — try free fallback
+        if(mi<freeModels.length){tryOne(i,mi+1);}
+        else{tryOne(i+1,0);}
+      } else{tryOne(i+1,0);}
+    };
+    xhr.ontimeout=function(){tryOne(i+1,0);};
+    xhr.send(JSON.stringify({model:model,messages:messages,stream:false,temperature:agent.temperature||0.7,max_tokens:agent.limits&&agent.limits.maxTokens||4000}));
+  }
+}
+
+function closeWorkspace(){
+  $('workspace').classList.remove('active');
+  $('osPages').classList.add('active');
+  S.curProj=null;S.wsTab='viewer';
+  renderOSPage(S.osPage||'dashboard');
+}
+
+function showNewProjectModal(){
+  showModal('New Project','Project name',function(v){
+    if(!v)return;
+    S.projects.push({id:'p'+Date.now(),name:v,color:'var(--accent)',status:'active',kanban:{todo:[],doing:[],review:[],done:[]},agents:[]});
+    saveProjects();renderTree();updateCounts();toast('Project created','ok');
+  });
+}
+
+// ═══ OS PAGES ═══
+function showOSPage(id,el){
+  $('workspace').classList.remove('active');
+  $('osPages').classList.add('active');
+  document.querySelectorAll('.os-nav-item').forEach(function(n){n.classList.remove('active')});
+  if(el)el.classList.add('active');
+  S.osPage=id;
+  renderOSPage(id);
+}
+
+function renderOSPage(id){
+  var pane=$('osPane');if(!pane)return;
+  if(id==='dashboard')renderDashboardPage(pane);
+  else if(id==='goals')renderGoalsPage(pane);
+  else if(id==='board')renderBoardPage(pane);
+  else if(id==='agents')renderAgentsPage(pane);
+  else if(id==='workflows')renderWorkflowsPage(pane);
+  else if(id==='terminal')renderTerminalPage(pane);
+  else if(id==='planner')renderPlannerPage(pane);
+  else if(id==='routing')renderRoutingPage(pane);
+  else if(id==='exceptions')renderExceptionsPage(pane);
+  else if(id==='short-term')renderShortTermPage(pane);
+  else if(id==='long-term')renderLongTermPage(pane);
+  else if(id==='knowledge')renderKnowledgePage(pane);
+  else if(id==='models')renderModelsPage(pane);
+  else if(id==='cost')renderCostPage(pane);
+  else if(id==='help')renderHelpPage(pane);
+  else if(id==='ideas')renderIdeasPage(pane);
+  else{pane.innerHTML='<div class="os-page active"><div class="os-page-header"><h1>'+id+'</h1></div><div class="os-card"><p style="color:var(--text-muted);font-size:11px;text-align:center;padding:20px">Page coming soon.</p></div></div>';}
+}
+
+function renderDashboardPage(c){
+  var tt=0,at=0,dt=0;
+  S.projects.forEach(function(p){
+    ['todo','doing','review','done'].forEach(function(s){var t=p.kanban[s]||[];tt+=t.length;if(s==='done')dt+=t.length;if(s==='doing')at+=t.length;});
+  });
+  var h='<div class="os-page active"><div class="os-page-header"><h1>Dashboard</h1><p>Overview</p></div>';
+  h+='<div class="os-grid-3" style="margin-bottom:12px">';
+  h+='<div class="os-card os-metric"><div class="os-metric-num">'+S.projects.length+'</div><div class="os-metric-label">Projects</div></div>';
+  h+='<div class="os-card os-metric"><div class="os-metric-num">'+S.agentConfigs.length+'</div><div class="os-metric-label">Agents</div></div>';
+  h+='<div class="os-card os-metric"><div class="os-metric-num">'+at+'</div><div class="os-metric-label">Active Tasks</div></div></div>';
+  h+='<div class="os-card"><div class="os-card-title">Quick Actions</div><div style="display:flex;gap:6px;flex-wrap:wrap">';
+  h+='<button class="cbtn primary" onclick="closeWorkspace();showOSPage(\'goals\',null)">&#x25CE; View All Kanban</button>';
+  h+='<button class="cbtn" onclick="closeWorkspace();showOSPage(\'workflows\',null)">&#x26A1; Run Workflow</button>';
+  if(window.Dispatcher){
+    h+='<button class="cbtn" onclick="if(Dispatcher.isRunning()){Dispatcher.stop();toast(\'Stopped\',\'info\');}else{Dispatcher.start();toast(\'Started\',\'ok\');}">&#9654; Dispatch</button>';
+  }
+  h+='</div></div>';
+  h+='<div class="os-card" style="margin-top:10px"><div class="os-card-title">Projects</div>';
+  S.projects.forEach(function(proj){
+    var total=0,done=0;
+    ['todo','doing','review','done'].forEach(function(s){var t=proj.kanban[s]||[];total+=t.length;if(s==='done')done+=t.length;});
+    var pct=total>0?Math.round(done/total*100):0;
+    h+='<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="openProject(\''+proj.id+'\')">';
+    h+='<div style="width:8px;height:8px;border-radius:50%;background:'+proj.color+'"></div>';
+    h+='<span style="font-size:11px;font-weight:600;flex:1">'+proj.name+'</span>';
+    h+='<div style="width:60px;height:4px;background:var(--bg);border-radius:2px;overflow:hidden"><div style="width:'+pct+'%;height:100%;background:'+proj.color+'"></div></div>';
+    h+='<span style="font-size:9px;color:var(--text-dim);width:40px;text-align:right">'+done+'/'+total+'</span></div>';
+  });
+  h+='</div></div>';
+  c.innerHTML=h;
+}
+
+function renderGoalsPage(c){
+  var h='<div class="os-page active"><div class="os-page-header"><h1>Goals</h1><p>Project kanban boards</p></div>';
+  h+='<div style="display:flex;gap:6px;margin-bottom:12px"><button class="cbtn primary" onclick="showModal(\'New Project\',\'Project name\',function(v){if(v){S.projects.push({id:\\\'p\'+Date.now(),name:v,color:\\\'var(--accent)\\\',status:\\\'active\\\',kanban:{todo:[],doing:[],review:[],done:[]},agents:[]});saveProjects();renderGoalsPage($(\\\'osPane\\\'));updateCounts();toast(\\\'Created\\\',\\\'ok\\\');}});}">+ New Project</button></div>';
+  S.projects.forEach(function(p){
+    var all=0,done=0;
+    ['todo','doing','review','done'].forEach(function(s){var t=p.kanban[s]||[];all+=t.length;if(s==='done')done+=t.length;});
+    var pct=all>0?Math.round(done/all*100):0;
+    h+='<div class="kanban-section"><div class="kanban-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display===\\\'none\\\'?\\\'grid\\\':\\\'none\\\';this.querySelector(\\\'.kanban-arrow\\\').classList.toggle(\\\'open\\\')">';
+    h+='<span class="kanban-arrow">&#9656;</span><span class="kanban-title" style="color:'+p.color+'">'+p.name+'</span><span class="kanban-count">'+done+'/'+all+' ('+pct+'%)</span></div>';
+    h+='<div class="kanban-cols">';
+    [{key:'todo',label:'Todo',border:'var(--border)'},{key:'doing',label:'In Progress',border:'var(--amber)'},{key:'review',label:'Review',border:'var(--accent)'},{key:'done',label:'Done',border:'var(--success)'}].forEach(function(st){
+      var tasks=p.kanban[st.key]||[];
+      h+='<div class="kanban-col" style="border-color:'+st.border+'"><div class="kanban-col-title">'+st.label+' <span class="count">'+tasks.length+'</span></div>';
+      tasks.forEach(function(t){
+        var ag=S.agentConfigs.find(function(a){return a.id===t.assignee;});
+        h+='<div class="kanban-card" onclick="openProject(\''+p.id+'\')"><div class="kanban-card-title">'+t.title+'</div><div class="kanban-card-meta"><span class="kanban-priority '+t.priority+'"></span>'+(ag?'<span class="kanban-assignee" style="background:'+ag.color+'22;color:'+ag.color+'">'+ag.name.charAt(0)+'</span>':'')+'</div></div>';
+      });
+      h+='</div>';
+    });
+    h+='</div></div>';
+  });
+  h+='</div>';
+  c.innerHTML=h;
+}
+
+// ═══ BOARD PAGE ═══
+function renderBoardPage(c){
+  var h='<div class="os-page active"><div class="os-page-header"><h1>Board</h1><p>Per-project kanban with agent assignments</p></div>';
+  h+='<div style="display:flex;gap:8px;align-items:center;margin-bottom:16px">';
+  h+='<label style="font-size:10px;color:var(--text-dim)">Project:</label>';
+  h+='<select id="boardProjSelect" onchange="renderBoardCols(this.value)" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:11px;outline:none;cursor:pointer;min-width:200px">';
+  S.projects.forEach(function(p){h+='<option value="'+p.id+'">'+p.name+'</option>';});
+  h+='</select></div>';
+  h+='<div id="boardCols"></div>';
+  h+='</div>';
+  c.innerHTML=h;
+  if(S.projects.length>0)renderBoardCols(S.projects[0].id);
+}
+
+function renderBoardCols(pid){
+  var proj=S.projects.find(function(p){return p.id===pid;});if(!proj)return;
+  var container=document.getElementById('boardCols');if(!container)return;
+  var h='';
+  [{key:'todo',label:'Todo',border:'var(--border)'},{key:'doing',label:'In Progress',border:'var(--amber)'},{key:'review',label:'Review',border:'var(--accent)'},{key:'done',label:'Done',border:'var(--success)'}].forEach(function(st){
+    var tasks=proj.kanban[st.key]||[];
+    h+='<div class="kanban-col" style="border-color:'+st.border+';margin-bottom:12px"><div class="kanban-col-title">'+st.label+' <span class="count">'+tasks.length+'</span></div>';
+    if(tasks.length===0){h+='<div style="color:var(--text-dim);font-size:10px;text-align:center;padding:12px">No tasks</div>';}
+    tasks.forEach(function(t){
+      var ag=t.assignee?S.agentConfigs.find(function(a){return a.id===t.assignee;}):null;
+      h+='<div class="kanban-card" style="border-left:3px solid '+(ag?ag.color:'var(--border)')+'">';
+      h+='<div class="kanban-card-title">'+t.title+'</div>';
+      h+='<div class="kanban-card-meta">';
+      h+='<span class="kanban-priority '+t.priority+'"></span>';
+      if(ag){
+        h+='<span class="kanban-assignee" style="background:'+ag.color+'22;color:'+ag.color+';width:auto;padding:2px 6px;border-radius:4px;font-size:8px;font-weight:700">'+ag.name+'</span>';
+      }else{
+        h+='<span style="font-size:8px;color:var(--text-dim)">Unassigned</span>';
+      }
+      h+='</div></div>';
+    });
+    h+='</div>';
+  });
+  container.innerHTML=h;
+}
+
+function renderAgentsPage(c){
+  var h='<div class="os-page active"><div class="os-page-header"><h1>Agents</h1><p>Project team management</p></div>';
+  h+='<div class="agent-project-selector"><label style="font-size:10px;color:var(--text-dim)">Project:</label><select id="agentProjSelect" onchange="switchAgentProject(this.value)">';
+  S.projects.forEach(function(p){h+='<option value="'+p.id+'">'+p.name+'</option>';});
+  h+='</select></div>';
+  var proj=S.projects[0];
+  if(proj){
+    (proj.agents||[]).forEach(function(aid){
+      var ag=S.agentConfigs.find(function(a){return a.id===aid;});if(!ag)return;
+      var lim=ag.limits||{};
+      h+='<div class="agent-card" style="border-left:3px solid '+ag.color+'"><div class="agent-card-header"><div class="agent-card-avatar" style="background:'+ag.color+'22;color:'+ag.color+'">'+ag.name.charAt(0)+'</div><div class="agent-card-info"><div class="agent-card-name">'+ag.name+'</div><div class="agent-card-model">'+ag.model+'</div><span class="agent-card-role" style="background:'+ag.color+'15;color:'+ag.color+'">'+ag.role+'</span></div><button class="btn btn-sm" onclick="this.parentElement.nextElementSibling.classList.toggle(\'open\')">Config</button></div>';
+      h+='<div class="agent-card-config"><div class="agent-config-row"><label>Model</label><select onchange="updateAgentModel(\''+ag.id+'\',this.value)"><option'+(ag.model==='openrouter/owl-alpha'?' selected':'')+'>owl-alpha</option><option'+(ag.model==='google/gemini-2.0-flash-001'?' selected':'')+'>gemini-flash</option></select></div>';
+      h+='<div class="agent-config-row"><label>Max Tokens</label><input type="number" value="'+(lim.maxTokens||8000)+'" step="1000" min="1000" max="100000" onchange="updateAgentLimit(\''+ag.id+'\',\'maxTokens\',this.value)"></div>';
+      h+='<div class="agent-config-row"><label>Budget ($)</label><input type="number" value="'+(lim.budget||5)+'" step="0.5" min="0" max="100" onchange="updateAgentLimit(\''+ag.id+'\',\'budget\',this.value)"></div></div></div>';
+    });
+  }
+  h+='</div>';c.innerHTML=h;
+}
+
+function renderWorkflowsPage(c){
+  var h='<div class="os-page active"><div class="os-page-header"><h1>Workflows</h1><p>Pipeline execution</p></div>';
+  h+='<div style="margin-bottom:12px;display:flex;gap:6px"><button class="cbtn primary" onclick="showModal(\'New Workflow\',\'Name\',function(v){if(v){S.workflows.push({id:\\\'w\'+Date.now(),name:v,projectId:S.projects[0].id,status:\\\'draft\\\',trigger:\\\'manual\\\',stages:[]});saveWorkflows();renderWorkflowsPage($(\\\'osPane\\\'));toast(\\\'Created\\\',\\\'ok\\\');}});}">+ New</button></div>';
+  S.workflows.forEach(function(wf){
+    var proj=S.projects.find(function(p){return p.id===wf.projectId;});
+    var pc=proj?proj.color:'var(--accent)';
+    h+='<div class="pipeline-tile" style="border-left:4px solid '+pc+'"><div class="pipeline-tile-header"><span class="status-indicator idle"></span><span class="pipeline-tile-title">'+wf.name+'</span><span class="workflow-status '+wf.status+'">'+wf.status+'</span></div>';
+    h+='<div style="font-size:9px;color:var(--text-dim);margin-bottom:6px">'+(proj?proj.name:'No project')+' &middot; '+wf.trigger+'</div>';
+    h+='<div class="workflow-pipeline">';
+    wf.stages.forEach(function(st,si){
+      h+='<div class="wf-stage"><div style="font-weight:600">'+st.name+'</div><div style="font-size:8px;color:var(--text-dim)">'+(st.agentRole||'manual')+'</div></div>';
+      if(si<wf.stages.length-1)h+='<div class="wf-connector">&#8594;</div>';
+    });
+    h+='</div>';
+    h+='<div style="margin-top:8px;display:flex;gap:4px"><button class="cbtn primary" onclick="runWorkflow(\''+wf.id+'\',$(\'osPane\'))">&#9654; Run</button><button class="cbtn" onclick="deleteWorkflow(\''+wf.id+'\',$(\'osPane\'))">&#10005;</button></div></div>';
+  });
+  if(S.workflows.length===0)h+='<div style="text-align:center;padding:30px;color:var(--text-muted);font-size:11px">No workflows. Create one to get started.</div>';
+  h+='</div>';c.innerHTML=h;
+}
+
+// ═══ TERMINAL / CLI PAGE ═══
+
+function renderTerminalPage(c){
+  var h='<div class="os-page active"><div class="os-page-header"><h1>Terminal</h1><p>Hermes CLI — run commands directly</p></div>';
+  h+='<div class="terminal-wrap" id="cliTerminal">';
+  h+='<div class="terminal-header">';
+  h+='<span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span>';
+  h+='<span class="terminal-title">hermes — bash — 80x24</span>';
+  h+='</div>';
+  h+='<div class="terminal-body" id="termBody">';
+  h+='<div class="term-line"><span class="term-output term-info">Hermes CLI v3.1 — Type "help" for available commands.</span></div>';
+  h+='<div class="term-line"><span class="term-output term-info">Connected to: '+(S&&S.projects&&S.projects[0]?S.projects[0].name:'No project selected')+'</span></div>';
+  h+='</div>';
+  h+='<div class="terminal-input-area">';
+  h+='<span class="term-prompt">hermes&gt;</span>';
+  h+='<input type="text" class="terminal-input" id="cliInput" placeholder="Enter command..." autocomplete="off" spellcheck="false">';
+  h+='</div>';
+  h+='<div class="terminal-status-bar">';
+  h+='<span id="cliStatus">Ready</span>';
+  h+='<span>Hermes Dashboard v3.1</span>';
+  h+='</div>';
+  h+='</div>';
+  h+='<div class="term-hint">Quick commands: <strong>help</strong> · <strong>status</strong> · <strong>agents</strong> · <strong>run [task]</strong> · <strong>projects</strong> · <strong>clear</strong></div>';
+  h+='</div>';
+  c.innerHTML=h;
+
+  // Focus input
+  var inp=document.getElementById('cliInput');
+  if(inp)inp.focus();
+
+  // Command history
+  var cmdHistory=[];
+  var historyIdx=-1;
+
+  // Handle Enter key
+  if(inp){
+    inp.addEventListener('keydown',function(e){
+      if(e.key==='Enter'){
+        var cmd=inp.value.trim();
+        if(cmd){
+          cmdHistory.push(cmd);
+          historyIdx=cmdHistory.length;
+          executeCliCommand(cmd);
+        }
+        inp.value='';
+      } else if(e.key==='ArrowUp'){
+        e.preventDefault();
+        if(historyIdx>0){historyIdx--;inp.value=cmdHistory[historyIdx]||'';}
+      } else if(e.key==='ArrowDown'){
+        e.preventDefault();
+        if(historyIdx<cmdHistory.length-1){historyIdx++;inp.value=cmdHistory[historyIdx]||'';}
+        else{historyIdx=cmdHistory.length;inp.value='';}
+      }
+    });
+  }
+
+  // Click on terminal to focus input
+  var termBody=document.getElementById('termBody');
+  if(termBody){
+    termBody.addEventListener('click',function(){
+      if(inp)inp.focus();
+    });
+  }
+
+  function executeCliCommand(cmd){
+    var body=document.getElementById('termBody');
+    var status=document.getElementById('cliStatus');
+    if(!body)return;
+
+    // Echo command
+    var echoLine=document.createElement('div');
+    echoLine.className='term-line';
+    echoLine.innerHTML='<span class="term-prompt">hermes&gt;</span><span style="color:#c9d1d9">'+cmd+'</span>';
+    body.appendChild(echoLine);
+
+    var parts=cmd.toLowerCase().split(/\s+/);
+    var command=parts[0];
+    var args=parts.slice(1).join(' ');
+
+    if(command==='help'){
+      printOutput('Available commands:','info');
+      printOutput('  help          Show this help','info');
+      printOutput('  status        Show dashboard status','info');
+      printOutput('  agents        List all agents','info');
+      printOutput('  projects      List all projects','info');
+      printOutput('  run [task]    Run a task through the dispatcher','info');
+      printOutput('  clear         Clear terminal','info');
+      if(status)status.textContent='Help displayed';
+    }
+    else if(command==='clear'){
+      body.innerHTML='';
+      if(status)status.textContent='Cleared';
+    }
+    else if(command==='status'){
+      var S2=window.S||{};
+      printOutput('Dashboard Status:','info');
+      printOutput('  Projects: '+(S2.projects?S2.projects.length:0),'success');
+      printOutput('  Agents: '+(S2.agentConfigs?S2.agentConfigs.length:0),'success');
+      printOutput('  Workflows: '+(S2.workflows?S2.workflows.length:0),'success');
+      if(status)status.textContent='Status displayed';
+    }
+    else if(command==='agents'){
+      var S2=window.S||{};
+      if(S2.agentConfigs&&S2.agentConfigs.length){
+        S2.agentConfigs.forEach(function(a){
+          printOutput('  '+a.id+' — '+(a.model||'default')+' ['+(a.role||'worker')+']',a.status==='idle'?'success':'warn');
+        });
+      } else {
+        printOutput('  No agents configured.','warn');
+      }
+      if(status)status.textContent='Agents listed';
+    }
+    else if(command==='projects'){
+      var S2=window.S||{};
+      if(S2.projects&&S2.projects.length){
+        S2.projects.forEach(function(p){
+          printOutput('  '+p.id+' — '+p.name+' ('+(p.agents?p.agents.length:0)+' agents)','info');
+        });
+      } else {
+        printOutput('  No projects.','warn');
+      }
+      if(status)status.textContent='Projects listed';
+    }
+    else if(command==='run'){
+      if(!args){printOutput('Usage: run [task description]','error');return;}
+      printOutput('Dispatching task: '+args,'info');
+      printOutput('  → Task queued for dispatcher.','success');
+      if(status)status.textContent='Task dispatched';
+    }
+    else{
+      printOutput('Unknown command: '+command+'. Type "help" for available commands.','error');
+      if(status)status.textContent='Error: unknown command';
+    }
+
+    // Auto-scroll
+    body.scrollTop=body.scrollHeight;
+  }
+
+  function printOutput(text,type){
+    var body=document.getElementById('termBody');
+    if(!body)return;
+    var line=document.createElement('div');
+    line.className='term-line';
+    var cls='term-output';
+    if(type==='success')cls='term-output term-success';
+    else if(type==='error')cls='term-output term-error';
+    else if(type==='warn')cls='term-output term-warn';
+    else if(type==='info')cls='term-output term-info';
+    line.innerHTML='<span class="'+cls+'">'+text+'</span>';
+    body.appendChild(line);
+    body.scrollTop=body.scrollHeight;
+  }
+}
+
+// ═══ IDEAS PAGE ═══
+function renderIdeasPage(c){
+  // Compute stats
+  var totalIdeas=S.ideas.length;
+  var acceptedIdeas=S.ideas.filter(function(i){return i.status==='accepted';}).length;
+  var totalMonthly=S.ideas.reduce(function(sum,i){
+    if(i.revenue&&i.revenue.type==='monthly'&&i.status!=='rejected')return sum+(i.revenue.amount||0);
+    return sum;
+  },0);
+  var highPriority=S.ideas.filter(function(i){return i.priority==='high'&&i.status!=='rejected'&&i.status!=='accepted';}).length;
+
+  var h='<div class="os-page active"><div class="os-page-header"><h1>💡 Ideas</h1><p>Income ideas from research agents</p></div>';
+
+  // Stats bar
+  h+='<div class="idea-stats-bar">';
+  h+='<div class="idea-stat"><div class="idea-stat-val">'+totalIdeas+'</div><div class="idea-stat-label">Total</div></div>';
+  h+='<div class="idea-stat"><div class="idea-stat-val" style="color:var(--success)">'+acceptedIdeas+'</div><div class="idea-stat-label">Accepted</div></div>';
+  h+='<div class="idea-stat"><div class="idea-stat-val" style="color:var(--cyan)">$'+totalMonthly.toLocaleString()+'/mo</div><div class="idea-stat-label">Potential</div></div>';
+  h+='<div class="idea-stat"><div class="idea-stat-val" style="color:var(--rose)">'+highPriority+'</div><div class="idea-stat-label">High Priority</div></div>';
+  h+='</div>';
+
+  // Toolbar
+  h+='<div style="margin-bottom:12px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">';
+  h+='<button class="cbtn primary idea-research-btn" id="ideaResearchBtn" onclick="researchNewIdea()"><span class="spinner"></span>🔬 Research Idea</button>';
+  h+='<button class="cbtn" onclick="showNewIdeaModal()">+ New Idea</button>';
+  h+='<select id="ideaFilter" onchange="renderIdeasPage($(\'osPane\'))" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:4px;font-size:10px"><option value="all">All Status</option><option value="new">New</option><option value="reviewed">Reviewed</option><option value="accepted">Accepted</option><option value="rejected">Rejected</option></select>';
+  h+='<select id="ideaCatFilter" onchange="renderIdeasPage($(\'osPane\'))" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:4px;font-size:10px"><option value="all">All Categories</option><option value="saas">SaaS</option><option value="service">Service</option><option value="content">Content</option><option value="product">Product</option><option value="tool">Tool</option><option value="other">Other</option></select>';
+  h+='<select id="ideaSort" onchange="renderIdeasPage($(\'osPane\'))" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:4px;font-size:10px"><option value="votes">Sort: Votes</option><option value="date">Sort: Newest</option><option value="priority">Sort: Priority</option><option value="revenue">Sort: Revenue</option></select>';
+  h+='</div>';
+
+  // Filters
+  var filter=document.getElementById('ideaFilter');
+  var catFilter=document.getElementById('ideaCatFilter');
+  var sortBy=document.getElementById('ideaSort');
+  var flt=filter?filter.value:'all';
+  var catFlt=catFilter?catFilter.value:'all';
+  var sort=sortBy?sortBy.value:'votes';
+
+  var ideas=S.ideas.slice();
+  if(flt!=='all')ideas=ideas.filter(function(i){return i.status===flt;});
+  if(catFlt!=='all')ideas=ideas.filter(function(i){return i.category===catFlt;});
+
+  // Sort
+  if(sort==='votes')ideas.sort(function(a,b){return(b.votes||0)-(a.votes||0);});
+  else if(sort==='date')ideas.sort(function(a,b){return b.created-a.created;});
+  else if(sort==='priority'){var p={high:3,medium:2,low:1};ideas.sort(function(a,b){return(p[b.priority]||0)-(p[a.priority]||0);});}
+  else if(sort==='revenue')ideas.sort(function(a,b){return(b.revenue&&b.revenue.amount||0)-(a.revenue&&a.revenue.amount||0);});
+
+  if(ideas.length===0)h+='<div style="text-align:center;padding:30px;color:var(--text-muted);font-size:11px">No ideas yet. Click "Research Idea" to have an agent suggest one.</div>';
+
+  ideas.forEach(function(idea){
+    var statusColor=idea.status==='new'?'var(--cyan)':idea.status==='accepted'?'var(--success)':idea.status==='rejected'?'var(--rose)':'var(--amber)';
+    var catClass='cat-'+(idea.category||'other');
+    var catLabel=(idea.category||'other').charAt(0).toUpperCase()+(idea.category||'other').slice(1);
+    var priorityDot=idea.priority?'<span class="idea-priority '+(idea.priority||'low')+'"></span>':'';
+    var revenueHtml='';
+    if(idea.revenue){
+      revenueHtml='<span class="idea-revenue">💰 $'+idea.revenue.amount.toLocaleString()+' '+idea.revenue.unit+'</span>';
+    }
+
+    h+='<div class="os-card idea-card" style="border-left:3px solid '+statusColor+'">';
+    h+='<div class="idea-title-row">';
+    h+='<div style="flex:1"><div class="idea-title">'+priorityDot+idea.title+'</div>';
+    if(idea.description)h+='<div class="idea-desc">'+idea.description+'</div>';
+    h+='<div class="idea-meta">';
+    h+='<span class="os-tag" style="font-size:7px;background:'+statusColor+'22;color:'+statusColor+'">'+idea.status.toUpperCase()+'</span>';
+    h+='<span class="cat-badge '+catClass+'">'+catLabel+'</span>';
+    if(revenueHtml)h+=revenueHtml;
+    h+='<span style="font-size:9px;color:var(--text-dim)">🔬 '+idea.source+'</span>';
+    h+='<span style="font-size:9px;color:var(--text-dim)">'+new Date(idea.created).toLocaleDateString()+'</span>';
+    h+='</div></div>';
+    h+='<div class="idea-actions">';
+    h+='<div class="idea-vote"><button class="cbtn idea-vote-btn" onclick="voteIdea(\''+idea.id+'\',1)">▲</button><span>'+(idea.votes||0)+'</span>';
+    h+='<button class="cbtn idea-vote-btn" onclick="voteIdea(\''+idea.id+'\',-1)">▼</button></div>';
+    h+='<div class="idea-status-btns">';
+    h+='<button class="cbtn idea-status-btn" onclick="setIdeaStatus(\''+idea.id+'\',\'accepted\')">✓</button>';
+    h+='<button class="cbtn idea-status-btn" onclick="setIdeaStatus(\''+idea.id+'\',\'rejected\')">✗</button>';
+    h+='</div></div></div></div>';
+  });
+  h+='</div>';c.innerHTML=h;
+  updateCounts();
+}
+
+// ═══ AGENT RESEARCH: AUTO-GENERATE IDEA ═══
+var _researchIdeas=[
+  {title:"AI Chatbot for Small Businesses",description:"Deploy pre-trained chatbot agents for SMB customer support. Handle FAQs, booking, and lead qualification. Low overhead, high margins.",category:"saas",priority:"high",revenue:{type:"monthly",amount:299,unit:"$/mo per client"}},
+  {title:"Automated Social Media Scheduler",description:"Research + Writer agents create and schedule social media content. Multi-platform support. 10x faster than manual posting.",category:"saas",priority:"medium",revenue:{type:"monthly",amount:49,unit:"$/mo per account"}},
+  {title:"AI-Powered Resume Builder",description:"Writer + Designer agents generate tailored resumes and cover letters. ATS-optimized. Freemium model with premium templates.",category:"tool",priority:"high",revenue:{type:"monthly",amount:19,unit:"$/mo per user"}},
+  {title:"Market Research Reports",description:"Research + Analyst agents produce industry reports for investors and startups. Weekly or monthly subscriptions.",category:"content",priority:"medium",revenue:{type:"monthly",amount:199,unit:"$/mo per subscriber"}},
+  {title:"AI Email Assistant",description:"Writer agent drafts, prioritizes, and schedules emails. Learns user style over time. Gmail/Outlook plugin.",category:"tool",priority:"high",revenue:{type:"monthly",amount:15,unit:"$/mo per user"}},
+  {title:"Automated Bookkeeping",description:"Data Agent categorizes transactions, generates invoices, and produces financial reports for small businesses.",category:"saas",priority:"medium",revenue:{type:"monthly",amount:99,unit:"$/mo per business"}},
+  {title:"AI Tutor Platform",description:"Research + Writer agents create personalized lesson plans and practice exercises. Adaptive learning paths.",category:"saas",priority:"high",revenue:{type:"monthly",amount:29,unit:"$/mo per student"}},
+  {title:"Podcast Show Notes Generator",description:"Video Agent transcribes episodes, Writer agent creates summaries, timestamps, and social clips.",category:"tool",priority:"low",revenue:{type:"monthly",amount:25,unit:"$/mo per podcast"}},
+  {title:"AI Legal Document Review",description:"Reviewer + Analyst agents scan contracts for risks, inconsistencies, and missing clauses. Lawyer-assisted.",category:"service",priority:"high",revenue:{type:"one-time",amount:500,unit:"$50-500/doc"}},
+  {title:"Inventory Forecasting Tool",description:"Data Agent + Analyst predict demand, optimize reorder points, and reduce waste for e-commerce stores.",category:"saas",priority:"medium",revenue:{type:"monthly",amount:149,unit:"$/mo per store"}},
+  {title:"AI Voiceover Studio",description:"Composer agent generates natural-sounding voiceovers for videos, ads, and e-learning. Multiple voices and languages.",category:"tool",priority:"medium",revenue:{type:"monthly",amount:39,unit:"$/mo per user"}},
+  {title:"Competitor Monitoring Service",description:"Research Agent tracks competitor pricing, features, and marketing. Weekly digest with actionable insights.",category:"service",priority:"high",revenue:{type:"monthly",amount:199,unit:"$/mo per client"}},
+  {title:"AI-Powered Job Board Scraper",description:"Research Agent finds matching job postings, Writer Agent tailors applications. Saves hours per week.",category:"tool",priority:"low",revenue:{type:"monthly",amount:29,unit:"$/mo per user"}},
+  {title:"Custom API Integration Service",description:"DevOps + Codex agents build and maintain API integrations for businesses. Zapier alternative with AI.",category:"service",priority:"high",revenue:{type:"one-time",amount:2000,unit:"$500-5000/project"}},
+  {title:"AI Meeting Summarizer",description:"Video Agent transcribes meetings, Analyst Agent extracts action items and decisions. Integrates with Zoom/Meet.",category:"saas",priority:"medium",revenue:{type:"monthly",amount:12,unit:"$/mo per user"}}
+];
+
+function researchNewIdea(){
+  var btn=document.getElementById('ideaResearchBtn');
+  if(!btn)return;
+  btn.classList.add('loading');
+  btn.disabled=true;
+
+  // Simulate agent research delay
+  setTimeout(function(){
+    // Pick a random idea template
+    var template=_researchIdeas[Math.floor(Math.random()*_researchIdeas.length)];
+    // Pick a random research agent
+    var researchAgents=S.agentConfigs.filter(function(a){return a.role==='research';});
+    var agent=researchAgents.length>0?researchAgents[Math.floor(Math.random()*researchAgents.length)]:{name:'Research Agent'};
+
+    var newIdea={
+      id:'i'+Date.now(),
+      title:template.title,
+      description:template.description,
+      source:agent.name,
+      status:'new',
+      votes:0,
+      category:template.category,
+      priority:template.priority,
+      revenue:template.revenue,
+      created:Date.now()
+    };
+
+    S.ideas.unshift(newIdea);
+    saveIdeas();
+    renderIdeasPage($('osPane'));
+    toast('💡 New idea from '+agent.name+': '+template.title,'ok');
+
+    btn.classList.remove('loading');
+    btn.disabled=false;
+  },1500+Math.random()*1000);
+}
+
+function showNewIdeaModal(){
+  var formHtml='<div style="display:flex;flex-direction:column;gap:8px">';
+  formHtml+='<input type="text" id="newIdeaTitle" placeholder="Idea title" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:4px;font-size:12px;outline:none">';
+  formHtml+='<textarea id="newIdeaDesc" placeholder="Description..." rows="3" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:4px;font-size:11px;outline:none;resize:vertical"></textarea>';
+  formHtml+='<div style="display:flex;gap:6px">';
+  formHtml+='<select id="newIdeaCat" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:4px;font-size:10px;flex:1"><option value="saas">SaaS</option><option value="service">Service</option><option value="content">Content</option><option value="product">Product</option><option value="tool">Tool</option><option value="other">Other</option></select>';
+  formHtml+='<select id="newIdeaPriority" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:4px;font-size:10px"><option value="high">High Priority</option><option value="medium" selected>Medium</option><option value="low">Low</option></select>';
+  formHtml+='</div>';
+  formHtml+='<div style="display:flex;gap:6px;align-items:center">';
+  formHtml+='<span style="font-size:10px;color:var(--text-dim)">Revenue:</span>';
+  formHtml+='<input type="number" id="newIdeaRevenue" placeholder="Amount" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:4px;font-size:10px;width:80px">';
+  formHtml+='<select id="newIdeaRevType" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:4px;font-size:10px"><option value="monthly">/mo</option><option value="one-time">one-time</option></select>';
+  formHtml+='<input type="text" id="newIdeaRevUnit" placeholder="per client" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:4px;font-size:10px;flex:1">';
+  formHtml+='</div>';
+  formHtml+='</div>';
+
+  // Use a custom modal approach
+  var modal=document.createElement('div');
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:900;display:flex;align-items:center;justify-content:center';
+  modal.innerHTML='<div style="background:var(--bg-panel);border:1px solid var(--border);border-radius:8px;padding:16px;width:420px;max-width:90vw;box-shadow:0 16px 48px rgba(0,0,0,.4)"><h3 style="font-size:13px;margin-bottom:10px">+ New Idea</h3>'+formHtml+'<div style="display:flex;gap:6px;justify-content:flex-end;margin-top:10px"><button class="cbtn" id="newIdeaCancel">Cancel</button><button class="cbtn primary" id="newIdeaSubmit">Create</button></div></div>';
+  document.body.appendChild(modal);
+  document.getElementById('newIdeaCancel').addEventListener('click',function(){modal.remove();});
+  document.getElementById('newIdeaSubmit').addEventListener('click',function(){submitNewIdea();modal.remove();});
+}
+
+function submitNewIdea(){
+  var title=document.getElementById('newIdeaTitle').value.trim();
+  if(!title)return;
+  var desc=document.getElementById('newIdeaDesc').value.trim();
+  var cat=document.getElementById('newIdeaCat').value;
+  var priority=document.getElementById('newIdeaPriority').value;
+  var revAmount=parseInt(document.getElementById('newIdeaRevenue').value)||0;
+  var revType=document.getElementById('newIdeaRevType').value;
+  var revUnit=document.getElementById('newIdeaRevUnit').value.trim();
+
+  var idea={
+    id:'i'+Date.now(),
+    title:title,
+    description:desc,
+    source:'Manual',
+    status:'new',
+    votes:0,
+    category:cat,
+    priority:priority,
+    created:Date.now()
+  };
+  if(revAmount>0){
+    idea.revenue={type:revType,amount:revAmount,unit:revUnit};
+  }
+
+  S.ideas.unshift(idea);
+  saveIdeas();
+  renderIdeasPage($('osPane'));
+  toast('Idea added','ok');
+}
+
+function voteIdea(id,delta){
+  var idea=S.ideas.find(function(i){return i.id===id;});
+  if(idea){idea.votes=(idea.votes||0)+delta;saveIdeas();renderIdeasPage($('osPane'));}
+}
+function setIdeaStatus(id,status){
+  var idea=S.ideas.find(function(i){return i.id===id;});
+  if(idea){idea.status=status;saveIdeas();renderIdeasPage($('osPane'));}
+}
+
+function renderPlannerPage(c){c.innerHTML='<div class="os-page active"><div class="os-page-header"><h1>Task Planner</h1></div><div class="os-card"><p style="color:var(--text-muted);font-size:11px;text-align:center;padding:20px">Select a goal to view its decomposition.</p></div></div>';}
+function renderRoutingPage(c){c.innerHTML='<div class="os-page active"><div class="os-page-header"><h1>Agent Routing</h1></div><div class="os-card"><table class="os-table"><tr><th>Condition</th><th>Agent</th></tr><tr><td>Complex reasoning</td><td>Hermes Main</td></tr><tr><td>Bulk text/files</td><td>Flash Agent</td></tr><tr><td>Vision/media</td><td>Video Agent</td></tr></table></div></div>';}
+function renderExceptionsPage(c){c.innerHTML='<div class="os-page active"><div class="os-page-header"><h1>Exceptions</h1></div><div class="os-card" style="border-left:3px solid var(--warn)"><div style="font-weight:700;font-size:12px;margin-bottom:3px">No Active Exceptions</div><div style="font-size:10px;color:var(--text-muted)">All systems running normally.</div></div></div>';}
+function renderShortTermPage(c){
+  var h='<div class="os-page active"><div class="os-page-header"><h1>Short-Term Context</h1></div>';
+  h+='<div class="os-card"><table class="os-table"><tr><th>Key</th><th>Value</th></tr>';
+  h+='<tr><td>current_task</td><td>'+(S.activeTaskId||'-')+'</td></tr>';
+  h+='<tr><td>active_project</td><td>'+(S.curProj||'-')+'</td></tr>';
+  h+='<tr><td>open_projects</td><td>'+(S.openProjs||[]).length+'</td></tr>';
+  h+='<tr><td>workspace</td><td>William\'s Projects</td></tr>';
+  h+='</table></div>';
+  // Show recent session info if available
+  h+='<div class="os-card" style="margin-top:8px"><div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);margin-bottom:8px">Active Sessions</div>';
+  h+='<div style="font-size:11px;color:var(--text-dim)">Sessions are managed through the Hermes gateway. Use the TUI or web dashboard to interact.</div>';
+  h+='</div></div>';
+  c.innerHTML=h;
+}
+function renderLongTermPage(c){
+  var h='<div class="os-page active"><div class="os-page-header"><h1>Long-Term Memory</h1></div>';
+  // Scan project memory from S.projects
+  h+='<div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">';
+  h+='<button class="cbtn" onclick="refreshMemory()" style="font-size:10px">Refresh</button>';
+  h+='<button class="cbtn" onclick="exportMemory()" style="font-size:10px">Export</button>';
+  h+='</div>';
+  // Show memory facts from all projects
+  h+='<div class="os-card"><table class="os-table"><tr><th>Project</th><th>Memory Facts</th></tr>';
+  if(S.projects && S.projects.length){
+    S.projects.forEach(function(p){
+      var mem = p.memory || p.desc || 'No memory stored';
+      h+='<tr><td style="font-weight:600;white-space:nowrap">'+p.name+'</td><td style="font-size:11px;color:var(--text-dim)">'+mem+'</td></tr>';
+    });
+  } else {
+    h+='<tr><td colspan="2" style="color:var(--text-muted);text-align:center">No projects loaded</td></tr>';
+  }
+  h+='</table></div>';
+  // Global memory facts
+  h+='<div class="os-card" style="margin-top:8px"><div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);margin-bottom:8px">Global Memory</div>';
+  h+='<table class="os-table"><tr><th>Fact</th><th>Source</th></tr>';
+  h+='<tr><td>FX chain: parallel sends NOT serial</td><td>Eloquenta</td></tr>';
+  h+='<tr><td>GitHub: no push without explicit request</td><td>Global</td></tr>';
+  h+='<tr><td>Seedream 4.5: $0.04/image for art</td><td>RESONANCE</td></tr>';
+  h+='<tr><td>Gemma 3 27B: free on OpenRouter</td><td>Global</td></tr>';
+  h+='<tr><td>PayFast merchant: WTE payments</td><td>WTE</td></tr>';
+  h+='</table></div></div>';
+  c.innerHTML=h;
+}
+function renderKnowledgePage(c){
+  var h='<div class="os-page active"><div class="os-page-header"><h1>Knowledge Graph</h1></div>';
+  h+='<div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">';
+  h+='<input type="text" id="memSearch" placeholder="Search memory... (Ctrl+F)" style="flex:1;background:var(--bg-card);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:11px;outline:none">';
+  h+='</div>';
+  // Project knowledge
+  h+='<div id="memSearchResults">';
+  S.projects.forEach(function(p){
+    h+='<div class="os-card mem-item" style="margin-bottom:6px" data-mem-search="'+p.name.toLowerCase()+'">';
+    h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">';
+    h+='<div style="width:8px;height:8px;border-radius:50%;background:'+p.color+'"></div>';
+    h+='<span style="font-weight:600;font-size:12px">'+p.name+'</span>';
+    h+='<span class="os-tag" style="font-size:7px;background:'+p.color+'22;color:'+p.color+'">'+p.status+'</span>';
+    h+='</div>';
+    h+='<div style="font-size:11px;color:var(--text-dim)">'+(p.desc||'No description')+'</div>';
+    if(p.url) h+='<div style="font-size:10px;color:var(--cyan);margin-top:4px;word-break:break-all">'+p.url+'</div>';
+    h+='</div>';
+  });
+  h+='</div></div>';
+  c.innerHTML=h;
+  // Add search listener
+  var searchInput=document.getElementById('memSearch');
+  if(searchInput){
+    searchInput.addEventListener('input',function(){
+      var q=this.value.toLowerCase();
+      document.querySelectorAll('.mem-item').forEach(function(el){
+        var text=el.dataset.memSearch||'';
+        el.style.display=text.indexOf(q)>=0?'block':'none';
+      });
+    });
+  }
+}
+function renderModelsPage(c){
+  var h='<div class="os-page active"><div class="os-page-header"><h1>Models & Routing</h1></div>';
+  // Current active model
+  h+='<div class="os-card" style="margin-bottom:12px"><div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);margin-bottom:6px">Active Configuration</div>';
+  h+='<div style="display:flex;align-items:center;gap:8px">';
+  h+='<div style="width:8px;height:8px;border-radius:50%;background:var(--success);box-shadow:0 0 6px var(--success)"></div>';
+  h+='<span style="font-weight:600;font-size:13px">openrouter/owl-alpha</span>';
+  h+='<span class="os-tag os-tag-green" style="font-size:7px">ACTIVE</span>';
+  h+='</div>';
+  h+='<div style="font-size:10px;color:var(--text-dim);margin-top:6px">Provider: OpenRouter · Fallback: GPT-4o-mini, Llama-4-Maverick</div>';
+  h+='</div>';
+  // Model grid from agent configs
+  h+='<div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);margin-bottom:6px">Configured Agent Models</div>';
+  h+='<div class="os-grid-3">';
+  var modelCounts={};
+  S.agentConfigs.forEach(function(ag){
+    var m=ag.model.split('/').pop();
+    modelCounts[m]=(modelCounts[m]||0)+1;
+  });
+  for(var model in modelCounts){
+    var cost=model.indexOf('flash')>=0||model.indexOf('free')>=0?'FREE':'Paid';
+    var color=cost==='FREE'?'var(--success)':'var(--rose)';
+    h+='<div class="os-card" style="text-align:center">';
+    h+='<div style="font-weight:600;font-size:11px">'+model+'</div>';
+    h+='<div class="os-tag" style="margin-top:3px;background:'+color+'22;color:'+color+'">'+cost+'</div>';
+    h+='<div style="font-size:9px;color:var(--text-muted);margin-top:4px">'+modelCounts[model]+' agent(s)</div>';
+    h+='</div>';
+  }
+  h+='</div>';
+  // Cost tracking
+  h+='<div class="os-card" style="margin-top:12px"><div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);margin-bottom:6px">Cost Settings</div>';
+  h+='<table class="os-table"><tr><th>Setting</th><th>Value</th></tr>';
+  h+='<tr><td>Max tokens (main)</td><td>8000</td></tr>';
+  h+='<tr><td>Max calls (main)</td><td>100</td></tr>';
+  h+='<tr><td>Budget</td><td>$5.00</td></tr>';
+  h+='<tr><td>Service tier</td><td>Default</td></tr>';
+  h+='</table></div></div>';
+  c.innerHTML=h;
+}
+function renderCostPage(c){
+  var h='<div class="os-page active"><div class="os-page-header"><h1>Cost Tracking</h1></div>';
+  h+='<div class="os-card" style="margin-bottom:12px"><div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);margin-bottom:6px">Agent Budgets</div>';
+  h+='<table class="os-table"><tr><th>Agent</th><th>Model</th><th>Budget</th><th>Max Calls</th></tr>';
+  S.agentConfigs.forEach(function(ag){
+    h+='<tr><td>'+ag.name+'</td><td style="font-size:10px">'+ag.model+'</td><td>$'+ag.limits.budget.toFixed(2)+'</td><td>'+ag.limits.maxCalls+'</td></tr>';
+  });
+  h+='</table></div>';
+  h+='<div class="os-card"><div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);margin-bottom:6px">Provider API Keys</div>';
+  h+='<table class="os-table"><tr><th>Provider</th><th>Status</th></tr>';
+  h+='<tr><td>OpenRouter</td><td><span class="os-tag os-tag-green" style="font-size:7px">Active</span></td></tr>';
+  h+='<tr><td>Google Gemini</td><td><span class="os-tag os-tag-green" style="font-size:7px">Free Tier</span></td></tr>';
+  h+='</table></div></div>';
+  c.innerHTML=h;
+}
+
+function renderHelpPage(c){
+  var h='<div class="os-page active"><div class="os-page-header"><h1>Help & Documentation</h1></div>';
+  h+='<div class="os-card"><div style="font-weight:600;font-size:13px;margin-bottom:8px">Hermes Dashboard v3.1</div>';
+  h+='<p style="font-size:11px;color:var(--text-dim);line-height:1.6;margin-bottom:12px">This dashboard manages your Hermes Agent workspace. Use the sidebar to navigate between sections.</p>';
+  h+='<div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);margin-bottom:6px">Quick Actions</div>';
+  h+='<table class="os-table"><tr><th>Action</th><th>Description</th></tr>';
+  h+='<tr><td>Ctrl+F</td><td>Search across projects and memory</td></tr>';
+  h+='<tr><td>Refresh Memory</td><td>Reload project data from localStorage</td></tr>';
+  h+='<tr><td>Export All</td><td>Download all data as JSON backup</td></tr>';
+  h+='</table></div>';
+  h+='<div class="os-card" style="margin-top:8px"><div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);margin-bottom:6px">Links</div>';
+  h+='<div style="display:flex;gap:6px;flex-wrap:wrap">';
+  h+='<a href="https://hermes-agent.nousresearch.com/docs" target="_blank" class="cbtn" style="font-size:10px">Hermes Docs</a>';
+  h+='<a href="https://github.com/NousResearch/hermes-agent" target="_blank" class="cbtn" style="font-size:10px">GitHub</a>';
+  h+='<a href="https://williamthomason.github.io/ESL-Edutech/" target="_blank" class="cbtn" style="font-size:10px">Live Site</a>';
+  h+='</div></div></div>';
+  c.innerHTML=h;
+}
+
+function switchAgentProject(id){S.curAgentProj=id;renderAgentsPage($('osPane'));}
+function updateAgentModel(id,model){var a=S.agentConfigs.find(function(x){return x.id===id;});if(a){a.model=model;saveAgentConfigs();toast('Model updated','ok');}}
+function updateAgentLimit(id,key,val){var a=S.agentConfigs.find(function(x){return x.id===id;});if(a){a.limits=a.limits||{};a.limits[key]=parseFloat(val)||0;saveAgentConfigs();}}
+function runWorkflow(wfId,c){
+  var wf=S.workflows.find(function(w){return w.id===wfId;});if(!wf)return;
+  var proj=S.projects.find(function(p){return p.id===wf.projectId;});
+  if(!proj){toast('No project assigned','err');return;}
+  var runId='pipe-'+wfId+'-'+Date.now();
+  wf.stages.forEach(function(st,idx){
+    var card={id:'t-'+runId+'-'+idx,title:wf.name+' - '+st.name,priority:idx===0?'high':'medium',assignee:st.agentId||null,pipeline_type:st.name.toLowerCase(),pipeline_id:wfId,pipeline_status:'pending',created_at:new Date().toISOString()};
+    var col=st.kanbanCol||'todo';if(!proj.kanban[col])proj.kanban[col]=[];proj.kanban[col].push(card);
+  });
+  if(wf.status==='draft')wf.status='active';
+  saveProjects();saveWorkflows();
+  if(c)renderWorkflowsPage(c);renderTree();
+  toast('Pipeline started: '+wf.name,'ok');
+}
+function deleteWorkflow(wfId,c){S.workflows=S.workflows.filter(function(w){return w.id!==wfId;});saveWorkflows();if(c)renderWorkflowsPage(c);toast('Deleted','info');}
+
+// ═══ TREE / RIGHT BAR ═══
+function renderTree(){
+  var nav=$('projExplorer');if(!nav)return;
+  var h='';
+  S.projects.forEach(function(proj){
+    var isOpen=S.openProjs&&S.openProjs.indexOf(proj.id)>=0;
+    h+='<div class="os-nav-section">';
+    h+='<div class="os-nav-section-title" style="cursor:pointer" onclick="toggleProjTree(\''+proj.id+'\')">';
+    h+='<span style="font-size:8px;margin-right:4px">'+(isOpen?'&#9660;':'&#9656;')+'</span>';
+    h+='<span style="color:'+proj.color+'">&#x25CF;</span> '+proj.name+'</div>';
+    if(isOpen){
+      h+='<div class="os-tree">';
+      ['todo','doing','review','done'].forEach(function(stage){
+        var tasks=(proj.kanban&&proj.kanban[stage])||[];
+        if(tasks.length>0){
+          h+='<div class="os-tree-group-title">'+stage+' ('+tasks.length+')</div>';
+          tasks.forEach(function(t){
+            h+='<div class="os-tree-item" onclick="openProject(\''+proj.id+'\',\''+t.title.replace(/'/g,"\\'")+'\')"><span class="os-tree-icon">&#x25A0;</span><span class="os-tree-label">'+t.title+'</span></div>';
+          });
+        }
+      });
+      if(proj.agents&&proj.agents.length>0){
+        h+='<div class="os-tree-group-title">agents ('+proj.agents.length+')</div>';
+        proj.agents.forEach(function(aid){
+          var ag=getAgentById(aid);if(!ag)return;
+          h+='<div class="os-tree-item" onclick="openProject(\''+proj.id+'\',null,\''+aid+'\')"><span class="os-tree-icon" style="color:'+ag.color+'">&#x25CF;</span><span class="os-tree-label">'+ag.name+'</span><span class="os-tree-role">'+ag.role+'</span></div>';
+        });
+      }
+      h+='</div>';
+    }
+    h+='</div>';
+  });
+  nav.innerHTML=h;
+}
+
+function toggleProjTree(pid){
+  if(!S.openProjs)S.openProjs=[];
+  var idx=S.openProjs.indexOf(pid);
+  if(idx>=0)S.openProjs.splice(idx,1);else S.openProjs.push(pid);
+  renderTree();
+}
+
+function renderRC(){
+  var rc=$('rc');if(!rc)return;
+  var tab=S.sTab||'team';
+  if(tab==='team')renderTeamTab(rc);
+  else if(tab==='plans')renderPlansTab(rc);
+  else renderTimetableTab(rc);
+}
+
+function renderTeamTab(rc){
+  var h='<div style="font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Projects</div>';
+  S.projects.forEach(function(proj){
+    var total=0,done=0;
+    ['todo','doing','review','done'].forEach(function(s){var t=proj.kanban[s]||[];total+=t.length;if(s==='done')done+=t.length;});
+    var pct=total>0?Math.round(done/total*100):0;
+    h+='<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden;cursor:pointer;transition:all .15s" onclick="openProject(\''+proj.id+'\')">';
+    if(proj.img){
+      h+='<div style="height:70px;background:linear-gradient(135deg,'+proj.color+'33,'+proj.color+'11);position:relative;overflow:hidden">';
+      h+='<img src="'+proj.img+'" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\'">';
+      h+='<div style="position:absolute;bottom:0;left:0;right:0;height:30px;background:linear-gradient(to bottom,transparent,var(--bg-card))"></div></div>';
+    }
+    h+='<div style="padding:8px">';
+    h+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">';
+    h+='<div style="width:7px;height:7px;border-radius:50%;background:'+proj.color+'"></div>';
+    h+='<div style="font-size:12px;font-weight:700;flex:1">'+proj.name+'</div>';
+    h+='<span style="font-size:8px;padding:1px 5px;border-radius:6px;background:'+proj.color+'22;color:'+proj.color+'">'+proj.status+'</span></div>';
+    if(proj.desc)h+='<div style="font-size:10px;color:var(--text-dim);margin-bottom:6px;line-height:1.3">'+proj.desc+'</div>';
+    h+='<div style="display:flex;align-items:center;gap:6px">';
+    h+='<div style="flex:1;height:4px;background:var(--bg);border-radius:2px;overflow:hidden"><div style="width:'+pct+'%;height:100%;background:'+proj.color+';border-radius:2px"></div></div>';
+    h+='<span style="font-size:9px;color:var(--text-dim)">'+done+'/'+total+'</span></div>';
+    if(proj.agents&&proj.agents.length>0){
+      h+='<div style="display:flex;gap:3px;margin-top:6px;flex-wrap:wrap">';
+      proj.agents.slice(0,7).forEach(function(aid){
+        var ag=getAgentById(aid);
+        if(ag)h+='<div style="width:18px;height:18px;border-radius:4px;background:'+ag.color+'33;color:'+ag.color+';display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;border:1px solid '+ag.color+'44" title="'+ag.name+'">'+ag.name.charAt(0)+'</div>';
+      });
+      h+='</div>';
+    }
+    h+='</div></div>';
+  });
+  rc.innerHTML=h;
+}
+
+function renderPlansTab(rc){
+  var h='<div style="font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Pipeline Plans</div>';
+  S.workflows.forEach(function(wf){
+    var proj=S.projects.find(function(p){return p.id===wf.projectId;});
+    h+='<div class="card"><div class="ct">'+wf.name+'</div>';
+    h+='<div class="cd">'+(proj?proj.name:'No project')+' &middot; '+wf.status+'</div>';
+    h+='<div class="cd">'+wf.stages.length+' stages &middot; '+wf.trigger+'</div></div>';
+  });
+  if(S.workflows.length===0)h+='<div style="color:var(--text-dim);font-size:11px;text-align:center;padding:20px">No workflows defined</div>';
+  rc.innerHTML=h;
+}
+
+function renderTimetableTab(rc){
+  var h='<div style="font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Recent Activity</div>';
+  S.projects.forEach(function(proj){
+    ['todo','doing','review','done'].forEach(function(s){
+      (proj.kanban[s]||[]).forEach(function(t){
+        h+='<div style="padding:3px 0;font-size:9px;border-bottom:1px solid var(--border)">';
+        h+='<span style="color:'+proj.color+'">&#x25CF;</span> ';
+        h+='<span style="color:var(--text-dim)">'+s+':</span> '+t.title;
+        h+='<span style="color:var(--text-dim);float:right">'+proj.name+'</span></div>';
+      });
+    });
+  });
+  rc.innerHTML=h;
+}
+
+function updateCounts(){
+  var pc=$('projCount');if(pc)pc.textContent=S.projects.length;
+  var ac=$('agentCount');if(ac)ac.textContent=S.agentConfigs.length;
+  var ic=$('ideaCount');if(ic)ic.textContent=S.ideas.length;
+}
+
+function renderAll(){
+  updateCounts();renderTree();renderRC();
+  if(S.curProj){openProject(S.curProj);}
+  else if(S.osPage){renderOSPage(S.osPage);}
+}
+
+// ═══ INIT ═══
+updateCounts();renderTree();renderRC();renderOSPage('dashboard');
+
+// Right bar tabs
+$$('.rtab').forEach(function(tab){
+  tab.onclick=function(){
+    var t=this.getAttribute('data-t');if(!t)return;
+    $$('.rtab').forEach(function(x){x.classList.remove('active');});
+    this.classList.add('active');S.sTab=t;renderRC();
+  };
+});
+
+// ═══ EXPOSE GLOBALS ═══
+window.showOSPage = showOSPage;
+window.closeWorkspace = closeWorkspace;
+window.openProject = openProject;
+window.switchWsTab = switchWsTab;
+window.sendAgentChat = sendAgentChat;
+window.reloadViewer = reloadViewer;
+window.toggleSettings = toggleSettings;
+window.saveSettings = saveSettings;
+window.resetSettings = resetSettings;
+window.testApiConnection = testApiConnection;
+window.switchSettingsTab = switchSettingsTab;
+window.exportData = exportData;
+window.clearAllData = clearAllData;
+window.deleteWorkflow = deleteWorkflow;
+window.runWorkflow = runWorkflow;
+window.switchAgentProject = switchAgentProject;
+window.updateAgentModel = updateAgentModel;
+window.updateAgentLimit = updateAgentLimit;
+window.toggleProjTree = toggleProjTree;
+window.showModal = showModal;
+window.showNewProjectModal = showNewProjectModal;
+window.toast = toast;
+window.voteIdea = voteIdea;
+window.setIdeaStatus = setIdeaStatus;
+window.renderBoardCols = renderBoardCols;
+window.researchNewIdea = researchNewIdea;
+window.showNewIdeaModal = showNewIdeaModal;
+window.submitNewIdea = submitNewIdea;
+
+
+function refreshMemory(){
+  S.projects=loadProjects();
+  renderLongTermPage($('osPane'));
+  toast('Memory refreshed','ok');
+}
+function exportMemory(){
+  var data={projects:S.projects,agents:S.agentConfigs,workflows:S.workflows,exported:new Date().toISOString()};
+  var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='hermes-memory-'+Date.now()+'.json';a.click();
+  toast('Memory exported','ok');
+}
+
+// ═══ EVENT DELEGATION FOR SIDEBAR NAV ═══
+document.addEventListener('click', function(e){
+  var t = e.target.closest('[data-os-page]');
+  if(!t) return;
+  var page = t.dataset.osPage;
+  if(page) showOSPage(page, t);
+});
+
+// ═══ GLOBAL SEARCH (Ctrl+F) ═══
+document.addEventListener('keydown',function(e){
+  if((e.ctrlKey||e.metaKey)&&e.key==='f'){
+    e.preventDefault();
+    var searchInput=document.getElementById('globalSearchInput');
+    if(!searchInput){
+      // Create search overlay
+      var overlay=document.createElement('div');
+      overlay.id='globalSearchOverlay';
+      overlay.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:flex-start;justify-content:center;padding-top:80px';
+      overlay.innerHTML='<div style="width:600px;max-width:90%;background:var(--bg-panel);border:1px solid var(--border);border-radius:12px;padding:16px;box-shadow:0 20px 60px rgba(0,0,0,.5)">'+
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">'+
+        '<span style="font-size:14px;font-weight:700">🔍 Search</span>'+
+        '<input type="text" id="globalSearchInput" placeholder="Search projects, memory, agents..." style="flex:1;background:var(--bg-card);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:13px;outline:none">'+
+        '<button onclick="document.getElementById(\'globalSearchOverlay\').remove()" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:16px">✕</button>'+
+        '</div>'+
+        '<div id="globalSearchResults" style="max-height:400px;overflow-y:auto"></div>'+
+        '</div>';
+      document.body.appendChild(overlay);
+      searchInput=document.getElementById('globalSearchInput');
+      searchInput.focus();
+      searchInput.addEventListener('input',performGlobalSearch);
+    } else {
+      searchInput.focus();
+      searchInput.select();
+    }
+  }
+  if(e.key==='Escape'){
+    var overlay=document.getElementById('globalSearchOverlay');
+    if(overlay) overlay.remove();
+  }
+});
+
+function performGlobalSearch(){
+  var q=this.value.toLowerCase();
+  var results=document.getElementById('globalSearchResults');
+  if(!results) return;
+  if(!q){results.innerHTML='';return;}
+  var html='';
+  // Search projects
+  var projMatches=S.projects.filter(function(p){
+    return p.name.toLowerCase().indexOf(q)>=0||(p.desc||'').toLowerCase().indexOf(q)>=0;
+  });
+  if(projMatches.length){
+    html+='<div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);margin-bottom:4px">Projects ('+projMatches.length+')</div>';
+    projMatches.forEach(function(p){
+      html+='<div style="padding:6px 8px;border-radius:6px;cursor:pointer;margin-bottom:2px;background:var(--bg-card)" onclick="document.getElementById(\'globalSearchOverlay\').remove();openProject(\''+p.id+'\')">';
+      html+='<div style="display:flex;align-items:center;gap:6px"><div style="width:6px;height:6px;border-radius:50%;background:'+p.color+'"></div><span style="font-weight:600;font-size:12px">'+p.name+'</span></div>';
+      html+='<div style="font-size:10px;color:var(--text-dim);margin-top:2px">'+(p.desc||'')+'</div></div>';
+    });
+  }
+  // Search agents
+  var agentMatches=S.agentConfigs.filter(function(a){
+    return a.name.toLowerCase().indexOf(q)>=0||a.role.toLowerCase().indexOf(q)>=0||a.model.toLowerCase().indexOf(q)>=0;
+  });
+  if(agentMatches.length){
+    html+='<div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);margin:8px 0 4px">Agents ('+agentMatches.length+')</div>';
+    agentMatches.forEach(function(a){
+      html+='<div style="padding:6px 8px;border-radius:6px;margin-bottom:2px;background:var(--bg-card)">';
+      html+='<div style="display:flex;align-items:center;gap:6px"><div style="width:6px;height:6px;border-radius:50%;background:'+a.color+'"></div><span style="font-weight:600;font-size:12px">'+a.name+'</span><span class="os-tag" style="font-size:7px;background:'+a.color+'22;color:'+a.color+'">'+a.role+'</span></div>';
+      html+='<div style="font-size:10px;color:var(--text-dim);margin-top:2px">'+a.model+'</div></div>';
+    });
+  }
+  if(!projMatches.length&&!agentMatches.length){
+    html+='<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:12px">No results found</div>';
+  }
+  results.innerHTML=html;
+}
+
+// Blink animation
+var style=document.createElement('style');
+style.textContent='@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}';
+document.head.appendChild(style);
+
+})();
+
+</script>
+<script src="kanban.js"></script>
+<script src="dispatcher.js"></script>
+
+</body>
+</html>
