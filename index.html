@@ -443,6 +443,81 @@ body {
 }
 .pricing-cta:hover { background: var(--cta-hover); box-shadow: 0 0 16px rgba(252,190,106,.3); }
 
+/* Payment Methods Section */
+.payment-section {
+  margin-top: 48px; padding-top: 40px;
+  border-top: 1px solid var(--border);
+}
+.payment-section .payment-header {
+  text-align: center; margin-bottom: 32px;
+}
+.payment-section .payment-header h3 {
+  font-family: 'Fira Code', monospace;
+  font-size: 1.1rem; font-weight: 700; color: var(--text);
+  margin-bottom: 6px;
+}
+.payment-section .payment-header p {
+  font-size: .82rem; color: var(--text-muted);
+}
+.payment-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+  max-width: 860px; margin: 0 auto;
+}
+.payment-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 28px 24px; text-align: center;
+  transition: all .2s; position: relative; overflow: hidden;
+}
+.payment-card:hover {
+  border-color: var(--accent); transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(0,0,0,.3);
+}
+.payment-card-icon {
+  width: 48px; height: 48px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 14px; font-size: 1.4rem;
+}
+.payment-card-icon.crypto { background: rgba(247,147,26,.12); color: #f7931a; }
+.payment-card-icon.paypal { background: rgba(0,48,135,.12); color: #003087; }
+.payment-card-icon.wise { background: rgba(98,224,183,.12); color: #62e0b7; }
+.payment-card h4 {
+  font-family: 'Fira Code', monospace;
+  font-size: .95rem; font-weight: 700; margin-bottom: 6px;
+}
+.payment-card p {
+  font-size: .78rem; color: var(--text-muted); line-height: 1.6;
+  margin-bottom: 16px;
+}
+.payment-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 10px 22px; border-radius: 8px;
+  text-decoration: none; font-size: .82rem; font-weight: 700;
+  transition: all .2s; border: none; cursor: pointer;
+}
+.payment-btn.crypto { background: #f7931a; color: #fff; }
+.payment-btn.crypto:hover { filter: brightness(1.15); }
+.payment-btn.paypal { background: #003087; color: #fff; }
+.payment-btn.paypal:hover { filter: brightness(1.2); }
+.payment-btn.wise { background: #62e0b7; color: #1a1a1a; }
+.payment-btn.wise:hover { filter: brightness(1.1); }
+.payment-note {
+  font-size: .68rem; color: var(--text-dim); margin-top: 10px;
+}
+.payment-or {
+  text-align: center; margin-top: 24px;
+  font-size: .75rem; color: var(--text-dim);
+}
+.payment-or span {
+  display: inline-block; padding: 0 12px;
+}
+.payment-or::before, .payment-or::after {
+  content: ''; display: inline-block; width: 60px; height: 1px;
+  background: var(--border); vertical-align: middle;
+}
+@media(max-width:700px) {
+  .payment-grid { grid-template-columns: 1fr; }
+}
+
 /* Eloquence level popup */
 .popup-trigger {
   display: inline-flex; align-items: center; gap: 4px; cursor: pointer;
@@ -911,6 +986,81 @@ body {
     <div class="pricing-included">
       <p><strong>Every lesson includes:</strong> 30-min 1-on-1 video session, AI translation in your home language, lesson recording, progress notes, and access to our learning materials library. <a href="#cta" class="pricing-cta">Book Your Free Lesson</a></p>
     </div>
+  </div>
+</div>
+
+<!-- Payment Methods -->
+<div class="payment-section">
+  <div class="payment-header">
+    <h3>Pay Your Way</h3>
+    <p>Choose the payment method that works best for you.</p>
+  </div>
+  <div class="payment-grid">
+    <!-- Crypto -->
+    <div class="payment-card">
+      <div class="payment-card-icon crypto">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      </div>
+      <h4>Bitcoin / Crypto</h4>
+      <p>Pay with BTC, Lightning, or other cryptocurrencies. Fast, borderless, low fees.</p>
+      <a href="#crypto-payment" class="payment-btn crypto" onclick="document.getElementById('crypto-popup').classList.add('open'); return false;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Pay with Crypto
+      </a>
+      <div class="payment-note">BTC, Lightning, ETH, USDC supported</div>
+    </div>
+
+    <!-- PayPal -->
+    <div class="payment-card">
+      <div class="payment-card-icon paypal">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 11h10a5 5 0 0 1 0 10H9l-2-2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h10"/><path d="M17 15l2 2 2-2"/><path d="M17 7V3l-2-2"/></svg>
+      </div>
+      <h4>PayPal</h4>
+      <p>Pay securely with your PayPal account. Send directly to didjiwalla@gmail.com.</p>
+      <a href="https://www.paypal.com/paypalme/didjiwalla" target="_blank" rel="noopener" class="payment-btn paypal">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Pay with PayPal
+      </a>
+      <div class="payment-note">Opens PayPal — send to didjiwalla@gmail.com</div>
+    </div>
+
+    <!-- Wise -->
+    <div class="payment-card">
+      <div class="payment-card-icon wise">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      </div>
+      <h4>Wise Transfer</h4>
+      <p>Send money internationally via Wise. Lower fees than banks. Supports 40+ currencies.</p>
+      <a href="https://wise.com/payme/williamthomason" target="_blank" rel="noopener" class="payment-btn wise">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Pay via Wise
+      </a>
+      <div class="payment-note">wise.com/payme/williamthomason</div>
+    </div>
+  </div>
+
+  <div class="payment-or"><span>or book a free trial first</span></div>
+</div>
+
+<!-- Crypto Payment Popup -->
+<div class="popup-overlay" id="crypto-popup">
+  <div class="popup-box">
+    <button class="popup-close" onclick="closePopup('crypto-popup')">&times;</button>
+    <h4>Pay with Cryptocurrency</h4>
+    <p>Choose your preferred network and send the equivalent amount. Contact William to confirm the current EUR price in crypto.</p>
+    <div style="text-align:center;margin:20px 0">
+      <div style="display:inline-block;padding:16px;background:var(--bg);border:1px solid var(--border);border-radius:12px">
+        <div style="font-family:'Fira Code',monospace;font-size:.85rem;color:var(--accent);margin-bottom:8px">Bitcoin (BTC)</div>
+        <code style="font-size:.75rem;word-break:break-all;color:var(--text-muted)">YOUR_BTC_ADDRESS_HERE</code>
+      </div>
+    </div>
+    <div style="text-align:center;margin:12px 0">
+      <div style="display:inline-block;padding:16px;background:var(--bg);border:1px solid var(--border);border-radius:12px">
+        <div style="font-family:'Fira Code',monospace;font-size:.85rem;color:var(--accent);margin-bottom:8px">Lightning Network</div>
+        <code style="font-size:.75rem;word-break:break-all;color:var(--text-muted)">YOUR_INVOICE_HERE</code>
+      </div>
+    </div>
+    <p style="font-size:.75rem;color:var(--text-dim);margin-top:12px">Send the EUR equivalent at current rate. Email the TX hash to <a href="mailto:hello@williamthomasonenglish.com" style="color:var(--accent)">hello@williamthomasonenglish.com</a> to confirm.</p>
   </div>
 </div>
 
