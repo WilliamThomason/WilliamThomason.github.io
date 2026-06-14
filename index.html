@@ -677,6 +677,11 @@ body {
 .nav-dropdown-item .item-desc { color: var(--text-dim); font-size: .65rem; margin-top: 2px; }
 .nav-dropdown-divider { height: 1px; background: var(--border); margin: 6px 0; }
 
+
+/* ═══ THEME SELECTOR ═══ */
+.theme-cycle-btn{padding:5px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:var(--text-muted);font-size:10px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:5px}
+.theme-cycle-btn:hover{background:rgba(255,255,255,.12);color:var(--text)}
+.theme-cycle-btn .dot{width:7px;height:7px;border-radius:50%;box-shadow:0 0 4px currentColor}
 </style>
   <link rel="stylesheet" href="lang-widget.css">
 </head>
@@ -718,14 +723,18 @@ body {
       <span id="themeLabel">Light</span>
     </button>
     <!-- nav-cta removed -->
-  </div>
+  
+    <button class="theme-cycle-btn" onclick="cycleTheme()" data-theme="wte">
+      <span class="dot" style="background:#a3e635"></span>
+      <span>WTE</span>
+    </button></div>
 </div>
 
 <!-- Hero -->
 <div class="hero fade-in">
   <div class="hero-badge"><span class="dot"></span> Online English Lessons</div>
   <h1>English... <span class="accent">adapted</span> to <span class="cta-accent">your</span> needs</h1>
-  <div class="hero-tagline"><span class="lime">personalised</span> courses delivered by and <span class="lime">intuitive</span> tutor.</div>
+  <div class="hero-tagline"><span>Personalised courses delivered by an intuitive tutor.</span></div>
   <p>Corporate English training built by a developer, for professionals. Dark-mode-first design. No fluff, no blobs, no corporate jargon. Just efficient, tailored lessons that get you confident from the trial lesson onward.</p>
   <div>
     <a href="#cta" class="hero-cta">Try a Free Lesson</a>
@@ -1333,6 +1342,48 @@ document.addEventListener('click', function(e) {
   if (dd && !dd.contains(e.target)) dd.classList.remove('open');
 });
 
+
+// ═══ THEME SYSTEM ═══
+var THEME_ORDER=['eloquent','wte','midnight','sunset','forest','ice','burgundy','slime','geranium','light'];
+var THEMES={
+  eloquent:{accent:'#22d3ee',bg:'#0a0e1a',text:'#e0f2fe',card:'#111827',border:'#1e3a5f',name:'Eloquenta',bgImg:'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1920&q=60'},
+  wte:{accent:'#a3e635',bg:'#1c1c1c',text:'#e8e8f0',card:'#232323',border:'#3a3a3a',name:'WTE',bgImg:'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1920&q=60'},
+  midnight:{accent:'#818cf8',bg:'#0f0f23',text:'#c7d2fe',card:'#1a1a3e',border:'#2e2e5e',name:'Midnight',bgImg:'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1920&q=60'},
+  sunset:{accent:'#fb923c',bg:'#1a0f0a',text:'#fed7aa',card:'#2d1a10',border:'#4a2a1a',name:'Sunset',bgImg:'https://images.unsplash.com/photo-1507400492013-162706c8c05e?w=1920&q=60'},
+  forest:{accent:'#4ade80',bg:'#0d1f12',text:'#bbf7d0',card:'#1a2e1e',border:'#2a4a2a',name:'Forest',bgImg:'https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=60'},
+  ice:{accent:'#67e8f9',bg:'#0c1929',text:'#cffafe',card:'#162d3d',border:'#1e4a5e',name:'Ice',bgImg:'https://images.unsplash.com/photo-1517783999520-f068d7431571?w=1920&q=60'},
+  burgundy:{accent:'#e879f9',bg:'#1a0a12',text:'#f3e8ff',card:'#2d1528',border:'#4a1e3a',name:'Burgundy',bgImg:'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=1920&q=60'},
+  slime:{accent:'#a855f7',bg:'#0f0a1a',text:'#e9d5ff',card:'#1e1530',border:'#3a1e5e',name:'Slime',bgImg:'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=1920&q=60'},
+  geranium:{accent:'#fb7185',bg:'#1a0f12',text:'#fecdd3',card:'#2d1a1e',border:'#4a2a2a',name:'Geranium',bgImg:'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=1920&q=60'},
+  light:{accent:'#2563eb',bg:'#f8fafc',text:'#1e293b',card:'#ffffff',border:'#e2e8f0',name:'Light',bgImg:'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920&q=60'}
+};
+var _tIdx=1; // WTE is index 1
+function cycleTheme(){
+  _tIdx=(_tIdx+1)%THEME_ORDER.length;
+  var n=THEME_ORDER[_tIdx],t=THEMES[n];
+  var r=document.documentElement;
+  r.style.setProperty('--accent',t.accent);
+  r.style.setProperty('--bg',t.bg);
+  r.style.setProperty('--text',t.text);
+  r.style.setProperty('--bg-card',t.card);
+  r.style.setProperty('--bg2',t.card);
+  r.style.setProperty('--bg3',t.border);
+  r.style.setProperty('--border',t.border);
+  r.style.setProperty('--text-muted',t.text+'99');
+  r.style.setProperty('--text-dim',t.text+'66');
+  r.style.setProperty('--accent-glow',t.accent+'33');
+  r.style.setProperty('--accent-dim',t.accent+'18');
+  r.style.setProperty('--border-light',t.border+'cc');
+  document.querySelectorAll('.theme-cycle-btn').forEach(function(b){
+    b.querySelector('.dot').style.background=t.accent;
+    b.querySelector('span:last-child').textContent=t.name;
+  });
+  try{localStorage.setItem('esl-theme',n);}catch(e){}
+}
+function loadTheme(){
+  var s='';try{s=localStorage.getItem('esl-theme')||'';}catch(e){}
+  if(s&&THEMES[s])_tIdx=THEME_ORDER.indexOf(s);
+}
 </script>
 
 </body>
