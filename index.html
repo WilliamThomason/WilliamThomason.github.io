@@ -2,6 +2,7 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com; connect-src 'self'; media-src 'self' blob:; object-src 'none'; frame-ancestors 'none'">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>William Thomason English — English... adapted to your needs</title>
 <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=Blogger+Sans:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -32,6 +33,7 @@
   --popup-bg: #dcfce7;
   --popup-text: #1a2e1a;
   --popup-border: #86efac;
+  --eloquence: #22d3ee;
 }
 
 [data-theme="light"] {
@@ -627,6 +629,26 @@ body {
 .footer-links a { color: var(--text-muted); text-decoration: none; transition: color .15s; }
 .footer-links a:hover { color: var(--text); }
 
+/* Trial modal */
+.trial-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.75); backdrop-filter: blur(6px); z-index: 100; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .3s ease; }
+.trial-modal-overlay.active { opacity: 1; pointer-events: auto; }
+.trial-modal { position: relative; max-width: 620px; width: calc(100% - 40px); max-height: 90vh; overflow-y: auto; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; box-shadow: 0 24px 60px rgba(0,0,0,.5); transform: translateY(16px); transition: transform .3s ease; }
+.trial-modal-overlay.active .trial-modal { transform: translateY(0); }
+.trial-modal-close { position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); background: transparent; color: var(--text-muted); font-size: 1.1rem; cursor: pointer; transition: all .15s; }
+.trial-modal-close:hover { background: var(--bg3); color: var(--text); }
+.trial-modal h2 { font-family: 'Fira Code', monospace; font-size: 1.5rem; font-weight: 700; margin-bottom: 12px; }
+.trial-modal p { color: var(--text-muted); line-height: 1.7; margin-bottom: 14px; font-size: .9rem; }
+.trial-modal .eloquence { color: var(--eloquence); font-weight: 700; cursor: help; border-bottom: 1px dashed var(--eloquence); }
+.trial-modal .tooltip { position: relative; }
+.trial-modal .tooltip-text { display: none; position: absolute; bottom: 120%; left: 0; right: 0; background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 14px; font-size: .78rem; color: var(--text-muted); line-height: 1.6; z-index: 10; box-shadow: 0 8px 24px rgba(0,0,0,.4); }
+.trial-modal .tooltip:hover .tooltip-text { display: block; }
+.trial-modal .tooltip-text strong { color: var(--text); display: block; margin-bottom: 4px; }
+.trial-modal .trial-btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 28px; border-radius: 10px; background: var(--cta); color: var(--cta-text); text-decoration: none; font-size: .9rem; font-weight: 700; transition: all .2s; }
+.trial-modal .trial-btn:hover { background: var(--cta-hover); transform: translateY(-1px); }
+.trial-modal .trial-btn.alt { background: transparent; border: 1px solid var(--accent); color: var(--accent); }
+.trial-modal .trial-btn.alt:hover { background: var(--accent-dim); }
+.trial-modal-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
+
 /* Responsive */
 @media(max-width:900px) {
   .offer-grid, .pricing-grid, .testimonial-grid { grid-template-columns: 1fr; }
@@ -639,7 +661,8 @@ body {
 @media(max-width:520px) {
   .hero h1 { font-size: 1.8rem; }
   .nav-links { display: none; }
-  .hero-cta-outline { display: block; margin: 12px 0 0; }
+  .hero-cta { display: block; text-align: center; margin-bottom: 12px; }
+  .hero-cta-outline { display: block; text-align: center; margin: 0; }
   .about-stats { grid-template-columns: 1fr 1fr; }
 }
 
@@ -691,7 +714,7 @@ body {
 <div class="nav">
   <a href="index.html" class="nav-logo">WILLIAM&nbsp;THOMASON <span>ENGLISH</span></a>
   <div class="nav-links">
-    <a href="#about">About</a>
+    <a href="about.html">About</a>
     <a href="#offer">Services</a>
     <a href="#how">How It Works</a>
     <a href="#pricing">Pricing</a>
@@ -734,77 +757,16 @@ body {
 <div class="hero fade-in">
   <div class="hero-badge"><span class="dot"></span> Online English Lessons</div>
   <h1>English... <span class="accent">adapted</span> to <span class="cta-accent">your</span> needs</h1>
-  <div class="hero-tagline"><span>Personalised courses delivered by an intuitive tutor.</span></div>
-  <p>Corporate English training built by a developer, for professionals. Dark-mode-first design. No fluff, no blobs, no corporate jargon. Just efficient, tailored lessons that get you confident from the trial lesson onward.</p>
+  <div class="hero-tagline"><span>English lessons for professionals.</span></div>
   <div>
-    <a href="#cta" class="hero-cta">Try a Free Lesson</a>
+    <a href="#cta" class="hero-cta" onclick="openTrialModal(event)">Try a Free Lesson</a>
     <a href="#pricing" class="hero-cta-outline">See Pricing</a>
-    <a href="Sliding%20In.html" class="hero-cta" style="margin-left:12px;background:var(--accent);color:var(--bg);">Launch Sliding In</a>
   </div>
   <div class="hero-trust">Online English lessons for professionals</div>
 </div>
 
-<!-- Sliding In App -->
-<div class="section fade-in" id="sliding-in">
-  <div class="section-header">
-    <div class="section-num">★</div>
-    <h2>Sliding <span class="accent">In</span></h2>
-    <p>Interactive slide decks with 107 conversation topics across 12 categories. Each lesson is a visual experience designed to inspire open, confident speaking. Click any topic to launch the deck.</p>
-  </div>
-  <div style="text-align:center;margin-top:30px;">
-    <a href="Sliding%20In.html" class="hero-cta" style="font-size:1.1rem;padding:16px 40px;background:var(--accent);color:var(--bg);">Open Sliding In</a>
-    <a href="image-manager.html" class="hero-cta-outline" style="font-size:1.1rem;padding:16px 40px;margin-left:12px;">Manage Images</a>
-  </div>
-</div>
-
 <!-- Trust bar -->
 <!-- trust bar removed -->
-
-<!-- About -->
-<div class="section fade-in" id="about">
-  <div class="section-header">
-    <div class="section-num">01</div>
-    <h2>About William</h2>
-    <p>The person behind the platform — and why it exists.</p>
-  </div>
-  <div class="about-grid">
-    <div class="about-text">
-      <p>William Thomason has spent years teaching <strong>corporate English to professionals at major brands</strong> — from engineers and developers to executives and their families. He knows exactly how to tailor-make efficient packages that have you feeling more confident about success from the trial lesson onward.</p>
-      <div class="about-highlight">
-        "I built this site myself because I was tired of the shortcomings of large platforms — their slow progress, one-course-for-everyone mentality, bright pages that are harsh on the eyes, and teachers who struggle to design effective courses."
-      </div>
-      <p>William is <strong>fluent in German</strong> — not from a classroom, but from years of living and working there while travelling across Europe. It was in Germany that he first started teaching English, cutting his teeth on real conversations with real people who needed the language for their careers. "Living in Germany gave me the foundation. I learned how it feels to be the one struggling with a new language — and that shapes everything I do as a teacher."</p>
-      <p>He also spent a great deal of time in <strong>Spain</strong>, and can get by in Spanish. "You do not need to be perfect. You need to be understood. That is the mindset I bring to every lesson."</p>
-      <p>William is passionate about <strong>IT</strong> and loves making content and apps. He developed this platform from scratch to address the real problems professionals face: generic curricula, eye-straining interfaces, and a lack of teachers who understand technical workplaces.</p>
-      <p>He is currently busy with his <strong>B1 Business Spanish course</strong> — sharpening his own skills so he can better serve his students. "If I am going to push my learners to keep growing, I had better be doing the same myself."</p>
-      <p>Every feature on this site — from the dark-mode-first design to the AI-powered translation — was built with one goal: <strong>get you communicating confidently in the shortest time possible.</strong></p>
-    </div>
-    <div class="about-photo-wrap">
-      <div class="about-photo-frame">
-        <img src="photo-william.png" alt="William Thomason" class="about-photo">
-        <div class="about-photo-caption">William Thomason</div>
-      </div>
-      <div class="about-stats">
-        <div class="about-stat">
-          <div class="about-stat-num">500+</div>
-          <div class="about-stat-label">Professionals Taught</div>
-        </div>
-        <div class="about-stat">
-          <div class="about-stat-num">10+</div>
-          <div class="about-stat-label">Years Experience</div>
-        </div>
-        <div class="about-stat">
-          <div class="about-stat-num">IT</div>
-          <div class="about-stat-label">Specialist Focus</div>
-        </div>
-        <div class="about-stat">
-          <div class="about-stat-num">1:1</div>
-          <div class="about-stat-label">Personalised Lessons</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
 
 <!-- What We Offer -->
 <div class="section fade-in" id="offer">
@@ -933,6 +895,9 @@ body {
       </div>
     </div>
   </div>
+  <p style="text-align:center;margin-top:32px;font-size:.95rem;color:var(--accent);line-height:1.7;">
+    Every feature on this site — from the dark-mode-first design to the AI-powered translation — was built with one goal: <strong>get you communicating confidently in the shortest time possible.</strong>
+  </p>
 </div>
 
 <!-- Pricing -->
@@ -1163,7 +1128,7 @@ body {
   <h2>Ready to Start Your English Journey?</h2>
   <p>Book a free 30-minute trial lesson. Meet William, take a placement test, and see the platform in action. No commitment, no payment required.</p>
   <div class="cta-buttons">
-    <a href="https://cal.com/williamthomason/free-trial" target="_blank" rel="noopener" class="cta-primary">Book Your Free Lesson</a>
+    <a href="https://cal.com/williamthomason/30-min-english-trial-session" target="_blank" rel="noopener" class="cta-primary" onclick="openTrialModal(event)">Book Your Free Lesson</a>
     <a href="#pricing" class="cta-secondary">Calculate Your Price</a>
   </div>
 </div>
@@ -1384,7 +1349,41 @@ function loadTheme(){
   var s='';try{s=localStorage.getItem('esl-theme')||'';}catch(e){}
   if(s&&THEMES[s])_tIdx=THEME_ORDER.indexOf(s);
 }
+
+function openTrialModal(e){e.preventDefault();document.getElementById('trialModal').classList.add('active');document.body.style.overflow='hidden';}
+function closeTrialModal(){document.getElementById('trialModal').classList.remove('active');document.body.style.overflow='';}
+document.addEventListener('DOMContentLoaded',function(){
+  var overlay=document.getElementById('trialModal');
+  if(overlay){
+    overlay.addEventListener('click',function(e){if(e.target===this)closeTrialModal();});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape')closeTrialModal();});
+  }
+});
 </script>
 
+<!-- Free Trial Modal -->
+<div class="trial-modal-overlay" id="trialModal">
+  <div class="trial-modal">
+    <button class="trial-modal-close" onclick="closeTrialModal()">&times;</button>
+    <h2>How Does the Free Trial Work?</h2>
+    <p>This free trial is your chance to book one session with me so we can talk through your own or your family's learning, practicing, editing or translation goals.</p>
+    <p>Choose either a full <strong>30-minute</strong> session, or a quick <strong>15-minute</strong> mini-session if you are pressed for time. Both are completely free and carry no obligation.</p>
+    <p>The aim is a friendly, relaxed lesson environment — think of it as a casual conversation, not a test. If any word feels unclear, I will translate it for you in the chat. I will also be typing corrections live during the session, so we can already start addressing any knowledge gaps in the trial homework.</p>
+    <p>You will get a quick tour of the platform and a demonstration of some interactive features and learning activities, so you know exactly what to expect from our sessions.</p>
+    <p>At the end you will know your <span class="tooltip eloquence">eloquence level<span class="tooltip-text"><strong>Eloquence Level — 16-level CEFR breakdown</strong>We split the CEFR scale (A1, A2, B1, B2, C1, C2) into 16 smaller bands so your assessment is more accurate. For example, B1 is divided into four levels (B1.0, B1.1, B1.2, B1.3), showing precisely where you are and what to tackle next.</span></span>, receive a custom course design outline with prep homework for your first class, and learn how to book future sessions from the smartphone app or website.</p>
+    <p>There is no need to feel anxious about the assessment. It will feel like a casual chat, and you will leave with a clear plan.</p>
+    <div class="trial-modal-actions">
+      <a href="https://cal.com/williamthomason/30-min-english-trial-session" target="_blank" rel="noopener" class="trial-btn">Book 30-Minute Trial</a>
+      <a href="#" class="trial-btn alt" onclick="closeTrialModal();return false;">Maybe Later</a>
+    </div>
+  </div>
+</div>
+
+<!-- Donate Section — inconspicuous, bottom of page -->
+<div id="donate-bar" style="text-align:center;padding:12px 0 8px;font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:0.5px;border-top:1px solid rgba(255,255,255,0.06);margin-top:auto">
+  <span style="margin-right:10px">Support this project</span>
+  <a href="https://paypal.me/williamgraythomason" target="_blank" rel="noopener" style="display:inline-block;background:#0070ba;color:#fff;padding:4px 12px;border-radius:4px;text-decoration:none;font-weight:600;font-size:11px;margin:0 4px">PayPal</a>
+  <a href="https://wise.com/payme/williamgraythomason" target="_blank" rel="noopener" style="display:inline-block;background:#9fe870;color:#163300;padding:4px 12px;border-radius:4px;text-decoration:none;font-weight:600;font-size:11px;margin:0 4px">Wise</a>
+</div>
 </body>
 </html>
